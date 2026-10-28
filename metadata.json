@@ -1,0 +1,6 @@
+{
+  "name": "Shifa Productions",
+  "description": "Premier Pakistani cinematic production agency specializing in high-end wedding films, commercial brand cinema, corporate films, and drone videography across Pakistan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
