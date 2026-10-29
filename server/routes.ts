@@ -1,10 +1,10 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import multer from 'multer';
 import path from 'node:path';
 import fs from 'node:fs';
 import { getDb, saveDb } from './db.ts';
 import { verifyPassword, hashPassword, createSession, verifySession, destroySession, getSession } from './auth.ts';
-import { Inquiry, ServiceItem, PortfolioItem, PackageItem, TestimonialItem, FaqItem } from './types.ts';
+import type { Inquiry, ServiceItem, PortfolioItem, PackageItem, TestimonialItem, FaqItem } from './types.ts';
 
 const router = express.Router();
 

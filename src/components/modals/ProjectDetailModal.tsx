@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useApp } from '../../context/AppContext.tsx';
 import { X, MapPin, Calendar, Camera, Check, Film, ArrowRight } from 'lucide-react';
+import { getCleanImageUrl } from '../../utils/imageUrl.ts';
 
 export const ProjectDetailModal: React.FC = () => {
   const { selectedProject, setSelectedProject, navigateTo } = useApp();
@@ -56,7 +57,7 @@ export const ProjectDetailModal: React.FC = () => {
         {/* Media view */}
         <div className="relative aspect-video w-full bg-black overflow-hidden">
           <img
-            src={selectedProject.image}
+            src={getCleanImageUrl(selectedProject.image)}
             alt={selectedProject.title}
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"

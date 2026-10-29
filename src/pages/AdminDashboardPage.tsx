@@ -1179,7 +1179,7 @@ export const AdminDashboardPage: React.FC = () => {
                     client: '',
                     location: 'Lahore, Pakistan',
                     description: '',
-                    image: '/src/assets/images/hero_cinematic_production_1793180767552.jpg',
+                    image: '/images/hero_cinematic_production_1793180767552.jpg',
                     videoUrl: '',
                     year: '2026',
                     gearUsed: 'ARRI Alexa Mini LF, Master Anamorphics',

@@ -9,6 +9,14 @@ import {
   FaqItem,
 } from '../types/index.ts';
 import { apiClient } from '../api/client.ts';
+import {
+  initialSettings,
+  initialServices,
+  initialPortfolio,
+  initialPackages,
+  initialTestimonials,
+  initialFaqs,
+} from '../data/initialData.ts';
 
 interface ToastState {
   id: number;
@@ -42,16 +50,16 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentRoute, setCurrentRoute] = useState<PageRoute>('home');
-  const [settings, setSettings] = useState<SiteSettings | null>(null);
-  const [services, setServices] = useState<ServiceItem[]>([]);
-  const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
-  const [packages, setPackages] = useState<PackageItem[]>([]);
-  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
-  const [faqs, setFaqs] = useState<FaqItem[]>([]);
+  const [settings, setSettings] = useState<SiteSettings>(initialSettings);
+  const [services, setServices] = useState<ServiceItem[]>(initialServices);
+  const [portfolio, setPortfolio] = useState<PortfolioItem[]>(initialPortfolio);
+  const [packages, setPackages] = useState<PackageItem[]>(initialPackages);
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>(initialTestimonials);
+  const [faqs, setFaqs] = useState<FaqItem[]>(initialFaqs);
   const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [quotePreset, setQuotePreset] = useState<{ service?: string; package?: string } | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [toasts, setToasts] = useState<ToastState[]>([]);
 
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
@@ -76,19 +84,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         apiClient.getTestimonials(),
         apiClient.getFaqs(),
       ]);
-      setSettings(sett);
-      setServices(srv);
-      setPortfolio(prt);
-      setPackages(pkg);
-      setTestimonials(tst);
-      setFaqs(fq);
-    } catch (err) {
-      console.error('Failed to load website content:', err);
-      showToast('Could not load some content from server.', 'error');
+      if (sett) setSettings(sett);
+      if (srv && srv.length > 0) setServices(srv);
+      if (prt && prt.length > 0) setPortfolio(prt);
+      if (pkg && pkg.length > 0) setPackages(pkg);
+      if (tst && tst.length > 0) setTestimonials(tst);
+      if (fq && fq.length > 0) setFaqs(fq);
+    } catch {
+      // Graceful fallback to initial bundled data on static platforms like Netlify
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, []);
 
   useEffect(() => {
     refreshData();

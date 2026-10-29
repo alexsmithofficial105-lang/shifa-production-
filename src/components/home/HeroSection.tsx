@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext.tsx';
 import { ArrowRight } from 'lucide-react';
+import { getCleanImageUrl } from '../../utils/imageUrl.ts';
 
 export const HeroSection: React.FC = () => {
   const { navigateTo, settings } = useApp();
@@ -9,7 +10,7 @@ export const HeroSection: React.FC = () => {
   const heroSubheading =
     settings?.hero.subheading ||
     'Creative storytelling. Professional production. Powerful visual experiences tailored for Pakistan’s leading brands, regal weddings, and ambitious visionaries.';
-  const bgImage = settings?.hero.bgImage || '/src/assets/images/hero_cinematic_production_1793180767552.jpg';
+  const bgImage = getCleanImageUrl(settings?.hero.bgImage || '/images/hero_cinematic_production_1793180767552.jpg');
 
   return (
     <section className="relative min-h-[85vh] sm:min-h-[90vh] flex flex-col justify-between overflow-hidden bg-black text-white">

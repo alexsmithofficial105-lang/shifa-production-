@@ -28,7 +28,7 @@ export const AboutPage: React.FC = () => {
         {/* Hero Visual Banner */}
         <div className="relative aspect-21/9 rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl bg-neutral-900">
           <img
-            src="/src/assets/images/hero_cinematic_production_1793180767552.jpg"
+            src="/images/hero_cinematic_production_1793180767552.jpg"
             alt="Shifa Productions Film Production Studio"
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"

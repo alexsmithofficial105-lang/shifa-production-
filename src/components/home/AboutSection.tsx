@@ -18,7 +18,7 @@ export const AboutSection: React.FC = () => {
           <div className="relative group">
             <div className="relative aspect-4/3 rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl bg-neutral-900">
               <img
-                src="/src/assets/images/portfolio_commercial_brand_1793180768486.jpg"
+                src="/images/portfolio_commercial_brand_1793180768486.jpg"
                 alt="Shifa Productions Commercial Production Studio"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 referrerPolicy="no-referrer"

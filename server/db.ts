@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { AppDatabase } from './types.ts';
+import type { AppDatabase } from './types.ts';
 import { hashPassword } from './auth.ts';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -28,7 +28,7 @@ function getInitialData(): AppDatabase {
       hero: {
         heading: 'Turning Your Vision Into Reality.',
         subheading: 'Creative storytelling. Professional production. Powerful visual experiences tailored for Pakistan’s leading brands, regal weddings, and ambitious visionaries.',
-        bgImage: '/src/assets/images/hero_cinematic_production_1793180767552.jpg',
+        bgImage: '/images/hero_cinematic_production_1793180767552.jpg',
       },
       about: {
         title: 'Cinematic Storytelling Born in Pakistan',
@@ -210,7 +210,7 @@ function getInitialData(): AppDatabase {
         client: 'Zahra & Daniyal',
         location: 'Old City Haveli, Lahore',
         description: 'An enchanting 3-day royal Pakistani celebration celebrating classical Mughal romance with candlelit courtyards, antique gold bridal couture, and timeless emotion.',
-        image: '/src/assets/images/portfolio_pakistani_wedding_1793180768110.jpg',
+        image: '/images/portfolio_pakistani_wedding_1793180768110.jpg',
         videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         year: '2026',
         gearUsed: 'ARRI Alexa Mini LF, Master Anamorphic Lenses, DJI Ronin 2, Astera Titan Tubes',
@@ -224,7 +224,7 @@ function getInitialData(): AppDatabase {
         client: 'Al-Miraj Parfums',
         location: 'Islamabad Studio 1',
         description: 'A dark, brooding, and opulent commercial film highlighting the rare raw oud distillation and the handcrafted crystal bottle. Commissioned for national broadcast.',
-        image: '/src/assets/images/portfolio_commercial_brand_1793180768486.jpg',
+        image: '/images/portfolio_commercial_brand_1793180768486.jpg',
         videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         year: '2026',
         gearUsed: 'Phantom Flex 4K High-Speed, RED V-Raptor 8K, Robotic Cine Arm, Aputure 1200d Pro',
@@ -238,7 +238,7 @@ function getInitialData(): AppDatabase {
         client: 'Punjab Tourism Development Corporation',
         location: 'Lahore, Punjab',
         description: 'A majestic aerial tribute capturing the Badshahi Mosque, Lahore Fort, and the walled city as twilight descends and warm historic street lanterns illuminate.',
-        image: '/src/assets/images/portfolio_drone_aerial_1793180768666.jpg',
+        image: '/images/portfolio_drone_aerial_1793180768666.jpg',
         videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         year: '2026',
         gearUsed: 'DJI Inspire 3, Zenmuse X9-8K Air, DL 18mm F2.8 Cinema Lens',
@@ -252,7 +252,7 @@ function getInitialData(): AppDatabase {
         client: 'National Heritage Foundation',
         location: 'Chiniot, Punjab',
         description: 'A deep, intimate 18-minute visual essay documenting master woodcarvers continuing four generations of handcrafted rosewood furniture traditions.',
-        image: '/src/assets/images/hero_cinematic_production_1793180767552.jpg',
+        image: '/images/hero_cinematic_production_1793180767552.jpg',
         year: '2025',
         gearUsed: 'Sony FX6, Cooke Anamorphic/i Lenses, Sennheiser MKH 416',
         deliverables: ['18-Minute Festival Documentary', 'Teaser Trailer', 'Archival Photo Book'],

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext.tsx';
 import { PortfolioItem } from '../types/index.ts';
 import { Play, MapPin, Search, Camera, Filter } from 'lucide-react';
+import { getCleanImageUrl } from '../utils/imageUrl.ts';
 
 const CATEGORIES = ['All', 'Weddings', 'Commercials', 'Events', 'Products', 'Cinematic Films'] as const;
 
@@ -78,7 +79,7 @@ export const PortfolioPage: React.FC = () => {
               className="group relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 cursor-pointer transition-all duration-300 hover:border-[#c5a059]/50 hover:shadow-2xl aspect-4/3 flex flex-col justify-end"
             >
               <img
-                src={project.image}
+                src={getCleanImageUrl(project.image)}
                 alt={project.title}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 referrerPolicy="no-referrer"

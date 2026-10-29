@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext.tsx';
 import { PortfolioItem } from '../../types/index.ts';
 import { Play, MapPin, ArrowRight, Camera } from 'lucide-react';
+import { getCleanImageUrl } from '../../utils/imageUrl.ts';
 
 const CATEGORIES = ['All', 'Weddings', 'Commercials', 'Events', 'Products', 'Cinematic Films'] as const;
 
@@ -62,7 +63,7 @@ export const PortfolioSection: React.FC = () => {
                 }`}
               >
                 <img
-                  src={project.image}
+                  src={getCleanImageUrl(project.image)}
                   alt={project.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   referrerPolicy="no-referrer"
