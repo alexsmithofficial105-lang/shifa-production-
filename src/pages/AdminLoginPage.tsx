@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { useApp } from '../context/AppContext.tsx';
-import { Lock, Mail, Key, AlertCircle, Loader2, ArrowLeft, Shield, CheckCircle2, User, X } from 'lucide-react';
+import { Mail, AlertCircle, Loader2, ArrowLeft, Shield, CheckCircle2, User, X, Sparkles, ArrowRight } from 'lucide-react';
 
 export const AdminLoginPage: React.FC = () => {
   const { login, loginWithGoogle, isAuthenticated } = useAuth();
   const { navigateTo, showToast } = useApp();
 
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,27 +21,32 @@ export const AdminLoginPage: React.FC = () => {
     return null;
   }
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDirectAccess = async (targetEmail: string) => {
     setError('');
+    const clean = targetEmail.trim().toLowerCase();
 
-    if (!email.trim() || !password.trim()) {
-      setError('Please enter both your email/username and password.');
+    if (!clean) {
+      setError('Please enter your authorized administrator email address.');
       return;
     }
 
     try {
       setLoading(true);
-      await login(email.trim(), password);
-      showToast('Admin authenticated successfully.', 'success');
+      await login(clean);
+      showToast(`Welcome! Signed in as ${clean}`, 'success');
       navigateTo('admin-dashboard');
     } catch (err: any) {
-      const msg = err.message || 'Invalid administrator credentials.';
+      const msg = err.message || 'Access Denied: Email is not authorized for administrator access.';
       setError(msg);
       showToast(msg, 'error');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleDirectAccess(email);
   };
 
   const handleGoogleAuth = async (targetEmail: string, displayName: string) => {
@@ -76,7 +80,7 @@ export const AdminLoginPage: React.FC = () => {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-16 px-4 sm:px-6 bg-[#080808] text-neutral-100 animate-fadeIn relative">
-      <div className="w-full max-w-md bg-[#101010] border border-neutral-800 rounded-2xl p-6 sm:p-10 shadow-2xl space-y-7 relative">
+      <div className="w-full max-w-lg bg-[#101010] border border-neutral-800 rounded-2xl p-6 sm:p-10 shadow-2xl space-y-7 relative">
         <button
           onClick={() => navigateTo('home')}
           className="absolute top-6 left-6 text-neutral-400 hover:text-white transition-colors flex items-center gap-1.5 text-xs min-h-[44px] min-w-[44px] -ml-2 -mt-2 p-2"
@@ -94,7 +98,7 @@ export const AdminLoginPage: React.FC = () => {
             Studio Admin Portal
           </h1>
           <p className="text-xs text-neutral-400">
-            Authorized management for Shifa Productions
+            Shifa Productions Management Panel (Password Requirement Removed)
           </p>
         </div>
 
@@ -105,25 +109,139 @@ export const AdminLoginPage: React.FC = () => {
           </div>
         )}
 
-        {/* ================= GOOGLE SIGN IN BUTTON ================= */}
+        {/* ================= 1-CLICK INSTANT ADMIN ACCESS CARDS ================= */}
         <div className="space-y-3">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-neutral-400">
+            <span>Authorized Admin Accounts</span>
+            <span className="text-[10px] text-[#c5a059] flex items-center gap-1">
+              <Sparkles className="w-3 h-3" /> 1-Click Access
+            </span>
+          </div>
+
+          {/* Account 1: shifaproductions.pk@gmail.com */}
+          <button
+            type="button"
+            disabled={loading || googleLoading}
+            onClick={() => handleDirectAccess('shifaproductions.pk@gmail.com')}
+            className="w-full p-4 rounded-xl bg-[#161616] hover:bg-[#1f1f1f] border border-[#c5a059]/40 hover:border-[#c5a059] transition-all flex items-center justify-between text-left group shadow-lg"
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-full bg-[#c5a059] text-black font-bold flex items-center justify-center text-sm shrink-0 shadow-md">
+                SP
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-white group-hover:text-[#c5a059] transition-colors flex items-center gap-2">
+                  <span>Shifa Productions Admin</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-800/80">
+                    Primary Admin
+                  </span>
+                </div>
+                <div className="text-xs text-neutral-300 font-mono mt-0.5">
+                  shifaproductions.pk@gmail.com
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-[#c5a059] font-medium shrink-0">
+              <span className="hidden sm:inline">Enter Portal</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </button>
+
+          {/* Account 2: umairwyc@gmail.com */}
+          <button
+            type="button"
+            disabled={loading || googleLoading}
+            onClick={() => handleDirectAccess('umairwyc@gmail.com')}
+            className="w-full p-4 rounded-xl bg-[#161616] hover:bg-[#1f1f1f] border border-neutral-700/80 hover:border-[#c5a059] transition-all flex items-center justify-between text-left group shadow-lg"
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-full bg-emerald-700 text-white font-bold flex items-center justify-center text-sm shrink-0 shadow-md">
+                U
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-white group-hover:text-[#c5a059] transition-colors flex items-center gap-2">
+                  <span>Umair</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/80">
+                    Administrator
+                  </span>
+                </div>
+                <div className="text-xs text-neutral-300 font-mono mt-0.5">
+                  umairwyc@gmail.com
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-[#c5a059] font-medium shrink-0">
+              <span className="hidden sm:inline">Enter Portal</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div className="relative flex items-center justify-center my-4">
+          <div className="border-t border-neutral-800 w-full" />
+          <span className="bg-[#101010] px-3 text-[11px] uppercase tracking-wider text-neutral-500 shrink-0 font-medium">
+            Or enter authorized email
+          </span>
+          <div className="border-t border-neutral-800 w-full" />
+        </div>
+
+        {/* Passwordless Email Form */}
+        <form onSubmit={handleFormSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
+              Admin Email Address
+            </label>
+            <div className="relative">
+              <Mail className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="shifaproductions.pk@gmail.com or umairwyc@gmail.com"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#c5a059]"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || googleLoading}
+            className="w-full min-h-[48px] py-3.5 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#c5a059]/15"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Authorizing Admin Access...</span>
+              </>
+            ) : (
+              <>
+                <Shield className="w-4 h-4" />
+                <span>Access Admin Panel (No Password Needed)</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* ================= GOOGLE SIGN IN BUTTON ================= */}
+        <div className="pt-2 border-t border-neutral-800/80">
           <button
             type="button"
             onClick={() => setShowGoogleModal(true)}
             disabled={googleLoading || loading}
-            className="w-full min-h-[48px] py-3 px-4 rounded-xl bg-[#161616] hover:bg-[#1f1f1f] border border-neutral-700/80 hover:border-neutral-500 text-white text-sm font-medium transition-all duration-200 flex items-center justify-center gap-3 shadow-md hover:shadow-lg disabled:opacity-50"
+            className="w-full min-h-[46px] py-2.5 px-4 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700/80 hover:border-neutral-500 text-white text-xs font-medium transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50"
           >
             {googleLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin text-neutral-400" />
-                <span className="text-xs uppercase tracking-wider text-neutral-300 font-semibold">
+                <span className="uppercase tracking-wider text-neutral-300 font-semibold">
                   Connecting to Google...
                 </span>
               </>
             ) : (
               <>
-                {/* Official Multi-Color Google G Icon */}
-                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -141,88 +259,19 @@ export const AdminLoginPage: React.FC = () => {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                   />
                 </svg>
-                <span className="font-medium tracking-wide">Continue with Google</span>
+                <span>Continue with Google Sign-In</span>
               </>
             )}
           </button>
         </div>
 
-        {/* Divider */}
-        <div className="relative flex items-center justify-center my-6">
-          <div className="border-t border-neutral-800 w-full" />
-          <span className="bg-[#101010] px-3 text-[11px] uppercase tracking-wider text-neutral-500 shrink-0 font-medium">
-            Or sign in with password
-          </span>
-          <div className="border-t border-neutral-800 w-full" />
-        </div>
-
-        {/* Traditional Form */}
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
-              Admin Email or Username
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@shifaproductions.pk"
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#c5a059]"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
-              Admin Password
-            </label>
-            <div className="relative">
-              <Key className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#c5a059]"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || googleLoading}
-            className="w-full min-h-[48px] py-3.5 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#c5a059]/15"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Authenticating...</span>
-              </>
-            ) : (
-              <>
-                <Lock className="w-4 h-4" />
-                <span>Sign In to Dashboard</span>
-              </>
-            )}
-          </button>
-        </form>
-
-        <div className="p-4 rounded-xl bg-neutral-900/50 border border-neutral-800/80 space-y-1 text-center text-neutral-400 text-xs leading-relaxed">
-          <div className="text-neutral-300 font-semibold text-[11px] uppercase tracking-wider">
-            Initial Admin Credentials
+        <div className="p-3.5 rounded-xl bg-neutral-900/40 border border-neutral-800 text-center text-neutral-400 text-xs leading-relaxed">
+          <div className="flex items-center justify-center gap-1.5 text-emerald-400 font-medium mb-1">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Password Protection Removed</span>
           </div>
           <div>
-            Email: <span className="text-white font-mono">admin@shifaproductions.pk</span>
-          </div>
-          <div>
-            Password: <span className="text-white font-mono">ShifaAdmin2026!</span>
-          </div>
-          <div className="text-[11px] text-neutral-500 pt-1">
-            (Password can be changed anytime inside the Admin Dashboard Settings)
+            Direct administrative access is granted for <strong className="text-white">shifaproductions.pk@gmail.com</strong> and <strong className="text-white">umairwyc@gmail.com</strong>.
           </div>
         </div>
       </div>
@@ -261,7 +310,7 @@ export const AdminLoginPage: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-white">Sign in with Google</h3>
-                  <p className="text-xs text-neutral-400">Choose an authorized administrator account</p>
+                  <p className="text-xs text-neutral-400">Choose authorized administrator account</p>
                 </div>
               </div>
               <button
@@ -275,7 +324,33 @@ export const AdminLoginPage: React.FC = () => {
 
             {/* Quick-choice accounts */}
             <div className="space-y-2.5">
-              {/* Account 1: umairwyc@gmail.com */}
+              {/* Account 1: shifaproductions.pk@gmail.com */}
+              <button
+                type="button"
+                disabled={googleLoading}
+                onClick={() => handleGoogleAuth('shifaproductions.pk@gmail.com', 'Shifa Productions Admin')}
+                className="w-full p-3.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-[#c5a059]/40 hover:border-[#c5a059] transition-all flex items-center justify-between text-left group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#c5a059] text-black font-bold flex items-center justify-center text-sm shrink-0">
+                    SP
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-white group-hover:text-[#c5a059] transition-colors flex items-center gap-1.5">
+                      <span>Shifa Productions Admin</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800/80">
+                        Primary
+                      </span>
+                    </div>
+                    <div className="text-xs text-neutral-400 font-mono">shifaproductions.pk@gmail.com</div>
+                  </div>
+                </div>
+                <div className="text-xs text-[#c5a059] font-medium hidden sm:block">
+                  Sign In →
+                </div>
+              </button>
+
+              {/* Account 2: umairwyc@gmail.com */}
               <button
                 type="button"
                 disabled={googleLoading}
@@ -290,40 +365,14 @@ export const AdminLoginPage: React.FC = () => {
                     <div className="text-sm font-semibold text-white group-hover:text-[#c5a059] transition-colors flex items-center gap-1.5">
                       <span>Umair</span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/80">
-                        Authorized
+                        Admin
                       </span>
                     </div>
                     <div className="text-xs text-neutral-400 font-mono">umairwyc@gmail.com</div>
                   </div>
                 </div>
                 <div className="text-xs text-[#c5a059] font-medium hidden sm:block">
-                  Click to Sign In →
-                </div>
-              </button>
-
-              {/* Account 2: admin@shifaproductions.pk */}
-              <button
-                type="button"
-                disabled={googleLoading}
-                onClick={() => handleGoogleAuth('admin@shifaproductions.pk', 'Shifa Admin')}
-                className="w-full p-3.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700/80 hover:border-[#c5a059] transition-all flex items-center justify-between text-left group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#c5a059] text-black font-bold flex items-center justify-center text-sm shrink-0">
-                    S
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold text-white group-hover:text-[#c5a059] transition-colors flex items-center gap-1.5">
-                      <span>Shifa Admin</span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800/80">
-                        Primary
-                      </span>
-                    </div>
-                    <div className="text-xs text-neutral-400 font-mono">admin@shifaproductions.pk</div>
-                  </div>
-                </div>
-                <div className="text-xs text-[#c5a059] font-medium hidden sm:block">
-                  Click to Sign In →
+                  Sign In →
                 </div>
               </button>
             </div>
@@ -331,14 +380,14 @@ export const AdminLoginPage: React.FC = () => {
             {/* Custom Google Account Option */}
             <div className="pt-2 border-t border-neutral-800">
               <div className="text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">
-                Or enter another Google account:
+                Or enter another authorized email:
               </div>
               <form onSubmit={handleCustomGoogleSubmit} className="space-y-3">
                 <input
                   type="email"
                   value={customGoogleEmail}
                   onChange={(e) => setCustomGoogleEmail(e.target.value)}
-                  placeholder="yourname@gmail.com"
+                  placeholder="shifaproductions.pk@gmail.com"
                   className="w-full px-3.5 py-2.5 rounded-lg bg-neutral-900 border border-neutral-700 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#c5a059]"
                 />
                 <button
@@ -349,14 +398,10 @@ export const AdminLoginPage: React.FC = () => {
                   {googleLoading ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   ) : (
-                    <span>Sign In With This Google Account</span>
+                    <span>Sign In With This Account</span>
                   )}
                 </button>
               </form>
-            </div>
-
-            <div className="text-[11px] text-neutral-500 text-center leading-relaxed">
-              Google Sign-In is secured with session tokens and verified administrator access controls.
             </div>
           </div>
         </div>

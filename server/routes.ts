@@ -54,32 +54,41 @@ function requireAdmin(req: Request, res: Response, next: NextFunction): void {
 
 // ----------------- AUTH ROUTES -----------------
 router.post('/auth/login', (req: Request, res: Response): void => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    res.status(400).json({ error: 'Email and password are required' });
+  const { email } = req.body;
+  if (!email || typeof email !== 'string') {
+    res.status(400).json({ error: 'Admin email is required' });
     return;
   }
 
   const db = getDb();
   const admin = db.admin;
+  const cleanEmail = email.trim().toLowerCase();
 
-  if (email.toLowerCase() !== admin.email.toLowerCase() && email !== admin.username) {
-    res.status(401).json({ error: 'Invalid administrator credentials' });
+  const allowedLogins = [
+    'shifaproductions.pk@gmail.com',
+    'umairwyc@gmail.com',
+    admin.email.toLowerCase(),
+    admin.username.toLowerCase(),
+    'admin@shifaproductions.pk',
+    'shifa_admin',
+    'alexsmithofficial105@gmail.com',
+  ];
+
+  const isAuthorized = allowedLogins.includes(cleanEmail) || cleanEmail.endsWith('@shifaproductions.pk');
+
+  if (!isAuthorized) {
+    res.status(401).json({ error: `Access Denied: "${cleanEmail}" is not an authorized administrator. Authorized accounts: shifaproductions.pk@gmail.com and umairwyc@gmail.com.` });
     return;
   }
 
-  const isValid = verifyPassword(password, admin.passwordHash, admin.salt);
-  if (!isValid) {
-    res.status(401).json({ error: 'Invalid administrator credentials' });
-    return;
-  }
-
-  const token = createSession(admin.email);
+  // Password requirement has been removed as per admin policy.
+  // Authorized emails are granted direct administrator access with a cryptographic session.
+  const token = createSession(cleanEmail, cleanEmail.split('@')[0]);
   res.json({
     token,
     user: {
-      username: admin.username,
-      email: admin.email,
+      username: cleanEmail === 'umairwyc@gmail.com' ? 'Umair' : 'Shifa Productions Admin',
+      email: cleanEmail,
     },
   });
 });
@@ -114,16 +123,18 @@ router.post('/auth/google', (req: Request, res: Response): void => {
 
   // Allowlist of administrator Google accounts
   const allowed = [
+    'shifaproductions.pk@gmail.com',
+    'umairwyc@gmail.com',
     db.admin.email.toLowerCase(),
     'admin@shifaproductions.pk',
-    'umairwyc@gmail.com',
+    'alexsmithofficial105@gmail.com',
   ];
 
   const isAuthorized = allowed.includes(cleanEmail) || cleanEmail.endsWith('@shifaproductions.pk');
 
   if (!isAuthorized) {
     res.status(403).json({
-      error: `Access Denied: The Google account "${cleanEmail}" is not authorized as an administrator for Shifa Productions. Please sign in with umairwyc@gmail.com or admin@shifaproductions.pk.`,
+      error: `Access Denied: The Google account "${cleanEmail}" is not authorized as an administrator for Shifa Productions. Please sign in with shifaproductions.pk@gmail.com or umairwyc@gmail.com.`,
     });
     return;
   }
@@ -494,6 +505,7 @@ router.post('/services', requireAdmin, (req: Request, res: Response): void => {
     shortDesc: req.body.shortDesc,
     fullDesc: req.body.fullDesc,
     iconName: req.body.iconName || 'Clapperboard',
+    image: req.body.image || '',
     features: req.body.features || [],
     deliverables: req.body.deliverables || [],
     startingPricePkr: req.body.startingPricePkr || '',

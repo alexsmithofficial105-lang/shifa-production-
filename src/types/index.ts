@@ -22,6 +22,7 @@ export interface ServiceItem {
   shortDesc: string;
   fullDesc: string;
   iconName: string;
+  image?: string;
   features: string[];
   deliverables: string[];
   startingPricePkr?: string;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext.tsx';
 import { ServiceItem } from '../../types/index.ts';
+import { getCleanImageUrl } from '../../utils/imageUrl.ts';
 import {
   Clapperboard,
   Film,
@@ -61,47 +62,65 @@ export const ServicesSection: React.FC = () => {
           </button>
         </div>
 
-        {/* 12 Services Grid */}
+        {/* 12 Services Grid with Images */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((srv, index) => {
             const IconComponent = ICON_MAP[srv.iconName] || Layers;
+            const serviceImage = getCleanImageUrl(srv.image || '/images/hero_cinematic_production_1793180767552.jpg');
+
             return (
               <div
                 key={srv.id}
                 onClick={() => setSelectedService(srv)}
-                className="card-luxury p-7 rounded-2xl flex flex-col justify-between cursor-pointer group"
+                className="card-luxury rounded-2xl flex flex-col justify-between overflow-hidden cursor-pointer group"
               >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-xl bg-neutral-900 border border-neutral-800 group-hover:border-[#c5a059]/40 flex items-center justify-center text-[#c5a059] transition-colors">
-                      <IconComponent className="w-6 h-6" />
-                    </div>
-                    <span className="text-xs font-mono text-neutral-500 tabular-nums">
-                      {(index + 1).toString().padStart(2, '0')}
-                    </span>
+                {/* Visual Header Image Banner */}
+                <div className="relative aspect-16/9 w-full overflow-hidden bg-neutral-900">
+                  <img
+                    src={serviceImage}
+                    alt={srv.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                  />
+                  {/* Subtle dark gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-black/40 to-transparent" />
+
+                  {/* Icon badge overlay */}
+                  <div className="absolute top-3.5 left-3.5 w-10 h-10 rounded-xl bg-black/75 backdrop-blur-md border border-white/15 flex items-center justify-center text-[#c5a059] shadow-lg group-hover:border-[#c5a059]/60 transition-colors">
+                    <IconComponent className="w-5 h-5" />
                   </div>
 
-                  <h3 className="text-xl font-bold text-white group-hover:text-[#c5a059] transition-colors font-brand">
-                    {srv.title}
-                  </h3>
-
-                  <p className="text-sm text-neutral-400 leading-relaxed line-clamp-3">
-                    {srv.shortDesc}
-                  </p>
+                  {/* Number pill */}
+                  <div className="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/10 text-[11px] font-mono text-neutral-300">
+                    {(index + 1).toString().padStart(2, '0')}
+                  </div>
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-neutral-900 flex items-center justify-between text-xs">
-                  {srv.startingPricePkr ? (
-                    <span className="text-neutral-400">
-                      From <strong className="text-neutral-200 font-semibold">PKR {srv.startingPricePkr}</strong>
+                <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-bold text-white group-hover:text-[#c5a059] transition-colors font-brand leading-snug">
+                      {srv.title}
+                    </h3>
+
+                    <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed line-clamp-3">
+                      {srv.shortDesc}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 mt-2 border-t border-neutral-800/80 flex items-center justify-between text-xs">
+                    {srv.startingPricePkr ? (
+                      <span className="text-neutral-400">
+                        From <strong className="text-neutral-200 font-semibold">PKR {srv.startingPricePkr}</strong>
+                      </span>
+                    ) : (
+                      <span className="text-neutral-500">Custom Quote</span>
+                    )}
+                    <span className="text-[#c5a059] font-medium flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                      <span>Details</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </span>
-                  ) : (
-                    <span className="text-neutral-500">Custom Quote</span>
-                  )}
-                  <span className="text-[#c5a059] font-medium flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                    <span>Details</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
+                  </div>
                 </div>
               </div>
             );

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext.tsx';
 import { ServiceItem } from '../types/index.ts';
+import { getCleanImageUrl } from '../utils/imageUrl.ts';
 import {
   Clapperboard,
   Film,
@@ -81,45 +82,61 @@ export const ServicesPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 12 Services Full Grid */}
+        {/* 12 Services Full Grid with Images */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filtered.map((srv, index) => {
             const Icon = ICON_MAP[srv.iconName] || Layers;
+            const serviceImage = getCleanImageUrl(srv.image || '/images/hero_cinematic_production_1793180767552.jpg');
+
             return (
               <div
                 key={srv.id}
-                className="card-luxury p-7 rounded-2xl flex flex-col justify-between space-y-6 group"
+                className="card-luxury rounded-2xl flex flex-col justify-between overflow-hidden space-y-0 group"
               >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-xl bg-neutral-900 border border-neutral-800 group-hover:border-[#c5a059]/40 flex items-center justify-center text-[#c5a059] transition-colors">
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <span className="text-xs font-mono text-neutral-500 tabular-nums">
-                      {(index + 1).toString().padStart(2, '0')}
-                    </span>
+                {/* Visual Header Image Banner */}
+                <div className="relative aspect-16/9 w-full overflow-hidden bg-neutral-900">
+                  <img
+                    src={serviceImage}
+                    alt={srv.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-black/40 to-transparent" />
+
+                  {/* Icon badge overlay */}
+                  <div className="absolute top-3.5 left-3.5 w-10 h-10 rounded-xl bg-black/75 backdrop-blur-md border border-white/15 flex items-center justify-center text-[#c5a059] shadow-lg group-hover:border-[#c5a059]/60 transition-colors">
+                    <Icon className="w-5 h-5" />
                   </div>
 
-                  <h2 className="text-xl font-bold text-white group-hover:text-[#c5a059] transition-colors font-brand">
-                    {srv.title}
-                  </h2>
-
-                  <p className="text-sm text-neutral-400 leading-relaxed">
-                    {srv.shortDesc}
-                  </p>
-
-                  {/* Highlights */}
-                  {srv.features && srv.features.length > 0 && (
-                    <div className="space-y-1.5 pt-2">
-                      {srv.features.slice(0, 3).map((feat, idx) => (
-                        <div key={idx} className="flex items-start gap-2 text-xs text-neutral-300">
-                          <Check className="w-3.5 h-3.5 text-[#c5a059] shrink-0 mt-0.5" />
-                          <span>{feat}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  {/* Number pill */}
+                  <div className="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/10 text-[11px] font-mono text-neutral-300">
+                    {(index + 1).toString().padStart(2, '0')}
+                  </div>
                 </div>
+
+                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <h2 className="text-xl font-bold text-white group-hover:text-[#c5a059] transition-colors font-brand leading-snug">
+                      {srv.title}
+                    </h2>
+
+                    <p className="text-sm text-neutral-400 leading-relaxed line-clamp-3">
+                      {srv.shortDesc}
+                    </p>
+
+                    {/* Highlights */}
+                    {srv.features && srv.features.length > 0 && (
+                      <div className="space-y-1.5 pt-2">
+                        {srv.features.slice(0, 3).map((feat, idx) => (
+                          <div key={idx} className="flex items-start gap-2 text-xs text-neutral-300">
+                            <Check className="w-3.5 h-3.5 text-[#c5a059] shrink-0 mt-0.5" />
+                            <span>{feat}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
                 <div className="pt-6 border-t border-neutral-900 space-y-4">
                   <div className="flex items-center justify-between text-xs">
@@ -156,8 +173,9 @@ export const ServicesPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          );
+        })}
         </div>
 
         {filtered.length === 0 && (

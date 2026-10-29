@@ -5,7 +5,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   user: { username: string; email: string; avatar?: string } | null;
   loading: boolean;
-  login: (email: string, pass: string) => Promise<void>;
+  login: (email: string, pass?: string) => Promise<void>;
   loginWithGoogle: (data: { email?: string; name?: string; credential?: string; avatar?: string }) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuth();
   }, []);
 
-  const login = async (email: string, pass: string) => {
+  const login = async (email: string, pass?: string) => {
     const res = await apiClient.login(email, pass);
     setIsAuthenticated(true);
     setUser(res.user);

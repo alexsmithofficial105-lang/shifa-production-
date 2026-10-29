@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useApp } from '../../context/AppContext.tsx';
 import { X, Check, Clock, Tag, ArrowRight } from 'lucide-react';
+import { getCleanImageUrl } from '../../utils/imageUrl.ts';
 
 export const ServiceDetailModal: React.FC = () => {
   const { selectedService, setSelectedService, navigateTo } = useApp();
@@ -29,6 +30,8 @@ export const ServiceDetailModal: React.FC = () => {
     });
   };
 
+  const serviceImage = getCleanImageUrl(selectedService.image || '/images/hero_cinematic_production_1793180767552.jpg');
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/90 backdrop-blur-md animate-fadeIn overflow-y-auto"
@@ -38,23 +41,34 @@ export const ServiceDetailModal: React.FC = () => {
         className="relative w-full max-w-2xl bg-[#111111] border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl my-8 text-neutral-200"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Visual Header Banner */}
+        <div className="relative aspect-21/9 sm:aspect-16/7 w-full overflow-hidden bg-neutral-950">
+          <img
+            src={serviceImage}
+            alt={selectedService.title}
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-black/40 to-transparent" />
+
+          {/* Close button positioned top right */}
+          <button
+            onClick={() => setSelectedService(null)}
+            className="absolute top-4 right-4 w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-black/75 backdrop-blur-md border border-white/20 text-neutral-300 hover:text-white transition-colors flex items-center justify-center z-10"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
         <div className="p-6 sm:p-8 space-y-6">
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#c5a059]">
-                Production Service
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-brand">
-                {selectedService.title}
-              </h2>
-            </div>
-            <button
-              onClick={() => setSelectedService(null)}
-              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-neutral-900 border border-neutral-700 text-neutral-400 hover:text-white transition-colors flex items-center justify-center shrink-0"
-              aria-label="Close"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          <div className="space-y-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#c5a059]">
+              Production Service
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-brand">
+              {selectedService.title}
+            </h2>
           </div>
 
           <p className="text-sm sm:text-base text-neutral-300 leading-relaxed">
