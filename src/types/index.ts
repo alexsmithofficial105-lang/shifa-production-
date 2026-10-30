@@ -78,6 +78,22 @@ export interface FaqItem {
   category: string;
 }
 
+export type TeamRoleType = 'owner' | 'ceo' | 'team_member';
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  roleType: TeamRoleType;
+  title: string;
+  bio: string;
+  photo: string;
+  email?: string;
+  phone?: string;
+  instagram?: string;
+  linkedin?: string;
+  displayOrder: number;
+}
+
 export interface SiteSettings {
   brandName: string;
   tagline: string;

@@ -38,11 +38,11 @@ export const ServicesSection: React.FC = () => {
   const { services, setSelectedService, navigateTo } = useApp();
 
   return (
-    <section className="py-16 sm:py-24 bg-[#080808] text-neutral-100 border-b border-neutral-800/80">
+    <section className="py-16 sm:py-24 bg-[#060913] text-neutral-100 border-b border-neutral-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div className="space-y-3 max-w-2xl">
-            <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+            <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
               Our Capabilities
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-brand">
@@ -84,10 +84,10 @@ export const ServicesSection: React.FC = () => {
                     loading="lazy"
                   />
                   {/* Subtle dark gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-black/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-black/40 to-transparent" />
 
                   {/* Icon badge overlay */}
-                  <div className="absolute top-3.5 left-3.5 w-10 h-10 rounded-xl bg-black/75 backdrop-blur-md border border-white/15 flex items-center justify-center text-[#c5a059] shadow-lg group-hover:border-[#c5a059]/60 transition-colors">
+                  <div className="absolute top-3.5 left-3.5 w-10 h-10 rounded-xl bg-black/75 backdrop-blur-md border border-white/15 flex items-center justify-center text-[#3b82f6] shadow-lg group-hover:border-[#2563eb]/60 transition-colors">
                     <IconComponent className="w-5 h-5" />
                   </div>
 
@@ -99,7 +99,7 @@ export const ServicesSection: React.FC = () => {
 
                 <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-2">
-                    <h3 className="text-lg font-bold text-white group-hover:text-[#c5a059] transition-colors font-brand leading-snug">
+                    <h3 className="text-lg font-bold text-white group-hover:text-[#3b82f6] transition-colors font-brand leading-snug">
                       {srv.title}
                     </h3>
 
@@ -116,7 +116,7 @@ export const ServicesSection: React.FC = () => {
                     ) : (
                       <span className="text-neutral-500">Custom Quote</span>
                     )}
-                    <span className="text-[#c5a059] font-medium flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                    <span className="text-[#3b82f6] font-medium flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                       <span>Details</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </span>

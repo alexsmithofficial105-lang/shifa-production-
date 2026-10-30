@@ -66,7 +66,7 @@ export const ProjectDetailModal: React.FC = () => {
 
           {selectedProject.videoUrl && (
             <div className="absolute bottom-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/80 backdrop-blur-md border border-white/10 text-xs font-medium text-amber-300">
-              <Film className="w-4 h-4 text-[#c5a059]" />
+              <Film className="w-4 h-4 text-[#3b82f6]" />
               <span>Cinematic Reel Available</span>
             </div>
           )}
@@ -76,7 +76,7 @@ export const ProjectDetailModal: React.FC = () => {
         <div className="p-6 sm:p-8 space-y-6">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-400 font-medium">
-              <span className="text-[#c5a059] uppercase tracking-wider">{selectedProject.category}</span>
+              <span className="text-[#3b82f6] uppercase tracking-wider">{selectedProject.category}</span>
               <span aria-hidden="true">·</span>
               <span className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5 text-neutral-500" />
@@ -124,7 +124,7 @@ export const ProjectDetailModal: React.FC = () => {
                 <ul className="space-y-1">
                   {selectedProject.deliverables.map((item, idx) => (
                     <li key={idx} className="flex items-center gap-2 text-xs text-neutral-300">
-                      <Check className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-[#3b82f6] shrink-0" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -140,7 +140,7 @@ export const ProjectDetailModal: React.FC = () => {
             </div>
             <button
               onClick={handleInquire}
-              className="w-full sm:w-auto px-6 py-3 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37] transition-all flex items-center justify-center gap-2 shrink-0"
+              className="w-full sm:w-auto px-6 py-3 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2 shrink-0"
             >
               <span>Inquire About Similar Production</span>
               <ArrowRight className="w-4 h-4" />

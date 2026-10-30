@@ -12,10 +12,10 @@ export const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
   if (type === 'privacy') {
     const customPrivacy = settings?.legal?.privacyPolicy;
     return (
-      <div className="py-16 md:py-24 bg-[#080808] text-neutral-100 animate-fadeIn">
+      <div className="py-16 md:py-24 bg-[#060913] text-neutral-100 animate-fadeIn">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
           <div className="space-y-2">
-            <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+            <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
               Legal Documentation
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-brand">
@@ -60,10 +60,10 @@ export const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
 
   const customTerms = settings?.legal?.termsAndConditions;
   return (
-    <div className="py-16 md:py-24 bg-[#080808] text-neutral-100 animate-fadeIn">
+    <div className="py-16 md:py-24 bg-[#060913] text-neutral-100 animate-fadeIn">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
         <div className="space-y-2">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
             Legal Documentation
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-brand">

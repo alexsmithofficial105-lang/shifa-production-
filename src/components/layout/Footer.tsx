@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
           {/* Brand column */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#c5a059] flex items-center justify-center font-bold text-black font-brand text-base shadow-sm">
+              <div className="w-8 h-8 rounded-lg bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-base shadow-sm">
                 S
               </div>
               <span className="font-brand text-xl font-bold tracking-wider text-neutral-100">
@@ -36,7 +36,7 @@ export const Footer: React.FC = () => {
                 href={settings?.socials.instagram || 'https://instagram.com'}
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-[#c5a059] hover:border-[#c5a059]/40 transition-colors"
+                className="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-[#3b82f6] hover:border-[#2563eb]/40 transition-colors"
                 aria-label="Instagram"
               >
                 <Instagram className="w-4 h-4" />
@@ -45,7 +45,7 @@ export const Footer: React.FC = () => {
                 href={settings?.socials.youtube || 'https://youtube.com'}
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-[#c5a059] hover:border-[#c5a059]/40 transition-colors"
+                className="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-[#3b82f6] hover:border-[#2563eb]/40 transition-colors"
                 aria-label="YouTube"
               >
                 <Youtube className="w-4 h-4" />
@@ -137,27 +137,27 @@ export const Footer: React.FC = () => {
             </h4>
             <div className="space-y-3 text-xs leading-relaxed">
               <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#c5a059] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#3b82f6] shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-neutral-200 block text-xs">Lahore:</strong>
                   <span>{addressLahore}</span>
                 </div>
               </div>
               <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#c5a059] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#3b82f6] shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-neutral-200 block text-xs">Islamabad:</strong>
                   <span>{addressIslamabad}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2.5 pt-1">
-                <Phone className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
+                <Phone className="w-3.5 h-3.5 text-[#3b82f6] shrink-0" />
                 <a href={`tel:${phone}`} className="hover:text-white transition-colors">
                   {phone}
                 </a>
               </div>
               <div className="flex items-center gap-2.5">
-                <Mail className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
+                <Mail className="w-3.5 h-3.5 text-[#3b82f6] shrink-0" />
                 <a href={`mailto:${email}`} className="hover:text-white transition-colors">
                   {email}
                 </a>
@@ -182,7 +182,7 @@ export const Footer: React.FC = () => {
             <span aria-hidden="true">·</span>
             <button
               onClick={() => navigateTo('admin-login')}
-              className="flex items-center gap-1.5 text-neutral-500 hover:text-[#c5a059] transition-colors"
+              className="flex items-center gap-1.5 text-neutral-500 hover:text-[#3b82f6] transition-colors"
               title="Admin Portal"
             >
               <Lock className="w-3 h-3" />

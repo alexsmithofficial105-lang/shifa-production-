@@ -9,11 +9,11 @@ export const AboutPage: React.FC = () => {
   const about = settings?.about;
 
   return (
-    <div className="py-12 sm:py-24 bg-[#080808] text-neutral-100 animate-fadeIn">
+    <div className="py-12 sm:py-24 bg-[#060913] text-neutral-100 animate-fadeIn">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-16 sm:space-y-24">
         {/* Header */}
         <div className="max-w-3xl space-y-4">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
             About Our Production House
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white font-brand">
@@ -45,7 +45,7 @@ export const AboutPage: React.FC = () => {
         {/* Editorial Vision & Mission */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           <div className="space-y-6">
-            <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+            <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
               The Cinematic Philosophy
             </div>
             <h2 className="text-3xl font-bold text-white font-brand leading-snug">
@@ -61,7 +61,7 @@ export const AboutPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-6">
-            <div className="p-6 rounded-2xl bg-[#111111] border border-neutral-800 space-y-2">
+            <div className="p-6 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-2">
               <div className="text-3xl font-bold text-white tabular-nums font-brand">
                 {about?.completedProjects || '450+'}
               </div>
@@ -70,8 +70,8 @@ export const AboutPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[#111111] border border-neutral-800 space-y-2">
-              <div className="text-3xl font-bold text-[#c5a059] tabular-nums font-brand">
+            <div className="p-6 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-2">
+              <div className="text-3xl font-bold text-[#3b82f6] tabular-nums font-brand">
                 {about?.experienceYears || '10+'}
               </div>
               <div className="text-xs text-neutral-400">
@@ -79,7 +79,7 @@ export const AboutPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[#111111] border border-neutral-800 space-y-2">
+            <div className="p-6 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-2">
               <div className="text-3xl font-bold text-white tabular-nums font-brand">
                 {about?.filmmakersCount || '18'}
               </div>
@@ -88,7 +88,7 @@ export const AboutPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[#111111] border border-neutral-800 space-y-2">
+            <div className="p-6 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-2">
               <div className="text-3xl font-bold text-white tabular-nums font-brand">
                 100%
               </div>
@@ -102,7 +102,7 @@ export const AboutPage: React.FC = () => {
         {/* Equipment & Cinema Technology Vault */}
         <div className="p-8 sm:p-12 rounded-2xl bg-[#0e0e0e] border border-neutral-800 space-y-8">
           <div className="max-w-2xl space-y-2">
-            <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+            <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
               Technology & Infrastructure
             </div>
             <h3 className="text-2xl sm:text-3xl font-bold text-white font-brand">
@@ -115,7 +115,7 @@ export const AboutPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-6 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-3">
-              <Camera className="w-6 h-6 text-[#c5a059]" />
+              <Camera className="w-6 h-6 text-[#3b82f6]" />
               <h4 className="text-base font-bold text-white font-brand">Camera Systems</h4>
               <p className="text-xs text-neutral-400 leading-relaxed">
                 ARRI Alexa Mini LF, RED V-Raptor 8K, Sony FX6 & FX3 Cinema Line rigs with 16-bit RAW internal recording.
@@ -123,7 +123,7 @@ export const AboutPage: React.FC = () => {
             </div>
 
             <div className="p-6 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-3">
-              <Sparkles className="w-6 h-6 text-[#c5a059]" />
+              <Sparkles className="w-6 h-6 text-[#3b82f6]" />
               <h4 className="text-base font-bold text-white font-brand">Anamorphic & Prime Glass</h4>
               <p className="text-xs text-neutral-400 leading-relaxed">
                 Cooke Anamorphic/i, ARRI Master Anamorphics, Zeiss Supreme Primes, and Sony G-Master cinema lenses.
@@ -131,7 +131,7 @@ export const AboutPage: React.FC = () => {
             </div>
 
             <div className="p-6 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-3">
-              <Film className="w-6 h-6 text-[#c5a059]" />
+              <Film className="w-6 h-6 text-[#3b82f6]" />
               <h4 className="text-base font-bold text-white font-brand">Aerial & Stabilization</h4>
               <p className="text-xs text-neutral-400 leading-relaxed">
                 DJI Inspire 3 8K Cinema Drone, DJI Ronin 2 3-axis stabilization, Ready Rig support, and motorized sliders.
@@ -142,15 +142,15 @@ export const AboutPage: React.FC = () => {
 
         {/* Studio Locations */}
         <div className="space-y-6">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
             Physical Presence
           </div>
           <h3 className="text-2xl sm:text-3xl font-bold text-white font-brand">
             Our Studio Footprint in Pakistan
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-8 rounded-2xl bg-[#111111] border border-neutral-800 space-y-4">
-              <div className="flex items-center gap-2 text-[#c5a059] text-xs font-semibold uppercase tracking-wider">
+            <div className="p-8 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-4">
+              <div className="flex items-center gap-2 text-[#3b82f6] text-xs font-semibold uppercase tracking-wider">
                 <MapPin className="w-4 h-4" />
                 <span>Lahore Headquarters</span>
               </div>
@@ -163,8 +163,8 @@ export const AboutPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-8 rounded-2xl bg-[#111111] border border-neutral-800 space-y-4">
-              <div className="flex items-center gap-2 text-[#c5a059] text-xs font-semibold uppercase tracking-wider">
+            <div className="p-8 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-4">
+              <div className="flex items-center gap-2 text-[#3b82f6] text-xs font-semibold uppercase tracking-wider">
                 <MapPin className="w-4 h-4" />
                 <span>Islamabad Branch</span>
               </div>
@@ -190,7 +190,7 @@ export const AboutPage: React.FC = () => {
           <div className="pt-2">
             <button
               onClick={() => navigateTo('quote')}
-              className="px-8 py-3.5 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37] transition-all inline-flex items-center gap-2"
+              className="px-8 py-3.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all inline-flex items-center gap-2"
             >
               <span>Request a Production Quote</span>
               <ArrowRight className="w-4 h-4" />

@@ -11,11 +11,11 @@ export const PricingPage: React.FC = () => {
   };
 
   return (
-    <div className="py-12 sm:py-24 bg-[#080808] text-neutral-100 animate-fadeIn">
+    <div className="py-12 sm:py-24 bg-[#060913] text-neutral-100 animate-fadeIn">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-12 sm:space-y-16">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
             Transparent Investment
           </div>
           <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white font-brand">
@@ -35,13 +35,13 @@ export const PricingPage: React.FC = () => {
                 key={pkg.id}
                 className={`relative rounded-2xl p-7 flex flex-col justify-between transition-all duration-300 ${
                   isHighlight
-                    ? 'bg-[#111111] border-2 border-[#c5a059] shadow-2xl shadow-[#c5a059]/10'
+                    ? 'bg-[#0f172a] border-2 border-[#2563eb] shadow-2xl shadow-[#2563eb]/10'
                     : 'bg-[#0e0e0e] border border-neutral-800/90 hover:border-neutral-700'
                 }`}
               >
                 {/* Popular indicator */}
                 {isHighlight && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#c5a059] text-black text-[11px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#2563eb] text-white text-[11px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1">
                     <Sparkles className="w-3 h-3" />
                     <span>Most Requested Tier</span>
                   </div>
@@ -80,13 +80,13 @@ export const PricingPage: React.FC = () => {
                   <div className="space-y-2 pt-2 text-xs text-neutral-300">
                     {pkg.duration && (
                       <div className="flex items-center gap-2">
-                        <Clock className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
+                        <Clock className="w-3.5 h-3.5 text-[#3b82f6] shrink-0" />
                         <span>{pkg.duration}</span>
                       </div>
                     )}
                     {pkg.crewSize && (
                       <div className="flex items-center gap-2">
-                        <Users className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
+                        <Users className="w-3.5 h-3.5 text-[#3b82f6] shrink-0" />
                         <span>{pkg.crewSize}</span>
                       </div>
                     )}
@@ -100,7 +100,7 @@ export const PricingPage: React.FC = () => {
                     <ul className="space-y-2">
                       {pkg.includedServices.map((inc, i) => (
                         <li key={i} className="flex items-start gap-2 text-xs text-neutral-300">
-                          <Check className="w-3.5 h-3.5 text-[#c5a059] shrink-0 mt-0.5" />
+                          <Check className="w-3.5 h-3.5 text-[#3b82f6] shrink-0 mt-0.5" />
                           <span>{inc}</span>
                         </li>
                       ))}
@@ -116,7 +116,7 @@ export const PricingPage: React.FC = () => {
                       <ul className="space-y-1.5">
                         {pkg.deliverables.map((deliv, i) => (
                           <li key={i} className="flex items-center gap-2 text-xs text-neutral-400">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#c5a059] shrink-0" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#2563eb] shrink-0" />
                             <span>{deliv}</span>
                           </li>
                         ))}
@@ -133,7 +133,7 @@ export const PricingPage: React.FC = () => {
                       <ul className="space-y-1">
                         {pkg.optionalAddons.map((addon, i) => (
                           <li key={i} className="flex items-center gap-1.5 text-[11px] text-neutral-400">
-                            <Plus className="w-3 h-3 text-[#c5a059] shrink-0" />
+                            <Plus className="w-3 h-3 text-[#3b82f6] shrink-0" />
                             <span>{addon}</span>
                           </li>
                         ))}
@@ -148,8 +148,8 @@ export const PricingPage: React.FC = () => {
                     onClick={() => handleBookPackage(pkg)}
                     className={`w-full py-3 text-xs uppercase tracking-wider font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
                       isHighlight
-                        ? 'bg-[#c5a059] text-black hover:bg-[#d4af37] shadow-lg shadow-[#c5a059]/15'
-                        : 'bg-neutral-900 text-white border border-neutral-700 hover:border-[#c5a059] hover:text-[#c5a059]'
+                        ? 'bg-[#2563eb] text-white hover:bg-[#1d4ed8] shadow-lg shadow-[#2563eb]/15'
+                        : 'bg-neutral-900 text-white border border-neutral-700 hover:border-[#2563eb] hover:text-[#3b82f6]'
                     }`}
                   >
                     <span>Book {pkg.name.split(' ')[0]}</span>

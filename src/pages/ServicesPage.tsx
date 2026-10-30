@@ -53,12 +53,12 @@ export const ServicesPage: React.FC = () => {
   };
 
   return (
-    <div className="py-12 sm:py-24 bg-[#080808] text-neutral-100 animate-fadeIn">
+    <div className="py-12 sm:py-24 bg-[#060913] text-neutral-100 animate-fadeIn">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-12 sm:space-y-16">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-neutral-800">
           <div className="space-y-3 max-w-2xl">
-            <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+            <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
               Full Scope Production
             </div>
             <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white font-brand">
@@ -77,7 +77,7 @@ export const ServicesPage: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search services..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#c5a059]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
             />
           </div>
         </div>
@@ -102,10 +102,10 @@ export const ServicesPage: React.FC = () => {
                     referrerPolicy="no-referrer"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-black/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-black/40 to-transparent" />
 
                   {/* Icon badge overlay */}
-                  <div className="absolute top-3.5 left-3.5 w-10 h-10 rounded-xl bg-black/75 backdrop-blur-md border border-white/15 flex items-center justify-center text-[#c5a059] shadow-lg group-hover:border-[#c5a059]/60 transition-colors">
+                  <div className="absolute top-3.5 left-3.5 w-10 h-10 rounded-xl bg-black/75 backdrop-blur-md border border-white/15 flex items-center justify-center text-[#3b82f6] shadow-lg group-hover:border-[#2563eb]/60 transition-colors">
                     <Icon className="w-5 h-5" />
                   </div>
 
@@ -117,7 +117,7 @@ export const ServicesPage: React.FC = () => {
 
                 <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
                   <div className="space-y-3">
-                    <h2 className="text-xl font-bold text-white group-hover:text-[#c5a059] transition-colors font-brand leading-snug">
+                    <h2 className="text-xl font-bold text-white group-hover:text-[#3b82f6] transition-colors font-brand leading-snug">
                       {srv.title}
                     </h2>
 
@@ -130,7 +130,7 @@ export const ServicesPage: React.FC = () => {
                       <div className="space-y-1.5 pt-2">
                         {srv.features.slice(0, 3).map((feat, idx) => (
                           <div key={idx} className="flex items-start gap-2 text-xs text-neutral-300">
-                            <Check className="w-3.5 h-3.5 text-[#c5a059] shrink-0 mt-0.5" />
+                            <Check className="w-3.5 h-3.5 text-[#3b82f6] shrink-0 mt-0.5" />
                             <span>{feat}</span>
                           </div>
                         ))}
@@ -142,7 +142,7 @@ export const ServicesPage: React.FC = () => {
                   <div className="flex items-center justify-between text-xs">
                     {srv.startingPricePkr && (
                       <div className="flex items-center gap-1.5 text-neutral-300">
-                        <Tag className="w-3.5 h-3.5 text-[#c5a059]" />
+                        <Tag className="w-3.5 h-3.5 text-[#3b82f6]" />
                         <span>
                           From <strong className="text-white">PKR {srv.startingPricePkr}</strong>
                         </span>
@@ -165,7 +165,7 @@ export const ServicesPage: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleBook(srv)}
-                      className="w-full py-2.5 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37] transition-all flex items-center justify-center gap-1"
+                      className="w-full py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-1"
                     >
                       <span>Book Service</span>
                       <ArrowRight className="w-3.5 h-3.5" />

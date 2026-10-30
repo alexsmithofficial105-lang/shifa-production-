@@ -24,12 +24,12 @@ export const PortfolioPage: React.FC = () => {
   });
 
   return (
-    <div className="py-12 sm:py-24 bg-[#080808] text-neutral-100 animate-fadeIn">
+    <div className="py-12 sm:py-24 bg-[#060913] text-neutral-100 animate-fadeIn">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-10 sm:space-y-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-neutral-800">
           <div className="space-y-3 max-w-2xl">
-            <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+            <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
               Visual Showcase
             </div>
             <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white font-brand">
@@ -48,7 +48,7 @@ export const PortfolioPage: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search projects..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#c5a059]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
             />
           </div>
         </div>
@@ -61,7 +61,7 @@ export const PortfolioPage: React.FC = () => {
               onClick={() => setActiveCategory(cat)}
               className={`px-4 py-2 text-xs font-medium rounded-xl transition-all whitespace-nowrap shrink-0 ${
                 activeCategory === cat
-                  ? 'bg-[#c5a059] text-black font-semibold shadow-md'
+                  ? 'bg-[#2563eb] text-white font-semibold shadow-md'
                   : 'bg-neutral-900/80 text-neutral-400 border border-neutral-800 hover:text-white hover:border-neutral-700'
               }`}
             >
@@ -76,7 +76,7 @@ export const PortfolioPage: React.FC = () => {
             <div
               key={project.id}
               onClick={() => setSelectedProject(project)}
-              className="group relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 cursor-pointer transition-all duration-300 hover:border-[#c5a059]/50 hover:shadow-2xl aspect-4/3 flex flex-col justify-end"
+              className="group relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 cursor-pointer transition-all duration-300 hover:border-[#2563eb]/50 hover:shadow-2xl aspect-4/3 flex flex-col justify-end"
             >
               <img
                 src={getCleanImageUrl(project.image)}
@@ -90,14 +90,14 @@ export const PortfolioPage: React.FC = () => {
 
               {/* Video icon */}
               {project.videoUrl && (
-                <div className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white group-hover:bg-[#c5a059] group-hover:text-black group-hover:border-transparent transition-all">
+                <div className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white group-hover:bg-[#2563eb] group-hover:text-white group-hover:border-transparent transition-all">
                   <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
                 </div>
               )}
 
               {/* Information */}
               <div className="relative z-10 p-6 space-y-2">
-                <div className="flex items-center gap-2 text-[11px] text-[#c5a059] font-medium uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-[11px] text-[#3b82f6] font-medium uppercase tracking-wider">
                   <span>{project.category}</span>
                   <span aria-hidden="true" className="text-neutral-500">·</span>
                   <span className="text-neutral-400 flex items-center gap-1">
@@ -108,7 +108,7 @@ export const PortfolioPage: React.FC = () => {
                   <span className="text-neutral-400">{project.year}</span>
                 </div>
 
-                <h3 className="text-xl font-bold text-white group-hover:text-[#c5a059] transition-colors font-brand leading-snug">
+                <h3 className="text-xl font-bold text-white group-hover:text-[#3b82f6] transition-colors font-brand leading-snug">
                   {project.title}
                 </h3>
 
@@ -120,7 +120,7 @@ export const PortfolioPage: React.FC = () => {
 
                 {project.gearUsed && (
                   <div className="pt-1 text-[11px] text-neutral-400 flex items-center gap-1 line-clamp-1">
-                    <Camera className="w-3 h-3 text-[#c5a059] shrink-0" />
+                    <Camera className="w-3 h-3 text-[#3b82f6] shrink-0" />
                     <span>{project.gearUsed}</span>
                   </div>
                 )}

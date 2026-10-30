@@ -27,7 +27,7 @@ export const AboutSection: React.FC = () => {
 
               <div className="absolute bottom-6 left-6 right-6">
                 <div className="p-4 rounded-xl bg-black/85 backdrop-blur-md border border-white/10 text-xs text-neutral-300 space-y-1">
-                  <div className="text-[#c5a059] font-semibold uppercase tracking-wider text-[11px]">
+                  <div className="text-[#3b82f6] font-semibold uppercase tracking-wider text-[11px]">
                     On Set Standards
                   </div>
                   <div className="text-white font-medium">
@@ -40,7 +40,7 @@ export const AboutSection: React.FC = () => {
 
           {/* Text column */}
           <div className="space-y-6">
-            <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+            <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
               About Shifa Productions
             </div>
 
@@ -54,19 +54,19 @@ export const AboutSection: React.FC = () => {
 
             <div className="space-y-3 pt-2">
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#c5a059] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-[#3b82f6] shrink-0 mt-0.5" />
                 <span className="text-sm text-neutral-300">
                   Dual operational hubs in Lahore (Gulberg III) and Islamabad (F-7), ready for immediate dispatch across Pakistan.
                 </span>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#c5a059] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-[#3b82f6] shrink-0 mt-0.5" />
                 <span className="text-sm text-neutral-300">
                   Full in-house post-production: DaVinci Resolve color suites, sound design, and 4K masters.
                 </span>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#c5a059] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-[#3b82f6] shrink-0 mt-0.5" />
                 <span className="text-sm text-neutral-300">
                   Registered, CAA-licensed aerial drone pilots adhering strictly to Pakistani airspace safety laws.
                 </span>
@@ -76,7 +76,7 @@ export const AboutSection: React.FC = () => {
             <div className="pt-4">
               <button
                 onClick={() => navigateTo('about')}
-                className="px-6 py-3 text-xs uppercase tracking-wider font-semibold text-white bg-neutral-900 border border-neutral-700 rounded-lg hover:border-[#c5a059] hover:text-[#c5a059] transition-all flex items-center gap-2 group"
+                className="px-6 py-3 text-xs uppercase tracking-wider font-semibold text-white bg-neutral-900 border border-neutral-700 rounded-lg hover:border-[#2563eb] hover:text-[#3b82f6] transition-all flex items-center gap-2 group"
               >
                 <span>Learn More About Us</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

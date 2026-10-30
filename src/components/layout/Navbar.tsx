@@ -43,7 +43,7 @@ export const Navbar: React.FC = () => {
           {/* Left: Brand Logo / Wordmark */}
           <button
             onClick={() => handleNavClick('home')}
-            className="flex items-center gap-2.5 sm:gap-3 text-left group whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c5a059] rounded-lg p-1"
+            className="flex items-center gap-2.5 sm:gap-3 text-left group whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] rounded-lg p-1"
             aria-label="Shifa Productions Home"
           >
             {settings?.logoUrl ? (
@@ -55,10 +55,10 @@ export const Navbar: React.FC = () => {
               />
             ) : (
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#c5a059] flex items-center justify-center font-bold text-black font-brand text-base shadow-sm shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-base shadow-sm shrink-0">
                   S
                 </div>
-                <span className="font-brand text-base sm:text-xl font-bold tracking-wider text-neutral-100 group-hover:text-[#c5a059] transition-colors">
+                <span className="font-brand text-base sm:text-xl font-bold tracking-wider text-neutral-100 group-hover:text-[#3b82f6] transition-colors">
                   {brandName}
                 </span>
               </div>
@@ -74,12 +74,12 @@ export const Navbar: React.FC = () => {
                   key={link.route}
                   onClick={() => handleNavClick(link.route)}
                   className={`relative py-1 transition-colors whitespace-nowrap shrink-0 hover:text-white ${
-                    isActive ? 'text-[#c5a059] font-semibold' : 'text-neutral-400'
+                    isActive ? 'text-[#3b82f6] font-semibold' : 'text-neutral-400'
                   }`}
                 >
                   {link.label}
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#c5a059] rounded-full" />
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563eb] rounded-full" />
                   )}
                 </button>
               );
@@ -90,7 +90,7 @@ export const Navbar: React.FC = () => {
           <div className="hidden md:flex items-center gap-3 shrink-0">
             <button
               onClick={() => handleNavClick(isAuthenticated ? 'admin-dashboard' : 'admin-login')}
-              className="px-3 py-2 text-xs font-semibold text-neutral-400 hover:text-[#c5a059] bg-neutral-900/60 border border-neutral-800 hover:border-neutral-700 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
+              className="px-3 py-2 text-xs font-semibold text-neutral-400 hover:text-[#3b82f6] bg-neutral-900/60 border border-neutral-800 hover:border-neutral-700 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
               title="Admin Portal"
             >
               <Lock className="w-3.5 h-3.5" />
@@ -99,7 +99,7 @@ export const Navbar: React.FC = () => {
 
             <button
               onClick={() => handleNavClick('quote')}
-              className="px-5 py-2.5 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37] active:scale-95 transition-all whitespace-nowrap shrink-0 shadow-lg shadow-[#c5a059]/10"
+              className="px-5 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] active:scale-95 transition-all whitespace-nowrap shrink-0 shadow-lg shadow-[#2563eb]/10"
             >
               Request Quote
             </button>
@@ -109,13 +109,13 @@ export const Navbar: React.FC = () => {
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={() => handleNavClick('quote')}
-              className="px-3 py-1.5 text-[11px] uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-md hover:bg-[#d4af37] whitespace-nowrap shrink-0"
+              className="px-3 py-1.5 text-[11px] uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-md hover:bg-[#1d4ed8] whitespace-nowrap shrink-0"
             >
               Quote
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="min-w-[44px] min-h-[44px] p-2.5 text-neutral-200 hover:text-white flex items-center justify-center rounded-lg bg-neutral-900/80 border border-neutral-800 focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
+              className="min-w-[44px] min-h-[44px] p-2.5 text-neutral-200 hover:text-white flex items-center justify-center rounded-lg bg-neutral-900/80 border border-neutral-800 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={mobileMenuOpen}
             >
@@ -146,7 +146,7 @@ export const Navbar: React.FC = () => {
             {/* Drawer Header */}
             <div className="flex items-center justify-between pb-6 border-b border-neutral-800/80">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-[#c5a059] flex items-center justify-center font-bold text-black font-brand text-sm shadow-sm">
+                <div className="w-7 h-7 rounded-lg bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-sm shadow-sm">
                   S
                 </div>
                 <span className="font-brand text-base font-bold text-white tracking-wider">
@@ -172,7 +172,7 @@ export const Navbar: React.FC = () => {
                     onClick={() => handleNavClick(link.route)}
                     className={`min-h-[46px] px-4 rounded-xl text-left text-base font-medium tracking-tight transition-all flex items-center justify-between ${
                       isActive
-                        ? 'bg-[#c5a059]/10 text-[#c5a059] font-bold border border-[#c5a059]/30'
+                        ? 'bg-[#2563eb]/10 text-[#3b82f6] font-bold border border-[#2563eb]/30'
                         : 'text-neutral-300 hover:text-white hover:bg-neutral-900/60'
                     }`}
                   >
@@ -187,7 +187,7 @@ export const Navbar: React.FC = () => {
             <div className="pt-6 border-t border-neutral-800/80 flex flex-col gap-3">
               <button
                 onClick={() => handleNavClick('quote')}
-                className="w-full min-h-[46px] py-3 text-center text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37] transition-all shadow-lg shadow-[#c5a059]/15 flex items-center justify-center gap-2"
+                className="w-full min-h-[46px] py-3 text-center text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all shadow-lg shadow-[#2563eb]/15 flex items-center justify-center gap-2"
               >
                 <span>Request a Quote</span>
                 <ArrowRight className="w-4 h-4" />
@@ -197,7 +197,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => handleNavClick(isAuthenticated ? 'admin-dashboard' : 'admin-login')}
                 className="w-full min-h-[44px] py-2.5 text-center text-xs font-medium text-neutral-400 hover:text-white bg-neutral-900/80 border border-neutral-800 rounded-xl transition-colors flex items-center justify-center gap-2"
               >
-                <Lock className="w-3.5 h-3.5 text-[#c5a059]" />
+                <Lock className="w-3.5 h-3.5 text-[#3b82f6]" />
                 <span>{isAuthenticated ? 'Admin Dashboard' : 'Admin Portal Login'}</span>
               </button>
 

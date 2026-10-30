@@ -6,6 +6,7 @@ import { Footer } from './components/layout/Footer.tsx';
 import { ToastContainer } from './components/common/Toast.tsx';
 import { ProjectDetailModal } from './components/modals/ProjectDetailModal.tsx';
 import { ServiceDetailModal } from './components/modals/ServiceDetailModal.tsx';
+import { FloatingWhatsApp } from './components/common/FloatingWhatsApp.tsx';
 
 import { HomePage } from './pages/HomePage.tsx';
 import { AboutPage } from './pages/AboutPage.tsx';
@@ -55,15 +56,15 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#080808] text-neutral-100 selection:bg-[#c5a059] selection:text-black">
+    <div className="flex flex-col min-h-screen bg-[#060913] text-neutral-100 selection:bg-[#2563eb] selection:text-white">
       {!isAdminDashboard && <Navbar />}
 
       <main className="flex-1">
         {loading ? (
           <div className="min-h-[60vh] flex items-center justify-center">
             <div className="flex flex-col items-center gap-3">
-              <div className="w-10 h-10 rounded-full border-2 border-[#c5a059] border-t-transparent animate-spin" />
-              <span className="text-xs font-brand tracking-widest uppercase text-[#c5a059]">
+              <div className="w-10 h-10 rounded-full border-2 border-[#2563eb] border-t-transparent animate-spin" />
+              <span className="text-xs font-brand tracking-widest uppercase text-[#3b82f6]">
                 Shifa Productions
               </span>
             </div>
@@ -79,6 +80,7 @@ const AppContent: React.FC = () => {
       <ProjectDetailModal />
       <ServiceDetailModal />
       <ToastContainer />
+      <FloatingWhatsApp />
     </div>
   );
 };

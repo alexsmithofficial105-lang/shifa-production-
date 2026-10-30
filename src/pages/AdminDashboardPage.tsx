@@ -10,6 +10,8 @@ import {
   TestimonialItem,
   FaqItem,
   SiteSettings,
+  TeamMember,
+  TeamRoleType,
 } from '../types/index.ts';
 import {
   initialSettings,
@@ -19,6 +21,7 @@ import {
   initialTestimonials,
   initialFaqs,
   initialInquiries,
+  initialTeam,
 } from '../data/initialData.ts';
 import {
   LayoutDashboard,
@@ -57,6 +60,9 @@ import {
   Check,
   BarChart3,
   TrendingUp,
+  Users,
+  Crown,
+  Briefcase,
 } from 'lucide-react';
 import { AdminAnalyticsSection } from '../components/admin/AdminAnalyticsSection.tsx';
 import { StudioAnalyticsData } from '../api/client.ts';
@@ -69,6 +75,7 @@ type AdminSection =
   | 'portfolio'
   | 'packages'
   | 'testimonials'
+  | 'team'
   | 'content'
   | 'contact-social'
   | 'faqs-legal'
@@ -113,6 +120,12 @@ export const AdminDashboardPage: React.FC = () => {
   const [faqsList, setFaqsList] = useState<FaqItem[]>([]);
   const [editingFaq, setEditingFaq] = useState<Partial<FaqItem> | null>(null);
 
+  // Leadership & Team Management
+  const [teamList, setTeamList] = useState<TeamMember[]>([]);
+  const [editingTeamMember, setEditingTeamMember] = useState<Partial<TeamMember> | null>(null);
+  const [teamRoleFilter, setTeamRoleFilter] = useState<'all' | 'owner' | 'ceo' | 'team_member'>('all');
+  const teamPhotoInputRef = useRef<HTMLInputElement>(null);
+
   const [mediaList, setMediaList] = useState<Array<{ filename: string; url: string; size: number; createdAt: string }>>([]);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -130,7 +143,7 @@ export const AdminDashboardPage: React.FC = () => {
   // Load Admin Data
   const loadAdminData = async () => {
     try {
-      const [s, inqs, srvs, ports, pkgs, tests, fqs, sett, med, anlyt] = await Promise.all([
+      const [s, inqs, srvs, ports, pkgs, tests, fqs, sett, med, anlyt, tm] = await Promise.all([
         apiClient.getStats().catch(() => null),
         apiClient.getInquiries().catch(() => null),
         apiClient.getServices().catch(() => null),
@@ -141,6 +154,7 @@ export const AdminDashboardPage: React.FC = () => {
         apiClient.getSettings().catch(() => null),
         apiClient.getMediaList().catch(() => []),
         apiClient.getAnalytics().catch(() => null),
+        apiClient.getTeam().catch(() => null),
       ]);
 
       setServicesList(srvs && srvs.length ? srvs : initialServices);
@@ -148,6 +162,7 @@ export const AdminDashboardPage: React.FC = () => {
       setPackagesList(pkgs && pkgs.length ? pkgs : initialPackages);
       setTestimonialsList(tests && tests.length ? tests : initialTestimonials);
       setFaqsList(fqs && fqs.length ? fqs : initialFaqs);
+      setTeamList(tm && tm.length ? tm : initialTeam);
       setSettingsForm(sett || initialSettings);
       setInquiries(inqs && inqs.length ? inqs : (initialInquiries as any));
       setMediaList(med || []);
@@ -408,6 +423,66 @@ export const AdminDashboardPage: React.FC = () => {
     }
   };
 
+  // ----------------- Team Actions -----------------
+  const handleSaveTeamMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTeamMember?.name) {
+      showToast('Please enter profile name', 'error');
+      return;
+    }
+    try {
+      if (editingTeamMember.id) {
+        const updated = await apiClient.updateTeamMember(editingTeamMember.id, editingTeamMember);
+        setTeamList((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
+        showToast(
+          `${updated.roleType === 'owner' ? 'Studio Owner' : updated.roleType === 'ceo' ? 'CEO' : 'Team Member'} profile updated successfully!`,
+          'success'
+        );
+      } else {
+        const created = await apiClient.createTeamMember(editingTeamMember);
+        setTeamList((prev) => [...prev, created]);
+        showToast(
+          `New ${created.roleType === 'owner' ? 'Studio Owner' : created.roleType === 'ceo' ? 'CEO' : 'Team Member'} profile created!`,
+          'success'
+        );
+      }
+      setEditingTeamMember(null);
+      refreshData();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to save team member profile', 'error');
+    }
+  };
+
+  const handleDeleteTeamMember = async (id: string, name: string) => {
+    if (!window.confirm(`Delete profile for "${name}" permanently?`)) return;
+    try {
+      await apiClient.deleteTeamMember(id);
+      setTeamList((prev) => prev.filter((m) => m.id !== id));
+      showToast(`Profile removed`, 'info');
+      refreshData();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to delete profile', 'error');
+    }
+  };
+
+  const handleTeamPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingTeamMember) return;
+    try {
+      setUploadingMedia(true);
+      const res = await apiClient.uploadMedia(file);
+      if (res.success) {
+        setEditingTeamMember({ ...editingTeamMember, photo: res.url });
+        showToast('Profile photo uploaded and set!', 'success');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Photo upload failed', 'error');
+    } finally {
+      setUploadingMedia(false);
+      if (teamPhotoInputRef.current) teamPhotoInputRef.current.value = '';
+    }
+  };
+
   // ----------------- Media Upload Actions -----------------
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -542,6 +617,7 @@ export const AdminDashboardPage: React.FC = () => {
     { id: 'portfolio', label: 'Portfolio & Works', icon: Film },
     { id: 'packages', label: 'Pricing & Packages', icon: Tag },
     { id: 'testimonials', label: 'Client Reviews', icon: Star },
+    { id: 'team', label: 'Leadership & Team', icon: Users },
     { id: 'content', label: 'Hero & About Content', icon: Sliders },
     { id: 'contact-social', label: 'Contact & Socials', icon: Phone },
     { id: 'faqs-legal', label: 'FAQs & Legal Pages', icon: FileText },
@@ -555,13 +631,13 @@ export const AdminDashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#080808] text-neutral-100 flex flex-col md:flex-row antialiased">
+    <div className="min-h-screen bg-[#060913] text-neutral-100 flex flex-col md:flex-row antialiased">
       {/* ================= DESKTOP SIDEBAR ================= */}
-      <aside className="hidden md:flex md:w-64 lg:w-72 bg-[#0c0c0c] border-r border-neutral-800/90 flex-col justify-between shrink-0 h-screen sticky top-0 z-30 select-none">
+      <aside className="hidden md:flex md:w-64 lg:w-72 bg-[#0a0f1d] border-r border-neutral-800/90 flex-col justify-between shrink-0 h-screen sticky top-0 z-30 select-none">
         <div className="flex flex-col h-full overflow-y-auto p-4 space-y-6">
           {/* Logo / Studio Header */}
           <div className="px-2 pt-2 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#c5a059] flex items-center justify-center font-bold text-black font-brand text-base shadow-sm shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-base shadow-sm shrink-0">
               S
             </div>
             <div className="truncate">
@@ -594,7 +670,7 @@ export const AdminDashboardPage: React.FC = () => {
                   onClick={() => handleTabSelect(item.id)}
                   className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
                     isActive
-                      ? 'bg-[#c5a059] text-black shadow-md font-bold'
+                      ? 'bg-[#2563eb] text-white shadow-md font-bold'
                       : 'text-neutral-400 hover:text-white hover:bg-neutral-900/80'
                   }`}
                 >
@@ -605,7 +681,7 @@ export const AdminDashboardPage: React.FC = () => {
                   {item.badge !== undefined && item.badge > 0 && (
                     <span
                       className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
-                        isActive ? 'bg-black text-[#c5a059]' : 'bg-amber-500/20 text-amber-300'
+                        isActive ? 'bg-black text-[#3b82f6]' : 'bg-amber-500/20 text-amber-300'
                       }`}
                     >
                       {item.badge}
@@ -640,12 +716,12 @@ export const AdminDashboardPage: React.FC = () => {
       {/* ================= MOBILE ADMIN TOP BAR ================= */}
       <div className="md:hidden sticky top-0 z-40 bg-[#0d0d0d] border-b border-neutral-800 px-4 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-[#c5a059] flex items-center justify-center font-bold text-black font-brand text-xs">
+          <div className="w-7 h-7 rounded-lg bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-xs">
             S
           </div>
           <div>
             <div className="font-brand font-bold text-white text-sm">Shifa Admin</div>
-            <div className="text-[10px] text-[#c5a059] uppercase tracking-wider font-semibold">
+            <div className="text-[10px] text-[#3b82f6] uppercase tracking-wider font-semibold">
               {navigationItems.find((n) => n.id === activeSection)?.label || 'Dashboard'}
             </div>
           </div>
@@ -676,7 +752,7 @@ export const AdminDashboardPage: React.FC = () => {
           onClick={() => setMobileNavOpen(false)}
         >
           <div
-            className="fixed top-0 left-0 bottom-0 w-[80%] max-w-xs bg-[#111111] border-r border-neutral-800 p-5 flex flex-col justify-between shadow-2xl z-50 overflow-y-auto"
+            className="fixed top-0 left-0 bottom-0 w-[80%] max-w-xs bg-[#0f172a] border-r border-neutral-800 p-5 flex flex-col justify-between shadow-2xl z-50 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="space-y-4">
@@ -700,7 +776,7 @@ export const AdminDashboardPage: React.FC = () => {
                       onClick={() => handleTabSelect(item.id)}
                       className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
                         isActive
-                          ? 'bg-[#c5a059] text-black font-bold'
+                          ? 'bg-[#2563eb] text-white font-bold'
                           : 'text-neutral-300 hover:bg-neutral-900'
                       }`}
                     >
@@ -760,7 +836,7 @@ export const AdminDashboardPage: React.FC = () => {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div
                 onClick={() => setActiveSection('inquiries')}
-                className="p-5 rounded-2xl bg-[#111111] border border-neutral-800 hover:border-[#c5a059]/40 cursor-pointer transition-colors space-y-1"
+                className="p-5 rounded-2xl bg-[#0f172a] border border-neutral-800 hover:border-[#2563eb]/40 cursor-pointer transition-colors space-y-1"
               >
                 <div className="text-xs text-neutral-400">Total Inquiries Received</div>
                 <div className="text-2xl sm:text-3xl font-bold text-white tabular-nums font-brand">
@@ -770,7 +846,7 @@ export const AdminDashboardPage: React.FC = () => {
 
               <div
                 onClick={() => setActiveSection('inquiries')}
-                className="p-5 rounded-2xl bg-[#111111] border border-neutral-800 hover:border-amber-500/40 cursor-pointer transition-colors space-y-1"
+                className="p-5 rounded-2xl bg-[#0f172a] border border-neutral-800 hover:border-amber-500/40 cursor-pointer transition-colors space-y-1"
               >
                 <div className="text-xs text-amber-400">New / Unhandled Inquiries</div>
                 <div className="text-2xl sm:text-3xl font-bold text-amber-400 tabular-nums font-brand">
@@ -780,7 +856,7 @@ export const AdminDashboardPage: React.FC = () => {
 
               <div
                 onClick={() => setActiveSection('inquiries')}
-                className="p-5 rounded-2xl bg-[#111111] border border-neutral-800 hover:border-emerald-500/40 cursor-pointer transition-colors space-y-1"
+                className="p-5 rounded-2xl bg-[#0f172a] border border-neutral-800 hover:border-emerald-500/40 cursor-pointer transition-colors space-y-1"
               >
                 <div className="text-xs text-emerald-400">Confirmed Projects</div>
                 <div className="text-2xl sm:text-3xl font-bold text-emerald-400 tabular-nums font-brand">
@@ -790,7 +866,7 @@ export const AdminDashboardPage: React.FC = () => {
 
               <div
                 onClick={() => setActiveSection('services')}
-                className="p-5 rounded-2xl bg-[#111111] border border-neutral-800 hover:border-[#c5a059]/40 cursor-pointer transition-colors space-y-1"
+                className="p-5 rounded-2xl bg-[#0f172a] border border-neutral-800 hover:border-[#2563eb]/40 cursor-pointer transition-colors space-y-1"
               >
                 <div className="text-xs text-neutral-400">Active Services & Portfolio</div>
                 <div className="text-2xl sm:text-3xl font-bold text-white tabular-nums font-brand">
@@ -801,10 +877,10 @@ export const AdminDashboardPage: React.FC = () => {
 
             {/* Analytics Snapshot Banner */}
             {analytics && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-[#141414] via-[#161616] to-[#121212] border border-neutral-800 hover:border-[#c5a059]/50 transition-all space-y-4">
+              <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-[#141414] via-[#131d35] to-[#111827] border border-neutral-800 hover:border-[#2563eb]/50 transition-all space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-start sm:items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#c5a059]/15 border border-[#c5a059]/30 flex items-center justify-center text-[#c5a059] shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#2563eb]/15 border border-[#2563eb]/30 flex items-center justify-center text-[#3b82f6] shrink-0">
                       <BarChart3 className="w-5 h-5" />
                     </div>
                     <div>
@@ -823,7 +899,7 @@ export const AdminDashboardPage: React.FC = () => {
                   </div>
                   <button
                     onClick={() => setActiveSection('analytics')}
-                    className="px-4 py-2.5 rounded-xl bg-[#c5a059] hover:bg-[#d4af37] text-black text-xs font-bold transition-all flex items-center gap-2 self-start sm:self-auto shrink-0 shadow-md shadow-[#c5a059]/15"
+                    className="px-4 py-2.5 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-bold transition-all flex items-center gap-2 self-start sm:self-auto shrink-0 shadow-md shadow-[#2563eb]/15"
                   >
                     <span>Open Full 5-Type Analytics</span>
                     <TrendingUp className="w-3.5 h-3.5" />
@@ -833,52 +909,52 @@ export const AdminDashboardPage: React.FC = () => {
             )}
 
             {/* Quick Actions Strip */}
-            <div className="p-6 rounded-2xl bg-[#111111] border border-neutral-800 space-y-4">
+            <div className="p-6 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-4">
               <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-300 font-brand">
                 Quick Studio Actions
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                 <button
                   onClick={() => setActiveSection('analytics')}
-                  className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-[#c5a059] transition-all text-left space-y-1"
+                  className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-[#2563eb] transition-all text-left space-y-1"
                 >
-                  <BarChart3 className="w-5 h-5 text-[#c5a059]" />
+                  <BarChart3 className="w-5 h-5 text-[#3b82f6]" />
                   <div className="text-xs font-bold text-white">Studio Analytics</div>
                   <div className="text-[10px] text-neutral-400">View 5 core dimensions</div>
                 </button>
 
                 <button
                   onClick={() => setActiveSection('inquiries')}
-                  className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-[#c5a059] transition-all text-left space-y-1"
+                  className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-[#2563eb] transition-all text-left space-y-1"
                 >
-                  <Inbox className="w-5 h-5 text-[#c5a059]" />
+                  <Inbox className="w-5 h-5 text-[#3b82f6]" />
                   <div className="text-xs font-bold text-white">Review Inquiries</div>
                   <div className="text-[10px] text-neutral-400">Update client statuses</div>
                 </button>
 
                 <button
                   onClick={() => setActiveSection('content')}
-                  className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-[#c5a059] transition-all text-left space-y-1"
+                  className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-[#2563eb] transition-all text-left space-y-1"
                 >
-                  <Sliders className="w-5 h-5 text-[#c5a059]" />
+                  <Sliders className="w-5 h-5 text-[#3b82f6]" />
                   <div className="text-xs font-bold text-white">Edit Hero & Logo</div>
                   <div className="text-[10px] text-neutral-400">Change homepage visuals</div>
                 </button>
 
                 <button
                   onClick={() => setActiveSection('portfolio')}
-                  className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-[#c5a059] transition-all text-left space-y-1"
+                  className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-[#2563eb] transition-all text-left space-y-1"
                 >
-                  <Film className="w-5 h-5 text-[#c5a059]" />
+                  <Film className="w-5 h-5 text-[#3b82f6]" />
                   <div className="text-xs font-bold text-white">Add Portfolio Film</div>
                   <div className="text-[10px] text-neutral-400">Upload new wedding or TVC</div>
                 </button>
 
                 <button
                   onClick={() => setActiveSection('media')}
-                  className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-[#c5a059] transition-all text-left space-y-1"
+                  className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-[#2563eb] transition-all text-left space-y-1"
                 >
-                  <ImageIcon className="w-5 h-5 text-[#c5a059]" />
+                  <ImageIcon className="w-5 h-5 text-[#3b82f6]" />
                   <div className="text-xs font-bold text-white">Media Vault</div>
                   <div className="text-[10px] text-neutral-400">Upload raw assets & video</div>
                 </button>
@@ -891,7 +967,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <h3 className="text-base font-bold text-white font-brand">Recent Client Inquiries</h3>
                 <button
                   onClick={() => setActiveSection('inquiries')}
-                  className="text-xs text-[#c5a059] hover:underline font-medium"
+                  className="text-xs text-[#3b82f6] hover:underline font-medium"
                 >
                   View All ({inquiries.length})
                 </button>
@@ -905,7 +981,7 @@ export const AdminDashboardPage: React.FC = () => {
                       setSelectedInquiry(inq);
                       setActiveSection('inquiries');
                     }}
-                    className="p-4 rounded-xl bg-[#111111] border border-neutral-800 hover:border-neutral-700 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-4 rounded-xl bg-[#0f172a] border border-neutral-800 hover:border-neutral-700 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div>
                       <div className="font-bold text-white text-sm">{inq.fullName}</div>
@@ -956,14 +1032,14 @@ export const AdminDashboardPage: React.FC = () => {
                     value={inquirySearch}
                     onChange={(e) => setInquirySearch(e.target.value)}
                     placeholder="Search client, city, service..."
-                    className="w-full sm:w-60 pl-9 pr-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#c5a059]"
+                    className="w-full sm:w-60 pl-9 pr-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
 
                 <select
                   value={inquiryFilterStatus}
                   onChange={(e) => setInquiryFilterStatus(e.target.value)}
-                  className="px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                  className="px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                 >
                   <option value="all">All Statuses</option>
                   <option value="new">New</option>
@@ -979,7 +1055,7 @@ export const AdminDashboardPage: React.FC = () => {
               {filteredInquiries.map((inq) => (
                 <div
                   key={inq.id}
-                  className="p-5 sm:p-6 rounded-2xl bg-[#111111] border border-neutral-800 hover:border-neutral-700 transition-all space-y-4"
+                  className="p-5 sm:p-6 rounded-2xl bg-[#0f172a] border border-neutral-800 hover:border-neutral-700 transition-all space-y-4"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="space-y-1">
@@ -1004,11 +1080,11 @@ export const AdminDashboardPage: React.FC = () => {
 
                       <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-400">
                         <span className="flex items-center gap-1 text-neutral-300">
-                          <MapPin className="w-3 h-3 text-[#c5a059]" />
+                          <MapPin className="w-3 h-3 text-[#3b82f6]" />
                           {inq.city}
                         </span>
                         <span>·</span>
-                        <span className="text-[#c5a059] font-medium">{inq.requiredService}</span>
+                        <span className="text-[#3b82f6] font-medium">{inq.requiredService}</span>
                         <span>·</span>
                         <span>Budget: {inq.estimatedBudget}</span>
                         <span>·</span>
@@ -1019,7 +1095,7 @@ export const AdminDashboardPage: React.FC = () => {
                     <div className="flex flex-wrap items-center gap-2">
                       <button
                         onClick={() => setSelectedInquiry(inq)}
-                        className="min-h-[38px] px-3.5 py-1.5 text-xs font-semibold text-neutral-200 bg-neutral-900 border border-neutral-700 rounded-lg hover:text-white hover:border-[#c5a059] transition-colors flex items-center gap-1.5"
+                        className="min-h-[38px] px-3.5 py-1.5 text-xs font-semibold text-neutral-200 bg-neutral-900 border border-neutral-700 rounded-lg hover:text-white hover:border-[#2563eb] transition-colors flex items-center gap-1.5"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>Inspect & Notes</span>
@@ -1028,7 +1104,7 @@ export const AdminDashboardPage: React.FC = () => {
                       <select
                         value={inq.status}
                         onChange={(e) => handleUpdateInquiryStatus(inq.id, e.target.value)}
-                        className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-neutral-700 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                        className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-neutral-700 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                       >
                         <option value="New">Status: New</option>
                         <option value="Contacted">Status: Contacted</option>
@@ -1053,13 +1129,13 @@ export const AdminDashboardPage: React.FC = () => {
 
                   <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-400 pt-1">
                     <span className="flex items-center gap-1">
-                      <Phone className="w-3.5 h-3.5 text-[#c5a059]" />
+                      <Phone className="w-3.5 h-3.5 text-[#3b82f6]" />
                       <a href={`tel:${inq.phoneNumber}`} className="hover:text-white underline">
                         {inq.phoneNumber}
                       </a>
                     </span>
                     <span className="flex items-center gap-1">
-                      <Mail className="w-3.5 h-3.5 text-[#c5a059]" />
+                      <Mail className="w-3.5 h-3.5 text-[#3b82f6]" />
                       <a href={`mailto:${inq.email}`} className="hover:text-white underline">
                         {inq.email}
                       </a>
@@ -1077,7 +1153,7 @@ export const AdminDashboardPage: React.FC = () => {
               ))}
 
               {filteredInquiries.length === 0 && (
-                <div className="p-12 text-center text-neutral-500 text-sm bg-[#111111] rounded-2xl border border-neutral-800">
+                <div className="p-12 text-center text-neutral-500 text-sm bg-[#0f172a] rounded-2xl border border-neutral-800">
                   No inquiries matching the selected filters.
                 </div>
               )}
@@ -1111,7 +1187,7 @@ export const AdminDashboardPage: React.FC = () => {
                     turnaroundTime: '2-3 weeks',
                   })
                 }
-                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37] transition-all flex items-center justify-center gap-2"
+                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add New Service</span>
@@ -1120,7 +1196,7 @@ export const AdminDashboardPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {servicesList.map((srv) => (
-                <div key={srv.id} className="rounded-2xl bg-[#111111] border border-neutral-800 overflow-hidden flex flex-col justify-between">
+                <div key={srv.id} className="rounded-2xl bg-[#0f172a] border border-neutral-800 overflow-hidden flex flex-col justify-between">
                   {srv.image && (
                     <div className="relative aspect-video w-full overflow-hidden bg-neutral-900 border-b border-neutral-800">
                       <img
@@ -1129,7 +1205,7 @@ export const AdminDashboardPage: React.FC = () => {
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                       />
-                      <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/75 backdrop-blur-md text-[10px] text-[#c5a059] font-semibold uppercase tracking-wider">
+                      <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/75 backdrop-blur-md text-[10px] text-[#3b82f6] font-semibold uppercase tracking-wider">
                         {srv.iconName}
                       </div>
                     </div>
@@ -1139,7 +1215,7 @@ export const AdminDashboardPage: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         {!srv.image && (
-                          <span className="text-xs font-semibold text-[#c5a059] uppercase tracking-wider">
+                          <span className="text-xs font-semibold text-[#3b82f6] uppercase tracking-wider">
                             {srv.iconName}
                           </span>
                         )}
@@ -1205,7 +1281,7 @@ export const AdminDashboardPage: React.FC = () => {
                     isFeatured: true,
                   })
                 }
-                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37] transition-all flex items-center justify-center gap-2"
+                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Portfolio Project</span>
@@ -1214,7 +1290,7 @@ export const AdminDashboardPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {portfolioList.map((item) => (
-                <div key={item.id} className="rounded-2xl bg-[#111111] border border-neutral-800 overflow-hidden flex flex-col justify-between">
+                <div key={item.id} className="rounded-2xl bg-[#0f172a] border border-neutral-800 overflow-hidden flex flex-col justify-between">
                   <div className="relative aspect-video bg-black">
                     <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                     <div className="absolute top-3 right-3 bg-black/80 px-2 py-1 rounded-md text-[10px] text-white">
@@ -1276,7 +1352,7 @@ export const AdminDashboardPage: React.FC = () => {
                     isPopular: false,
                   })
                 }
-                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37] transition-all flex items-center justify-center gap-2"
+                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Package</span>
@@ -1285,17 +1361,17 @@ export const AdminDashboardPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {packagesList.map((pkg) => (
-                <div key={pkg.id} className="p-6 rounded-2xl bg-[#111111] border border-neutral-800 flex flex-col justify-between space-y-4">
+                <div key={pkg.id} className="p-6 rounded-2xl bg-[#0f172a] border border-neutral-800 flex flex-col justify-between space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-bold text-white font-brand">{pkg.name}</h3>
                       {pkg.isPopular && (
-                        <span className="text-[10px] font-bold text-black bg-[#c5a059] px-2 py-0.5 rounded-full uppercase">
+                        <span className="text-[10px] font-bold text-white bg-[#2563eb] px-2 py-0.5 rounded-full uppercase">
                           Popular
                         </span>
                       )}
                     </div>
-                    <div className="text-xl font-bold text-[#c5a059] font-brand">
+                    <div className="text-xl font-bold text-[#3b82f6] font-brand">
                       {pkg.isCustomQuote ? 'Custom Quote' : `PKR ${pkg.pricePkr}`}
                     </div>
                     <p className="text-xs text-neutral-400">{pkg.tagline}</p>
@@ -1349,7 +1425,7 @@ export const AdminDashboardPage: React.FC = () => {
                     date: 'October 2026',
                   })
                 }
-                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37] transition-all flex items-center justify-center gap-2"
+                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Review</span>
@@ -1358,7 +1434,7 @@ export const AdminDashboardPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {testimonialsList.map((t) => (
-                <div key={t.id} className="p-5 rounded-2xl bg-[#111111] border border-neutral-800 flex flex-col justify-between space-y-4">
+                <div key={t.id} className="p-5 rounded-2xl bg-[#0f172a] border border-neutral-800 flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-white">{t.clientName}</span>
@@ -1387,6 +1463,435 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
         )}
 
+        {/* ================= LEADERSHIP & TEAM (OWNER, CEO & CREATIVE TEAM) ================= */}
+        {activeSection === 'team' && (
+          <div className="space-y-8 animate-fadeIn">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-white font-brand flex items-center gap-2.5">
+                  <Users className="w-6 h-6 text-[#3b82f6]" />
+                  <span>Leadership & Team Management</span>
+                </h1>
+                <p className="text-xs text-neutral-400 mt-1">
+                  Manage Studio Owner profile, CEO profile, and Creative Team member profiles with full Add, Edit, and Delete options.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() =>
+                    setEditingTeamMember({
+                      roleType: 'owner',
+                      title: 'Founder & Studio Owner',
+                      photo: '/images/hero_cinematic_production_1793180767552.jpg',
+                      displayOrder: 1,
+                    })
+                  }
+                  className="min-h-[40px] px-3.5 py-1.5 text-xs font-semibold text-amber-200 bg-amber-950/40 border border-amber-600/40 rounded-xl hover:bg-amber-900/50 transition-all flex items-center gap-1.5"
+                >
+                  <Crown className="w-3.5 h-3.5 text-amber-400" />
+                  <span>+ Add Owner Profile</span>
+                </button>
+
+                <button
+                  onClick={() =>
+                    setEditingTeamMember({
+                      roleType: 'ceo',
+                      title: 'Chief Executive Officer (CEO)',
+                      photo: '/images/commercial_film_set_1793180800619.jpg',
+                      displayOrder: 2,
+                    })
+                  }
+                  className="min-h-[40px] px-3.5 py-1.5 text-xs font-semibold text-sky-200 bg-sky-950/40 border border-sky-600/40 rounded-xl hover:bg-sky-900/50 transition-all flex items-center gap-1.5"
+                >
+                  <Briefcase className="w-3.5 h-3.5 text-sky-400" />
+                  <span>+ Add CEO Profile</span>
+                </button>
+
+                <button
+                  onClick={() =>
+                    setEditingTeamMember({
+                      roleType: 'team_member',
+                      title: 'Director of Photography',
+                      photo: '/images/wedding_cinematography_1793180783307.jpg',
+                      displayOrder: teamList.length + 1,
+                    })
+                  }
+                  className="min-h-[40px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all flex items-center gap-1.5 shadow-md shadow-blue-900/30"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Add Team Member</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Filter Tabs */}
+            <div className="flex flex-wrap items-center gap-2 pb-1 border-b border-neutral-800">
+              <button
+                onClick={() => setTeamRoleFilter('all')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  teamRoleFilter === 'all'
+                    ? 'bg-[#2563eb] text-white font-semibold'
+                    : 'text-neutral-400 hover:text-white bg-neutral-900/60'
+                }`}
+              >
+                All Profiles ({teamList.length})
+              </button>
+              <button
+                onClick={() => setTeamRoleFilter('owner')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                  teamRoleFilter === 'owner'
+                    ? 'bg-amber-600 text-white font-semibold'
+                    : 'text-neutral-400 hover:text-white bg-neutral-900/60'
+                }`}
+              >
+                <Crown className="w-3.5 h-3.5 text-amber-400" />
+                <span>Studio Owner ({teamList.filter((m) => m.roleType === 'owner').length})</span>
+              </button>
+              <button
+                onClick={() => setTeamRoleFilter('ceo')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                  teamRoleFilter === 'ceo'
+                    ? 'bg-sky-600 text-white font-semibold'
+                    : 'text-neutral-400 hover:text-white bg-neutral-900/60'
+                }`}
+              >
+                <Briefcase className="w-3.5 h-3.5 text-sky-400" />
+                <span>CEO ({teamList.filter((m) => m.roleType === 'ceo').length})</span>
+              </button>
+              <button
+                onClick={() => setTeamRoleFilter('team_member')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                  teamRoleFilter === 'team_member'
+                    ? 'bg-blue-600 text-white font-semibold'
+                    : 'text-neutral-400 hover:text-white bg-neutral-900/60'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5 text-blue-400" />
+                <span>Team Members ({teamList.filter((m) => m.roleType === 'team_member').length})</span>
+              </button>
+            </div>
+
+            {/* CATEGORY 1: OWNER PROFILES */}
+            {(teamRoleFilter === 'all' || teamRoleFilter === 'owner') && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
+                      <Crown className="w-4 h-4 text-amber-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold text-white font-brand">Studio Owner Profile</h2>
+                      <p className="text-[11px] text-neutral-400">Founder & Studio Ownership details displayed across public profiles.</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setEditingTeamMember({
+                        roleType: 'owner',
+                        title: 'Founder & Studio Owner',
+                        photo: '/images/hero_cinematic_production_1793180767552.jpg',
+                        displayOrder: 1,
+                      })
+                    }
+                    className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 font-medium"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Owner Profile</span>
+                  </button>
+                </div>
+
+                {teamList.filter((m) => m.roleType === 'owner').length === 0 ? (
+                  <div className="p-8 text-center rounded-2xl bg-[#0f172a] border border-dashed border-neutral-800 text-xs text-neutral-400">
+                    No owner profile currently configured. Click "+ Add Owner Profile" to create one.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {teamList
+                      .filter((m) => m.roleType === 'owner')
+                      .map((member) => (
+                        <div
+                          key={member.id}
+                          className="p-5 rounded-2xl bg-gradient-to-br from-[#0f172a] via-[#111c38] to-[#0a0f1d] border border-amber-500/40 shadow-xl space-y-4 relative overflow-hidden"
+                        >
+                          <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
+                              <Crown className="w-3 h-3" />
+                              <span>Studio Owner</span>
+                            </span>
+                          </div>
+
+                          <div className="flex items-start gap-4 pt-1">
+                            <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-amber-500/50 shrink-0 bg-neutral-900 shadow-md">
+                              <img
+                                src={member.photo}
+                                alt={member.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = '/images/hero_cinematic_production_1793180767552.jpg';
+                                }}
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0 pr-16 space-y-1">
+                              <h3 className="text-lg font-bold text-white font-brand truncate">{member.name}</h3>
+                              <p className="text-xs text-amber-400 font-medium truncate">{member.title}</p>
+                              {member.email && (
+                                <p className="text-[11px] text-neutral-400 truncate flex items-center gap-1.5">
+                                  <Mail className="w-3 h-3 text-neutral-500 shrink-0" />
+                                  <span>{member.email}</span>
+                                </p>
+                              )}
+                              {member.phone && (
+                                <p className="text-[11px] text-neutral-400 truncate flex items-center gap-1.5">
+                                  <Phone className="w-3 h-3 text-neutral-500 shrink-0" />
+                                  <span>{member.phone}</span>
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-neutral-300 leading-relaxed line-clamp-3 bg-black/30 p-3 rounded-xl border border-neutral-800/80">
+                            {member.bio || 'No biography entered yet.'}
+                          </p>
+
+                          <div className="pt-2 border-t border-neutral-800/80 flex items-center justify-between">
+                            <span className="text-[11px] text-neutral-500 font-mono">Display Order: #{member.displayOrder}</span>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => setEditingTeamMember(member)}
+                                className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] flex items-center gap-1.5 transition-colors shadow-sm"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                                <span>Edit Profile</span>
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTeamMember(member.id, member.name)}
+                                className="p-1.5 text-neutral-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors"
+                                title="Delete Profile"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* CATEGORY 2: CEO PROFILES */}
+            {(teamRoleFilter === 'all' || teamRoleFilter === 'ceo') && (
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/40 flex items-center justify-center">
+                      <Briefcase className="w-4 h-4 text-sky-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold text-white font-brand">CEO Profile</h2>
+                      <p className="text-[11px] text-neutral-400">Chief Executive Officer profile overseeing studio management & commissions.</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setEditingTeamMember({
+                        roleType: 'ceo',
+                        title: 'Chief Executive Officer (CEO)',
+                        photo: '/images/commercial_film_set_1793180800619.jpg',
+                        displayOrder: 2,
+                      })
+                    }
+                    className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add CEO Profile</span>
+                  </button>
+                </div>
+
+                {teamList.filter((m) => m.roleType === 'ceo').length === 0 ? (
+                  <div className="p-8 text-center rounded-2xl bg-[#0f172a] border border-dashed border-neutral-800 text-xs text-neutral-400">
+                    No CEO profile currently configured. Click "+ Add CEO Profile" to create one.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {teamList
+                      .filter((m) => m.roleType === 'ceo')
+                      .map((member) => (
+                        <div
+                          key={member.id}
+                          className="p-5 rounded-2xl bg-[#0f172a] border border-sky-500/40 shadow-xl space-y-4 relative overflow-hidden"
+                        >
+                          <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-500/40 flex items-center gap-1">
+                              <Briefcase className="w-3 h-3" />
+                              <span>Chief Executive Officer</span>
+                            </span>
+                          </div>
+
+                          <div className="flex items-start gap-4 pt-1">
+                            <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-sky-500/50 shrink-0 bg-neutral-900 shadow-md">
+                              <img
+                                src={member.photo}
+                                alt={member.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = '/images/commercial_film_set_1793180800619.jpg';
+                                }}
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0 pr-20 space-y-1">
+                              <h3 className="text-lg font-bold text-white font-brand truncate">{member.name}</h3>
+                              <p className="text-xs text-sky-400 font-medium truncate">{member.title}</p>
+                              {member.email && (
+                                <p className="text-[11px] text-neutral-400 truncate flex items-center gap-1.5">
+                                  <Mail className="w-3 h-3 text-neutral-500 shrink-0" />
+                                  <span>{member.email}</span>
+                                </p>
+                              )}
+                              {member.phone && (
+                                <p className="text-[11px] text-neutral-400 truncate flex items-center gap-1.5">
+                                  <Phone className="w-3 h-3 text-neutral-500 shrink-0" />
+                                  <span>{member.phone}</span>
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-neutral-300 leading-relaxed line-clamp-3 bg-black/30 p-3 rounded-xl border border-neutral-800/80">
+                            {member.bio || 'No biography entered yet.'}
+                          </p>
+
+                          <div className="pt-2 border-t border-neutral-800/80 flex items-center justify-between">
+                            <span className="text-[11px] text-neutral-500 font-mono">Display Order: #{member.displayOrder}</span>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => setEditingTeamMember(member)}
+                                className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] flex items-center gap-1.5 transition-colors shadow-sm"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                                <span>Edit Profile</span>
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTeamMember(member.id, member.name)}
+                                className="p-1.5 text-neutral-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors"
+                                title="Delete Profile"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* CATEGORY 3: CREATIVE TEAM MEMBERS */}
+            {(teamRoleFilter === 'all' || teamRoleFilter === 'team_member') && (
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/40 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-blue-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold text-white font-brand">Creative Team Members</h2>
+                      <p className="text-[11px] text-neutral-400">Cinematographers, drone pilots, sound engineers, and post-production colorists.</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setEditingTeamMember({
+                        roleType: 'team_member',
+                        title: 'Director of Photography',
+                        photo: '/images/wedding_cinematography_1793180783307.jpg',
+                        displayOrder: teamList.length + 1,
+                      })
+                    }
+                    className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Member</span>
+                  </button>
+                </div>
+
+                {teamList.filter((m) => m.roleType === 'team_member').length === 0 ? (
+                  <div className="p-8 text-center rounded-2xl bg-[#0f172a] border border-dashed border-neutral-800 text-xs text-neutral-400">
+                    No team members added yet. Click "+ Add Team Member" to add creative staff.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {teamList
+                      .filter((m) => m.roleType === 'team_member')
+                      .map((member) => (
+                        <div
+                          key={member.id}
+                          className="p-5 rounded-2xl bg-[#0f172a] border border-neutral-800 hover:border-neutral-700 flex flex-col justify-between space-y-4 transition-all"
+                        >
+                          <div className="space-y-3">
+                            <div className="flex items-start gap-3">
+                              <div className="w-14 h-14 rounded-xl overflow-hidden border border-neutral-700 shrink-0 bg-neutral-900">
+                                <img
+                                  src={member.photo}
+                                  alt={member.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/images/wedding_cinematography_1793180783307.jpg';
+                                  }}
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0 space-y-0.5">
+                                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                  Team Member
+                                </span>
+                                <h3 className="text-sm font-bold text-white font-brand truncate">{member.name}</h3>
+                                <p className="text-xs text-neutral-400 truncate">{member.title}</p>
+                              </div>
+                            </div>
+
+                            <p className="text-xs text-neutral-300 line-clamp-3 leading-relaxed">
+                              {member.bio || 'Creative filmmaking specialist.'}
+                            </p>
+
+                            {(member.email || member.phone) && (
+                              <div className="text-[11px] text-neutral-400 space-y-0.5 pt-1 border-t border-neutral-900">
+                                {member.email && <div className="truncate">Email: {member.email}</div>}
+                                {member.phone && <div className="truncate">Phone: {member.phone}</div>}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="pt-3 border-t border-neutral-900 flex items-center justify-between">
+                            <span className="text-[10px] text-neutral-500 font-mono">Order #{member.displayOrder}</span>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => setEditingTeamMember(member)}
+                                className="px-2.5 py-1 text-xs text-neutral-300 hover:text-white bg-neutral-900 rounded-lg border border-neutral-800 hover:border-neutral-700 flex items-center gap-1 transition-colors"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                                <span>Edit</span>
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTeamMember(member.id, member.name)}
+                                className="p-1 text-neutral-500 hover:text-rose-400 transition-colors"
+                                title="Delete Member"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ================= 7. CONTENT (HERO & ABOUT & LOGO) ================= */}
         {activeSection === 'content' && settingsForm && (
           <div className="space-y-8 animate-fadeIn">
@@ -1401,7 +1906,7 @@ export const AdminDashboardPage: React.FC = () => {
 
             <form onSubmit={handleSaveSettings} className="space-y-8">
               {/* Logo Management Card */}
-              <div className="p-6 sm:p-7 rounded-2xl bg-[#111111] border border-neutral-800 space-y-6">
+              <div className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-white font-brand">
                     Website Official Logo
@@ -1417,7 +1922,7 @@ export const AdminDashboardPage: React.FC = () => {
                     type="button"
                     onClick={() => logoInputRef.current?.click()}
                     disabled={uploadingMedia}
-                    className="min-h-[40px] px-4 py-2 text-xs font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37] transition-all flex items-center gap-2"
+                    className="min-h-[40px] px-4 py-2 text-xs font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all flex items-center gap-2"
                   >
                     <Upload className="w-4 h-4" />
                     <span>Upload New Logo File</span>
@@ -1444,7 +1949,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               {/* Homepage Hero Content */}
-              <div className="p-6 sm:p-7 rounded-2xl bg-[#111111] border border-neutral-800 space-y-6">
+              <div className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-white font-brand">
                     Homepage Hero Section
@@ -1461,7 +1966,7 @@ export const AdminDashboardPage: React.FC = () => {
                     onClick={() => heroMediaInputRef.current?.click()}
                     className="min-h-[40px] px-3.5 py-1.5 text-xs font-medium text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-800 rounded-xl flex items-center gap-2"
                   >
-                    <Upload className="w-4 h-4 text-[#c5a059]" />
+                    <Upload className="w-4 h-4 text-[#3b82f6]" />
                     <span>Upload Hero Image/Video</span>
                   </button>
                 </div>
@@ -1480,7 +1985,7 @@ export const AdminDashboardPage: React.FC = () => {
                           hero: { ...settingsForm.hero, heading: e.target.value },
                         })
                       }
-                      className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
@@ -1497,7 +2002,7 @@ export const AdminDashboardPage: React.FC = () => {
                           hero: { ...settingsForm.hero, subheading: e.target.value },
                         })
                       }
-                      className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
@@ -1514,14 +2019,14 @@ export const AdminDashboardPage: React.FC = () => {
                           hero: { ...settingsForm.hero, bgImage: e.target.value },
                         })
                       }
-                      className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* About Us Content Management */}
-              <div className="p-6 sm:p-7 rounded-2xl bg-[#111111] border border-neutral-800 space-y-6">
+              <div className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
                 <h3 className="text-base font-bold text-white font-brand">
                   About Us Story & Vision
                 </h3>
@@ -1540,7 +2045,7 @@ export const AdminDashboardPage: React.FC = () => {
                           about: { ...settingsForm.about, title: e.target.value },
                         })
                       }
-                      className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
@@ -1557,7 +2062,7 @@ export const AdminDashboardPage: React.FC = () => {
                           about: { ...settingsForm.about, story: e.target.value },
                         })
                       }
-                      className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
@@ -1574,7 +2079,7 @@ export const AdminDashboardPage: React.FC = () => {
                           about: { ...settingsForm.about, cinematicVision: e.target.value },
                         })
                       }
-                      className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
@@ -1590,7 +2095,7 @@ export const AdminDashboardPage: React.FC = () => {
                             about: { ...settingsForm.about, completedProjects: e.target.value },
                           })
                         }
-                        className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                        className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                       />
                     </div>
                     <div className="space-y-1">
@@ -1604,7 +2109,7 @@ export const AdminDashboardPage: React.FC = () => {
                             about: { ...settingsForm.about, experienceYears: e.target.value },
                           })
                         }
-                        className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                        className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                       />
                     </div>
                     <div className="space-y-1">
@@ -1618,7 +2123,7 @@ export const AdminDashboardPage: React.FC = () => {
                             about: { ...settingsForm.about, filmmakersCount: e.target.value },
                           })
                         }
-                        className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                        className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                       />
                     </div>
                   </div>
@@ -1629,7 +2134,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingSettings}
-                  className="min-h-[46px] w-full sm:w-auto px-8 py-3 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#c5a059]/20"
+                  className="min-h-[46px] w-full sm:w-auto px-8 py-3 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#2563eb]/20"
                 >
                   {savingSettings ? (
                     <>
@@ -1661,7 +2166,7 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleSaveSettings} className="space-y-8">
-              <div className="p-6 sm:p-7 rounded-2xl bg-[#111111] border border-neutral-800 space-y-6">
+              <div className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
                 <h3 className="text-base font-bold text-white font-brand">
                   Pakistani Contact Numbers & Official Channels
                 </h3>
@@ -1673,7 +2178,7 @@ export const AdminDashboardPage: React.FC = () => {
                       type="text"
                       value={settingsForm.phone}
                       onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
@@ -1683,7 +2188,7 @@ export const AdminDashboardPage: React.FC = () => {
                       type="text"
                       value={settingsForm.whatsapp}
                       onChange={(e) => setSettingsForm({ ...settingsForm, whatsapp: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
@@ -1693,7 +2198,7 @@ export const AdminDashboardPage: React.FC = () => {
                       type="email"
                       value={settingsForm.email}
                       onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
                 </div>
@@ -1705,7 +2210,7 @@ export const AdminDashboardPage: React.FC = () => {
                       type="text"
                       value={settingsForm.addressLahore}
                       onChange={(e) => setSettingsForm({ ...settingsForm, addressLahore: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
@@ -1715,14 +2220,14 @@ export const AdminDashboardPage: React.FC = () => {
                       type="text"
                       value={settingsForm.addressIslamabad}
                       onChange={(e) => setSettingsForm({ ...settingsForm, addressIslamabad: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Social Media Links */}
-              <div className="p-6 sm:p-7 rounded-2xl bg-[#111111] border border-neutral-800 space-y-6">
+              <div className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
                 <h3 className="text-base font-bold text-white font-brand">
                   Social Media Links
                 </h3>
@@ -1739,7 +2244,7 @@ export const AdminDashboardPage: React.FC = () => {
                           socials: { ...settingsForm.socials, instagram: e.target.value },
                         })
                       }
-                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
@@ -1754,7 +2259,7 @@ export const AdminDashboardPage: React.FC = () => {
                           socials: { ...settingsForm.socials, youtube: e.target.value },
                         })
                       }
-                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
@@ -1769,7 +2274,7 @@ export const AdminDashboardPage: React.FC = () => {
                           socials: { ...settingsForm.socials, vimeo: e.target.value },
                         })
                       }
-                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
 
@@ -1784,7 +2289,7 @@ export const AdminDashboardPage: React.FC = () => {
                           socials: { ...settingsForm.socials, linkedin: e.target.value },
                         })
                       }
-                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                     />
                   </div>
                 </div>
@@ -1794,7 +2299,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingSettings}
-                  className="min-h-[46px] w-full sm:w-auto px-8 py-3 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#c5a059]/20"
+                  className="min-h-[46px] w-full sm:w-auto px-8 py-3 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#2563eb]/20"
                 >
                   <Save className="w-4 h-4" />
                   <span>Save Contact & Social Details</span>
@@ -1823,7 +2328,7 @@ export const AdminDashboardPage: React.FC = () => {
                     category: 'General',
                   })
                 }
-                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37] transition-all flex items-center justify-center gap-2"
+                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add FAQ</span>
@@ -1836,7 +2341,7 @@ export const AdminDashboardPage: React.FC = () => {
                 Active FAQ Entries
               </h3>
               {faqsList.map((f) => (
-                <div key={f.id} className="p-5 rounded-2xl bg-[#111111] border border-neutral-800 space-y-2">
+                <div key={f.id} className="p-5 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-2">
                   <div className="flex items-start justify-between gap-4">
                     <h4 className="text-sm font-bold text-white font-brand">{f.question}</h4>
                     <div className="flex items-center gap-2 shrink-0">
@@ -1860,7 +2365,7 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             {/* Legal Documents Editor */}
-            <form onSubmit={handleSaveSettings} className="p-6 sm:p-7 rounded-2xl bg-[#111111] border border-neutral-800 space-y-6">
+            <form onSubmit={handleSaveSettings} className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
               <h3 className="text-base font-bold text-white font-brand">
                 Custom Legal Text (Privacy Policy & Terms)
               </h3>
@@ -1883,7 +2388,7 @@ export const AdminDashboardPage: React.FC = () => {
                       })
                     }
                     placeholder="Enter customized privacy terms (or leave blank to use default Pakistan privacy clauses)..."
-                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs sm:text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs sm:text-sm text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
 
@@ -1904,7 +2409,7 @@ export const AdminDashboardPage: React.FC = () => {
                       })
                     }
                     placeholder="Enter customized terms of booking & shoot deliverables (or leave blank for standard clauses)..."
-                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs sm:text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs sm:text-sm text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
 
@@ -1912,7 +2417,7 @@ export const AdminDashboardPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={savingSettings}
-                    className="min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37]"
+                    className="min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8]"
                   >
                     Save Legal Documentation
                   </button>
@@ -1925,7 +2430,7 @@ export const AdminDashboardPage: React.FC = () => {
         {/* ================= 10. MEDIA VAULT ================= */}
         {activeSection === 'media' && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-[#111111] border border-neutral-800">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-[#0f172a] border border-neutral-800">
               <div className="space-y-1">
                 <h1 className="text-xl font-bold text-white font-brand">Persistent Media Storage</h1>
                 <p className="text-xs text-neutral-400">
@@ -1944,7 +2449,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingMedia}
-                  className="min-h-[44px] px-5 py-2.5 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37] disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                  className="min-h-[44px] px-5 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center justify-center gap-2"
                 >
                   {uploadingMedia ? (
                     <>
@@ -1967,7 +2472,7 @@ export const AdminDashboardPage: React.FC = () => {
                   <div className="aspect-square bg-black overflow-hidden flex items-center justify-center">
                     {m.filename.endsWith('.mp4') || m.filename.endsWith('.webm') ? (
                       <div className="text-xs text-neutral-400 flex flex-col items-center gap-1">
-                        <Film className="w-6 h-6 text-[#c5a059]" />
+                        <Film className="w-6 h-6 text-[#3b82f6]" />
                         <span>Video Clip</span>
                       </div>
                     ) : (
@@ -2004,7 +2509,7 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             {mediaList.length === 0 && (
-              <div className="p-12 text-center text-neutral-500 text-sm bg-[#111111] rounded-2xl border border-neutral-800">
+              <div className="p-12 text-center text-neutral-500 text-sm bg-[#0f172a] rounded-2xl border border-neutral-800">
                 No custom media files in the library yet. Click "Upload New File" to add banners or stills.
               </div>
             )}
@@ -2023,7 +2528,7 @@ export const AdminDashboardPage: React.FC = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSaveSettings} className="p-6 sm:p-7 rounded-2xl bg-[#111111] border border-neutral-800 space-y-6">
+            <form onSubmit={handleSaveSettings} className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
               <h3 className="text-base font-bold text-white font-brand">
                 General Branding & SEO Metadata
               </h3>
@@ -2035,7 +2540,7 @@ export const AdminDashboardPage: React.FC = () => {
                     type="text"
                     value={settingsForm.brandName}
                     onChange={(e) => setSettingsForm({ ...settingsForm, brandName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
 
@@ -2045,7 +2550,7 @@ export const AdminDashboardPage: React.FC = () => {
                     type="text"
                     value={settingsForm.tagline}
                     onChange={(e) => setSettingsForm({ ...settingsForm, tagline: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
               </div>
@@ -2062,7 +2567,7 @@ export const AdminDashboardPage: React.FC = () => {
                         seo: { ...settingsForm.seo, metaTitle: e.target.value },
                       })
                     }
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
 
@@ -2077,7 +2582,7 @@ export const AdminDashboardPage: React.FC = () => {
                         seo: { ...settingsForm.seo, metaDescription: e.target.value },
                       })
                     }
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs sm:text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs sm:text-sm text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
               </div>
@@ -2086,38 +2591,38 @@ export const AdminDashboardPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingSettings}
-                  className="min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-xl hover:bg-[#d4af37]"
+                  className="min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8]"
                 >
                   Save Branding & SEO
                 </button>
               </div>
             </form>
 
-            {/* Authorized Admin Accounts (Password Requirement Removed) */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#111111] border border-neutral-800 space-y-6">
+            {/* Authorized Admin Accounts (Strict Security & Password Protected) */}
+            <div className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-[#c5a059]" />
+                  <Shield className="w-5 h-5 text-[#3b82f6]" />
                   <h3 className="text-base font-bold text-white font-brand">
                     Authorized Studio Administrators
                   </h3>
                 </div>
                 <p className="text-xs text-neutral-400">
-                  Password requirement has been removed. The following accounts have direct, passwordless access to this Admin Panel:
+                  Strict Security Active: Only these 2 authorized administrator accounts can access this panel with password protection.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-neutral-900 border border-[#c5a059]/40 flex items-center justify-between">
+                <div className="p-4 rounded-xl bg-neutral-900 border border-[#2563eb]/40 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#c5a059] text-black font-bold flex items-center justify-center text-sm shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-[#2563eb] text-white font-bold flex items-center justify-center text-sm shrink-0">
                       SP
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-white flex items-center gap-2">
                         <span>Shifa Productions</span>
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800">
-                          Primary
+                          Primary Admin
                         </span>
                       </div>
                       <div className="text-xs text-neutral-400 font-mono">
@@ -2126,7 +2631,7 @@ export const AdminDashboardPage: React.FC = () => {
                     </div>
                   </div>
                   <span className="text-xs text-emerald-400 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Active
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Authorized
                   </span>
                 </div>
 
@@ -2148,14 +2653,17 @@ export const AdminDashboardPage: React.FC = () => {
                     </div>
                   </div>
                   <span className="text-xs text-emerald-400 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Active
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Authorized
                   </span>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-800/40 text-xs text-emerald-300 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
-                <span>Passwordless authentication enabled. Both admin accounts can log in directly without a password on local and Netlify hosting.</span>
+              <div className="p-3.5 rounded-xl bg-neutral-900/60 border border-neutral-800 text-xs text-neutral-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Lock className="w-4 h-4 shrink-0 text-[#3b82f6]" />
+                  <span>Password protection is active and secured.</span>
+                </div>
+                <span className="text-[11px] text-neutral-500">1-Click bypass disabled. Secret password required.</span>
               </div>
             </div>
           </div>
@@ -2169,12 +2677,12 @@ export const AdminDashboardPage: React.FC = () => {
           onClick={() => setSelectedInquiry(null)}
         >
           <div
-            className="w-full max-w-2xl bg-[#121212] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl"
+            className="w-full max-w-2xl bg-[#111827] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-xs text-[#c5a059] uppercase tracking-wider font-semibold">
+                <span className="text-xs text-[#3b82f6] uppercase tracking-wider font-semibold">
                   Inquiry Details
                 </span>
                 <h3 className="text-xl sm:text-2xl font-bold text-white font-brand">
@@ -2212,7 +2720,7 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
               <div>
                 <span className="text-neutral-500 block">Budget:</span>
-                <strong className="text-[#c5a059] text-sm">{selectedInquiry.estimatedBudget}</strong>
+                <strong className="text-[#3b82f6] text-sm">{selectedInquiry.estimatedBudget}</strong>
               </div>
             </div>
 
@@ -2234,7 +2742,7 @@ export const AdminDashboardPage: React.FC = () => {
                 defaultValue={selectedInquiry.internalNotes || ''}
                 id="internalNotesField"
                 placeholder="Add private team notes, meeting date, price agreed..."
-                className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
               />
             </div>
 
@@ -2252,7 +2760,7 @@ export const AdminDashboardPage: React.FC = () => {
                   const input = document.getElementById('internalNotesField') as HTMLTextAreaElement;
                   handleSaveInternalNotes(selectedInquiry.id, input?.value || '');
                 }}
-                className="min-h-[40px] px-5 py-2 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37]"
+                className="min-h-[40px] px-5 py-2 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8]"
               >
                 Save Notes
               </button>
@@ -2268,7 +2776,7 @@ export const AdminDashboardPage: React.FC = () => {
           onClick={() => setEditingService(null)}
         >
           <div
-            className="w-full max-w-xl bg-[#121212] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-5 my-8 shadow-2xl"
+            className="w-full max-w-xl bg-[#111827] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-5 my-8 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
@@ -2288,7 +2796,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingService.title || ''}
                   onChange={(e) => setEditingService({ ...editingService, title: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2299,7 +2807,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingService.shortDesc || ''}
                   onChange={(e) => setEditingService({ ...editingService, shortDesc: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2311,7 +2819,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingService.image || ''}
                     onChange={(e) => setEditingService({ ...editingService, image: e.target.value })}
                     placeholder="/images/service_... or https://..."
-                    className="flex-1 px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                    className="flex-1 px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                   />
                   {editingService.image && (
                     <div className="w-12 h-9 rounded-lg overflow-hidden border border-neutral-700 bg-black flex-shrink-0">
@@ -2339,7 +2847,7 @@ export const AdminDashboardPage: React.FC = () => {
                       onClick={() => setEditingService({ ...editingService, image: preset.url })}
                       className={`text-[10px] px-2 py-1 rounded border transition-colors ${
                         editingService.image === preset.url
-                          ? 'border-[#c5a059] bg-[#c5a059]/10 text-[#c5a059]'
+                          ? 'border-[#2563eb] bg-[#2563eb]/10 text-[#3b82f6]'
                           : 'border-neutral-800 bg-neutral-900/60 text-neutral-400 hover:text-white'
                       }`}
                     >
@@ -2357,7 +2865,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingService.startingPricePkr || ''}
                     onChange={(e) => setEditingService({ ...editingService, startingPricePkr: e.target.value })}
                     placeholder="e.g. 250,000"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
                 <div className="space-y-1">
@@ -2367,7 +2875,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingService.turnaroundTime || ''}
                     onChange={(e) => setEditingService({ ...editingService, turnaroundTime: e.target.value })}
                     placeholder="e.g. 2-3 weeks"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
               </div>
@@ -2382,7 +2890,7 @@ export const AdminDashboardPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37]"
+                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8]"
                 >
                   Save Service
                 </button>
@@ -2399,7 +2907,7 @@ export const AdminDashboardPage: React.FC = () => {
           onClick={() => setEditingPortfolio(null)}
         >
           <div
-            className="w-full max-w-xl bg-[#121212] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-5 my-8 shadow-2xl"
+            className="w-full max-w-xl bg-[#111827] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-5 my-8 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
@@ -2419,7 +2927,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingPortfolio.title || ''}
                   onChange={(e) => setEditingPortfolio({ ...editingPortfolio, title: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2429,7 +2937,7 @@ export const AdminDashboardPage: React.FC = () => {
                   <select
                     value={editingPortfolio.category}
                     onChange={(e) => setEditingPortfolio({ ...editingPortfolio, category: e.target.value as any })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                   >
                     <option value="Weddings">Weddings</option>
                     <option value="Commercials">Commercials</option>
@@ -2444,7 +2952,7 @@ export const AdminDashboardPage: React.FC = () => {
                     type="text"
                     value={editingPortfolio.client || ''}
                     onChange={(e) => setEditingPortfolio({ ...editingPortfolio, client: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
               </div>
@@ -2462,7 +2970,7 @@ export const AdminDashboardPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => portfolioImgInputRef.current?.click()}
-                    className="text-xs text-[#c5a059] hover:underline flex items-center gap-1"
+                    className="text-xs text-[#3b82f6] hover:underline flex items-center gap-1"
                   >
                     <Upload className="w-3.5 h-3.5" />
                     <span>Upload Image</span>
@@ -2474,7 +2982,7 @@ export const AdminDashboardPage: React.FC = () => {
                   value={editingPortfolio.image || ''}
                   onChange={(e) => setEditingPortfolio({ ...editingPortfolio, image: e.target.value })}
                   placeholder="/src/assets/images/... or /uploads/..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2485,7 +2993,7 @@ export const AdminDashboardPage: React.FC = () => {
                   value={editingPortfolio.videoUrl || ''}
                   onChange={(e) => setEditingPortfolio({ ...editingPortfolio, videoUrl: e.target.value })}
                   placeholder="https://youtube.com/..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2495,7 +3003,7 @@ export const AdminDashboardPage: React.FC = () => {
                   rows={3}
                   value={editingPortfolio.description || ''}
                   onChange={(e) => setEditingPortfolio({ ...editingPortfolio, description: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2506,7 +3014,7 @@ export const AdminDashboardPage: React.FC = () => {
                   value={editingPortfolio.gearUsed || ''}
                   onChange={(e) => setEditingPortfolio({ ...editingPortfolio, gearUsed: e.target.value })}
                   placeholder="e.g. ARRI Alexa Mini LF, Master Anamorphics, DJI Inspire 3"
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2520,7 +3028,7 @@ export const AdminDashboardPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37]"
+                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8]"
                 >
                   Save Project
                 </button>
@@ -2537,7 +3045,7 @@ export const AdminDashboardPage: React.FC = () => {
           onClick={() => setEditingPackage(null)}
         >
           <div
-            className="w-full max-w-xl bg-[#121212] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-5 my-8 shadow-2xl"
+            className="w-full max-w-xl bg-[#111827] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-5 my-8 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
@@ -2557,7 +3065,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingPackage.name || ''}
                   onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2569,7 +3077,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingPackage.pricePkr || ''}
                     onChange={(e) => setEditingPackage({ ...editingPackage, pricePkr: e.target.value })}
                     placeholder="e.g. 380,000 or Request a Quote"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
                 <div className="space-y-1">
@@ -2579,7 +3087,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingPackage.crewSize || ''}
                     onChange={(e) => setEditingPackage({ ...editingPackage, crewSize: e.target.value })}
                     placeholder="e.g. 4 Cinematographers"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
               </div>
@@ -2590,7 +3098,7 @@ export const AdminDashboardPage: React.FC = () => {
                   type="text"
                   value={editingPackage.tagline || ''}
                   onChange={(e) => setEditingPackage({ ...editingPackage, tagline: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2600,7 +3108,7 @@ export const AdminDashboardPage: React.FC = () => {
                   id="isPopularCheck"
                   checked={!!editingPackage.isPopular}
                   onChange={(e) => setEditingPackage({ ...editingPackage, isPopular: e.target.checked })}
-                  className="rounded bg-neutral-900 border-neutral-700 text-[#c5a059] focus:ring-0"
+                  className="rounded bg-neutral-900 border-neutral-700 text-[#3b82f6] focus:ring-0"
                 />
                 <label htmlFor="isPopularCheck" className="text-xs text-neutral-300">
                   Highlight as "Most Popular Tier"
@@ -2617,7 +3125,7 @@ export const AdminDashboardPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37]"
+                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8]"
                 >
                   Save Package
                 </button>
@@ -2634,7 +3142,7 @@ export const AdminDashboardPage: React.FC = () => {
           onClick={() => setEditingTestimonial(null)}
         >
           <div
-            className="w-full max-w-lg bg-[#121212] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-4 shadow-2xl"
+            className="w-full max-w-lg bg-[#111827] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
@@ -2654,7 +3162,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingTestimonial.clientName || ''}
                   onChange={(e) => setEditingTestimonial({ ...editingTestimonial, clientName: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2665,7 +3173,7 @@ export const AdminDashboardPage: React.FC = () => {
                     type="text"
                     value={editingTestimonial.city || ''}
                     onChange={(e) => setEditingTestimonial({ ...editingTestimonial, city: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
                 <div className="space-y-1">
@@ -2674,7 +3182,7 @@ export const AdminDashboardPage: React.FC = () => {
                     type="text"
                     value={editingTestimonial.roleOrBrand || ''}
                     onChange={(e) => setEditingTestimonial({ ...editingTestimonial, roleOrBrand: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
               </div>
@@ -2686,7 +3194,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingTestimonial.reviewText || ''}
                   onChange={(e) => setEditingTestimonial({ ...editingTestimonial, reviewText: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2696,7 +3204,7 @@ export const AdminDashboardPage: React.FC = () => {
                   id="isVerifiedCheck"
                   checked={!!editingTestimonial.isVerifiedCustomer}
                   onChange={(e) => setEditingTestimonial({ ...editingTestimonial, isVerifiedCustomer: e.target.checked })}
-                  className="rounded bg-neutral-900 border-neutral-700 text-[#c5a059] focus:ring-0"
+                  className="rounded bg-neutral-900 border-neutral-700 text-[#3b82f6] focus:ring-0"
                 />
                 <label htmlFor="isVerifiedCheck" className="text-xs text-neutral-300">
                   Mark as Verified Customer Feedback
@@ -2713,7 +3221,7 @@ export const AdminDashboardPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37]"
+                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8]"
                 >
                   Save Review
                 </button>
@@ -2730,7 +3238,7 @@ export const AdminDashboardPage: React.FC = () => {
           onClick={() => setEditingFaq(null)}
         >
           <div
-            className="w-full max-w-lg bg-[#121212] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-4 shadow-2xl"
+            className="w-full max-w-lg bg-[#111827] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
@@ -2750,7 +3258,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingFaq.question || ''}
                   onChange={(e) => setEditingFaq({ ...editingFaq, question: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2761,7 +3269,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingFaq.answer || ''}
                   onChange={(e) => setEditingFaq({ ...editingFaq, answer: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#c5a059]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
 
@@ -2775,7 +3283,7 @@ export const AdminDashboardPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37]"
+                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8]"
                 >
                   Save Question
                 </button>

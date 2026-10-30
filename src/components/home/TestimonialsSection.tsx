@@ -6,10 +6,10 @@ export const TestimonialsSection: React.FC = () => {
   const { testimonials } = useApp();
 
   return (
-    <section className="py-16 sm:py-24 bg-[#080808] text-neutral-100 border-b border-neutral-800/80">
+    <section className="py-16 sm:py-24 bg-[#060913] text-neutral-100 border-b border-neutral-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
             Client Experiences
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-brand">
@@ -31,7 +31,7 @@ export const TestimonialsSection: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-amber-400">
                     {Array.from({ length: t.rating || 5 }).map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-current text-[#c5a059]" />
+                      <Star key={i} className="w-4 h-4 fill-current text-[#3b82f6]" />
                     ))}
                   </div>
 

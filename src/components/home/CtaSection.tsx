@@ -11,10 +11,10 @@ export const CtaSection: React.FC = () => {
 
   return (
     <section className="relative py-16 sm:py-24 overflow-hidden bg-gradient-to-b from-[#0a0a0a] to-black text-white border-b border-neutral-800/80">
-      <div className="absolute inset-0 bg-radial-gradient from-[#c5a059]/10 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-radial-gradient from-[#2563eb]/15 via-transparent to-transparent pointer-events-none" />
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6 sm:space-y-8">
-        <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+        <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
           Get Started With Shifa Productions
         </div>
 
@@ -29,7 +29,7 @@ export const CtaSection: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
           <button
             onClick={() => navigateTo('contact')}
-            className="w-full sm:w-auto px-8 py-4 text-xs uppercase tracking-wider font-semibold text-white bg-neutral-900 border border-neutral-700 rounded-lg hover:border-[#c5a059] hover:text-[#c5a059] transition-all flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-4 text-xs uppercase tracking-wider font-semibold text-white bg-neutral-900 border border-neutral-700 rounded-lg hover:border-[#2563eb] hover:text-[#3b82f6] transition-all flex items-center justify-center gap-2"
           >
             <PhoneCall className="w-4 h-4" />
             <span>Discuss Your Project</span>
@@ -37,7 +37,7 @@ export const CtaSection: React.FC = () => {
 
           <button
             onClick={() => navigateTo('quote')}
-            className="w-full sm:w-auto px-8 py-4 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#c5a059]/20"
+            className="w-full sm:w-auto px-8 py-4 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#2563eb]/20"
           >
             <span>Request a Quote</span>
             <ArrowRight className="w-4 h-4" />

@@ -7,6 +7,7 @@ import {
   PackageItem,
   TestimonialItem,
   FaqItem,
+  TeamMember,
 } from '../types/index.ts';
 import { apiClient } from '../api/client.ts';
 import {
@@ -16,6 +17,7 @@ import {
   initialPackages,
   initialTestimonials,
   initialFaqs,
+  initialTeam,
 } from '../data/initialData.ts';
 
 interface ToastState {
@@ -33,6 +35,7 @@ interface AppContextType {
   packages: PackageItem[];
   testimonials: TestimonialItem[];
   faqs: FaqItem[];
+  team: TeamMember[];
   selectedProject: PortfolioItem | null;
   setSelectedProject: (p: PortfolioItem | null) => void;
   selectedService: ServiceItem | null;
@@ -56,6 +59,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [packages, setPackages] = useState<PackageItem[]>(initialPackages);
   const [testimonials, setTestimonials] = useState<TestimonialItem[]>(initialTestimonials);
   const [faqs, setFaqs] = useState<FaqItem[]>(initialFaqs);
+  const [team, setTeam] = useState<TeamMember[]>(initialTeam);
   const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [quotePreset, setQuotePreset] = useState<{ service?: string; package?: string } | null>(null);
@@ -76,13 +80,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const refreshData = useCallback(async () => {
     try {
-      const [sett, srv, prt, pkg, tst, fq] = await Promise.all([
+      const [sett, srv, prt, pkg, tst, fq, tm] = await Promise.all([
         apiClient.getSettings(),
         apiClient.getServices(),
         apiClient.getPortfolio(),
         apiClient.getPackages(),
         apiClient.getTestimonials(),
         apiClient.getFaqs(),
+        apiClient.getTeam(),
       ]);
       if (sett) setSettings(sett);
       if (srv && srv.length > 0) setServices(srv);
@@ -90,6 +95,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (pkg && pkg.length > 0) setPackages(pkg);
       if (tst && tst.length > 0) setTestimonials(tst);
       if (fq && fq.length > 0) setFaqs(fq);
+      if (tm && tm.length > 0) setTeam(tm);
     } catch {
       // Graceful fallback to initial bundled data on static platforms like Netlify
     } finally {
@@ -144,6 +150,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         packages,
         testimonials,
         faqs,
+        team,
         selectedProject,
         setSelectedProject,
         selectedService,

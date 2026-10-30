@@ -36,10 +36,10 @@ const REASONS = [
 
 export const WhyChooseUs: React.FC = () => {
   return (
-    <section className="py-16 sm:py-24 bg-[#080808] text-neutral-100 border-b border-neutral-800/80">
+    <section className="py-16 sm:py-24 bg-[#060913] text-neutral-100 border-b border-neutral-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
             The Shifa Standard
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-brand">
@@ -56,9 +56,9 @@ export const WhyChooseUs: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="p-7 rounded-2xl bg-[#0f0f0f] border border-neutral-800/80 hover:border-[#c5a059]/40 transition-colors space-y-4"
+                className="p-7 rounded-2xl bg-[#0f0f0f] border border-neutral-800/80 hover:border-[#2563eb]/40 transition-colors space-y-4"
               >
-                <div className="w-12 h-12 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-[#c5a059]">
+                <div className="w-12 h-12 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-[#3b82f6]">
                   <Icon className="w-6 h-6" />
                 </div>
                 <h3 className="text-lg font-bold text-white font-brand">

@@ -39,7 +39,7 @@ export const ProcessSection: React.FC = () => {
     <section className="py-16 sm:py-24 bg-[#0a0a0a] text-neutral-100 border-b border-neutral-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
             Workflow
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-brand">
@@ -56,14 +56,14 @@ export const ProcessSection: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="relative p-6 rounded-2xl bg-[#111111] border border-neutral-800/80 hover:border-[#c5a059]/40 transition-colors flex flex-col justify-between"
+                className="relative p-6 rounded-2xl bg-[#0f172a] border border-neutral-800/80 hover:border-[#2563eb]/40 transition-colors flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-brand font-bold text-[#c5a059]/40 tabular-nums">
+                    <span className="text-2xl font-brand font-bold text-[#3b82f6]/40 tabular-nums">
                       {item.step}
                     </span>
-                    <div className="w-10 h-10 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-[#c5a059]">
+                    <div className="w-10 h-10 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-[#3b82f6]">
                       <Icon className="w-5 h-5" />
                     </div>
                   </div>

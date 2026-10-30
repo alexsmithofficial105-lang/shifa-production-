@@ -1,10 +1,72 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { AppDatabase } from './types.ts';
+import type { AppDatabase, TeamMember } from './types.ts';
 import { hashPassword } from './auth.ts';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
+
+const initialTeamSeed: TeamMember[] = [
+  {
+    id: 'team-owner-1',
+    name: 'Umair Wyne',
+    roleType: 'owner',
+    title: 'Founder & Studio Owner',
+    bio: 'Visionary filmmaker and founder of Shifa Productions. Dedicated to producing theatrical-grade Pakistani cinema, high-impact commercials, and regal wedding films with cutting-edge cinema technology.',
+    photo: '/images/hero_cinematic_production_1793180767552.jpg',
+    email: 'umairwyc@gmail.com',
+    phone: '+92 300 8492026',
+    instagram: 'https://instagram.com',
+    linkedin: 'https://linkedin.com',
+    displayOrder: 1,
+  },
+  {
+    id: 'team-ceo-1',
+    name: 'Shifa Ur Rehman',
+    roleType: 'ceo',
+    title: 'Chief Executive Officer (CEO)',
+    bio: 'Leads executive studio operations, director-level client commissions, and production strategy across Lahore, Karachi, and Islamabad studio branches with an obsessive focus on cinematic precision.',
+    photo: '/images/commercial_film_set_1793180800619.jpg',
+    email: 'shifaproductions.pk@gmail.com',
+    phone: '+92 300 8492026',
+    instagram: 'https://instagram.com',
+    linkedin: 'https://linkedin.com',
+    displayOrder: 2,
+  },
+  {
+    id: 'team-member-1',
+    name: 'Bilal Ahmad',
+    roleType: 'team_member',
+    title: 'Director of Photography (DoP)',
+    bio: 'Master of ARRI & RED 8K cinema packages, anamorphic lens flares, and bespoke lighting architecture. Specializes in luxury wedding cinema and narrative brand commercials.',
+    photo: '/images/wedding_cinematography_1793180783307.jpg',
+    email: 'bilal.dop@shifaproductions.pk',
+    phone: '+92 300 8492026',
+    instagram: 'https://instagram.com',
+    displayOrder: 3,
+  },
+  {
+    id: 'team-member-2',
+    name: 'Hamza Tariq',
+    roleType: 'team_member',
+    title: 'Lead Aerial & Drone Cinematographer',
+    bio: 'Certified DJI Inspire 3 & FPV drone pilot. Captures sweeping 8K aerial vistas, royal venue reveals, and dynamic chase sequences across Pakistan.',
+    photo: '/images/drone_videography_1793180816827.jpg',
+    email: 'hamza.aerial@shifaproductions.pk',
+    phone: '+92 300 8492026',
+    displayOrder: 4,
+  },
+  {
+    id: 'team-member-3',
+    name: 'Ayesha Nadeem',
+    roleType: 'team_member',
+    title: 'Senior Colorist & Post-Production Supervisor',
+    bio: 'DaVinci Resolve certified colorist bringing theatrical tone curves, skin tone perfection, and film-emulation color grades to all Shifa Productions master deliverables.',
+    photo: '/images/commercial_film_set_1793180800619.jpg',
+    email: 'ayesha.post@shifaproductions.pk',
+    displayOrder: 5,
+  },
+];
 
 function getInitialData(): AppDatabase {
   const adminAuth = hashPassword('ShifaAdmin2026!');
@@ -474,13 +536,24 @@ function getInitialData(): AppDatabase {
       salt: adminAuth.salt,
       createdAt: new Date().toISOString(),
     },
+    team: initialTeamSeed,
   };
 }
 
 let cachedDb: AppDatabase | null = null;
 
 export function getDb(): AppDatabase {
-  if (cachedDb) return cachedDb;
+  if (cachedDb) {
+    if (!cachedDb.team || cachedDb.team.length === 0) {
+      cachedDb.team = initialTeamSeed;
+      try {
+        saveDb(cachedDb);
+      } catch {
+        // ignore
+      }
+    }
+    return cachedDb;
+  }
 
   try {
     if (!fs.existsSync(DATA_DIR)) {
@@ -489,6 +562,10 @@ export function getDb(): AppDatabase {
     if (fs.existsSync(DB_FILE)) {
       const content = fs.readFileSync(DB_FILE, 'utf-8');
       cachedDb = JSON.parse(content);
+      if (!cachedDb!.team || cachedDb!.team.length === 0) {
+        cachedDb!.team = initialTeamSeed;
+        saveDb(cachedDb!);
+      }
       return cachedDb!;
     }
   } catch (err) {

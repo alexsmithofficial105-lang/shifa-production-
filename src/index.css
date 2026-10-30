@@ -9,7 +9,7 @@
 
   body {
     font-family: var(--font-body);
-    background-color: #080808;
+    background-color: #060913;
     color: #e5e5e5;
     overflow-x: hidden;
   }
@@ -50,12 +50,12 @@
 }
 
 .card-luxury {
-  background: #111111;
+  background: #0f172a;
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-luxury:hover {
-  border-color: rgba(212, 175, 55, 0.35);
+  border-color: rgba(59, 130, 246, 0.4);
   transform: translateY(-2px);
 }

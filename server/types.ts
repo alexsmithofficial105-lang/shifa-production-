@@ -123,6 +123,22 @@ export interface SiteSettings {
   };
 }
 
+export type TeamRoleType = 'owner' | 'ceo' | 'team_member';
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  roleType: TeamRoleType;
+  title: string;
+  bio: string;
+  photo: string;
+  email?: string;
+  phone?: string;
+  instagram?: string;
+  linkedin?: string;
+  displayOrder: number;
+}
+
 export interface AdminUser {
   id: string;
   username: string;
@@ -141,4 +157,5 @@ export interface AppDatabase {
   faqs: FaqItem[];
   inquiries: Inquiry[];
   admin: AdminUser;
+  team?: TeamMember[];
 }

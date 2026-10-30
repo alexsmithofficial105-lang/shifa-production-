@@ -38,7 +38,7 @@ export const ServiceDetailModal: React.FC = () => {
       onClick={() => setSelectedService(null)}
     >
       <div
-        className="relative w-full max-w-2xl bg-[#111111] border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl my-8 text-neutral-200"
+        className="relative w-full max-w-2xl bg-[#0f172a] border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl my-8 text-neutral-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Visual Header Banner */}
@@ -49,7 +49,7 @@ export const ServiceDetailModal: React.FC = () => {
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-black/40 to-transparent" />
 
           {/* Close button positioned top right */}
           <button
@@ -63,7 +63,7 @@ export const ServiceDetailModal: React.FC = () => {
 
         <div className="p-6 sm:p-8 space-y-6">
           <div className="space-y-1">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#c5a059]">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#3b82f6]">
               Production Service
             </span>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-brand">
@@ -78,7 +78,7 @@ export const ServiceDetailModal: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2 border-y border-neutral-800 text-xs">
             {selectedService.startingPricePkr && (
               <div className="flex items-center gap-2 text-neutral-300">
-                <Tag className="w-4 h-4 text-[#c5a059]" />
+                <Tag className="w-4 h-4 text-[#3b82f6]" />
                 <span>
                   Starting from <strong className="text-white">PKR {selectedService.startingPricePkr}</strong>
                 </span>
@@ -86,7 +86,7 @@ export const ServiceDetailModal: React.FC = () => {
             )}
             {selectedService.turnaroundTime && (
               <div className="flex items-center gap-2 text-neutral-300">
-                <Clock className="w-4 h-4 text-[#c5a059]" />
+                <Clock className="w-4 h-4 text-[#3b82f6]" />
                 <span>
                   Turnaround: <strong className="text-white">{selectedService.turnaroundTime}</strong>
                 </span>
@@ -103,7 +103,7 @@ export const ServiceDetailModal: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {selectedService.features.map((feat, i) => (
                   <div key={i} className="flex items-start gap-2 text-xs text-neutral-300">
-                    <Check className="w-4 h-4 text-[#c5a059] shrink-0 mt-0.5" />
+                    <Check className="w-4 h-4 text-[#3b82f6] shrink-0 mt-0.5" />
                     <span>{feat}</span>
                   </div>
                 ))}
@@ -120,7 +120,7 @@ export const ServiceDetailModal: React.FC = () => {
               <div className="space-y-1.5">
                 {selectedService.deliverables.map((deliv, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs text-neutral-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#c5a059] shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#2563eb] shrink-0" />
                     <span>{deliv}</span>
                   </div>
                 ))}
@@ -138,7 +138,7 @@ export const ServiceDetailModal: React.FC = () => {
             </button>
             <button
               onClick={handleBookService}
-              className="w-full sm:w-auto px-6 py-3 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37] transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 py-3 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2"
             >
               <span>Request Quote for This Service</span>
               <ArrowRight className="w-4 h-4" />

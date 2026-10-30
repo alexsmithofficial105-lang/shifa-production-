@@ -4,7 +4,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { getDb, saveDb } from './db.ts';
 import { verifyPassword, hashPassword, createSession, verifySession, destroySession, getSession } from './auth.ts';
-import type { Inquiry, ServiceItem, PortfolioItem, PackageItem, TestimonialItem, FaqItem } from './types.ts';
+import type { Inquiry, ServiceItem, PortfolioItem, PackageItem, TestimonialItem, FaqItem, TeamMember } from './types.ts';
 
 const router = express.Router();
 
@@ -53,37 +53,48 @@ function requireAdmin(req: Request, res: Response, next: NextFunction): void {
 }
 
 // ----------------- AUTH ROUTES -----------------
+// Strict allowlist: ONLY these 2 email addresses are permitted to access the admin panel.
+const STRICT_ADMIN_EMAILS = [
+  'shifaproductions.pk@gmail.com',
+  'umairwyc@gmail.com',
+];
+
 router.post('/auth/login', (req: Request, res: Response): void => {
-  const { email } = req.body;
+  const { email, password } = req.body;
   if (!email || typeof email !== 'string') {
-    res.status(400).json({ error: 'Admin email is required' });
+    res.status(400).json({ error: 'Admin email is required.' });
+    return;
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+
+  // STRICT CHECK: Only these 2 emails, no other accounts allowed
+  if (!STRICT_ADMIN_EMAILS.includes(cleanEmail)) {
+    res.status(403).json({
+      error: `Access Denied: "${cleanEmail}" is not authorized. ONLY shifaproductions.pk@gmail.com and umairwyc@gmail.com have access to this admin panel.`,
+    });
+    return;
+  }
+
+  if (!password || typeof password !== 'string') {
+    res.status(400).json({ error: 'Admin password is required.' });
     return;
   }
 
   const db = getDb();
   const admin = db.admin;
-  const cleanEmail = email.trim().toLowerCase();
 
-  const allowedLogins = [
-    'shifaproductions.pk@gmail.com',
-    'umairwyc@gmail.com',
-    admin.email.toLowerCase(),
-    admin.username.toLowerCase(),
-    'admin@shifaproductions.pk',
-    'shifa_admin',
-    'alexsmithofficial105@gmail.com',
-  ];
+  // Verify password: check against DB hash or master password 'ShifaAdmin2026!'
+  const isValidPass =
+    (admin.passwordHash && admin.salt && verifyPassword(password, admin.passwordHash, admin.salt)) ||
+    password === 'ShifaAdmin2026!';
 
-  const isAuthorized = allowedLogins.includes(cleanEmail) || cleanEmail.endsWith('@shifaproductions.pk');
-
-  if (!isAuthorized) {
-    res.status(401).json({ error: `Access Denied: "${cleanEmail}" is not an authorized administrator. Authorized accounts: shifaproductions.pk@gmail.com and umairwyc@gmail.com.` });
+  if (!isValidPass) {
+    res.status(401).json({ error: 'Incorrect password. Please enter the valid admin password.' });
     return;
   }
 
-  // Password requirement has been removed as per admin policy.
-  // Authorized emails are granted direct administrator access with a cryptographic session.
-  const token = createSession(cleanEmail, cleanEmail.split('@')[0]);
+  const token = createSession(cleanEmail, cleanEmail === 'umairwyc@gmail.com' ? 'Umair' : 'Shifa Productions Admin');
   res.json({
     token,
     user: {
@@ -119,27 +130,16 @@ router.post('/auth/google', (req: Request, res: Response): void => {
   }
 
   const cleanEmail = email.trim().toLowerCase();
-  const db = getDb();
 
-  // Allowlist of administrator Google accounts
-  const allowed = [
-    'shifaproductions.pk@gmail.com',
-    'umairwyc@gmail.com',
-    db.admin.email.toLowerCase(),
-    'admin@shifaproductions.pk',
-    'alexsmithofficial105@gmail.com',
-  ];
-
-  const isAuthorized = allowed.includes(cleanEmail) || cleanEmail.endsWith('@shifaproductions.pk');
-
-  if (!isAuthorized) {
+  // Strict check: Only these 2 emails, no other accounts allowed
+  if (!STRICT_ADMIN_EMAILS.includes(cleanEmail)) {
     res.status(403).json({
-      error: `Access Denied: The Google account "${cleanEmail}" is not authorized as an administrator for Shifa Productions. Please sign in with shifaproductions.pk@gmail.com or umairwyc@gmail.com.`,
+      error: `Access Denied: The Google account "${cleanEmail}" is not authorized. ONLY shifaproductions.pk@gmail.com and umairwyc@gmail.com are permitted to access this admin panel.`,
     });
     return;
   }
 
-  const displayName = name || cleanEmail.split('@')[0];
+  const displayName = cleanEmail === 'umairwyc@gmail.com' ? 'Umair' : (name || 'Shifa Productions Admin');
   const token = createSession(cleanEmail, displayName, avatar);
 
   res.json({
@@ -714,6 +714,70 @@ router.delete('/faqs/:id', requireAdmin, (req: Request, res: Response): void => 
   const { id } = req.params;
   const db = getDb();
   db.faqs = db.faqs.filter((f) => f.id !== id);
+  saveDb(db);
+  res.json({ success: true });
+});
+
+// ----------------- LEADERSHIP & TEAM MANAGEMENT -----------------
+router.get('/team', (_req: Request, res: Response): void => {
+  const db = getDb();
+  const list = [...(db.team || [])].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  res.json(list);
+});
+
+router.post('/team', requireAdmin, (req: Request, res: Response): void => {
+  const db = getDb();
+  if (!db.team) db.team = [];
+
+  const rawRole = req.body.roleType;
+  const roleType: 'owner' | 'ceo' | 'team_member' =
+    rawRole === 'owner' || rawRole === 'ceo' ? rawRole : 'team_member';
+
+  const newMember: TeamMember = {
+    id: `team-${Date.now()}`,
+    name: req.body.name || 'Untitled Member',
+    roleType,
+    title: req.body.title || (roleType === 'owner' ? 'Studio Owner' : roleType === 'ceo' ? 'Chief Executive Officer' : 'Team Member'),
+    bio: req.body.bio || '',
+    photo: req.body.photo || '/images/hero_cinematic_production_1793180767552.jpg',
+    email: req.body.email || '',
+    phone: req.body.phone || '',
+    instagram: req.body.instagram || '',
+    linkedin: req.body.linkedin || '',
+    displayOrder: typeof req.body.displayOrder === 'number' ? req.body.displayOrder : db.team.length + 1,
+  };
+
+  db.team.push(newMember);
+  saveDb(db);
+  res.status(201).json(newMember);
+});
+
+router.put('/team/:id', requireAdmin, (req: Request, res: Response): void => {
+  const { id } = req.params;
+  const db = getDb();
+  if (!db.team) db.team = [];
+
+  const idx = db.team.findIndex((m) => m.id === id);
+  if (idx === -1) {
+    res.status(404).json({ error: 'Team member not found' });
+    return;
+  }
+
+  db.team[idx] = {
+    ...db.team[idx],
+    ...req.body,
+    id,
+  };
+  saveDb(db);
+  res.json(db.team[idx]);
+});
+
+router.delete('/team/:id', requireAdmin, (req: Request, res: Response): void => {
+  const { id } = req.params;
+  const db = getDb();
+  if (!db.team) db.team = [];
+
+  db.team = db.team.filter((m) => m.id !== id);
   saveDb(db);
   res.json({ success: true });
 });

@@ -16,11 +16,11 @@ export const FaqPage: React.FC = () => {
   const cleanWa = whatsapp.replace(/[^0-9]/g, '');
 
   return (
-    <div className="py-16 md:py-24 bg-[#080808] text-neutral-100 animate-fadeIn">
+    <div className="py-16 md:py-24 bg-[#060913] text-neutral-100 animate-fadeIn">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-16">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#c5a059]">
+          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
             Questions & Answers
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white font-brand">
@@ -42,14 +42,14 @@ export const FaqPage: React.FC = () => {
               >
                 <button
                   onClick={() => toggle(faq.id)}
-                  className="w-full p-6 text-left flex items-center justify-between gap-4 focus:outline-none hover:text-[#c5a059] transition-colors"
+                  className="w-full p-6 text-left flex items-center justify-between gap-4 focus:outline-none hover:text-[#3b82f6] transition-colors"
                 >
                   <span className="text-base sm:text-lg font-bold text-white font-brand">
                     {faq.question}
                   </span>
                   <div
                     className={`w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180 text-[#c5a059]' : 'text-neutral-400'
+                      isOpen ? 'rotate-180 text-[#3b82f6]' : 'text-neutral-400'
                     }`}
                   >
                     <ChevronDown className="w-4 h-4" />
@@ -67,7 +67,7 @@ export const FaqPage: React.FC = () => {
         </div>
 
         {/* Still have questions banner */}
-        <div className="p-8 rounded-2xl bg-[#121212] border border-neutral-800 text-center space-y-4">
+        <div className="p-8 rounded-2xl bg-[#111827] border border-neutral-800 text-center space-y-4">
           <h3 className="text-xl font-bold text-white font-brand">
             Have a Specific Question About Your Shoot?
           </h3>
@@ -77,7 +77,7 @@ export const FaqPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <button
               onClick={() => navigateTo('quote')}
-              className="px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-black bg-[#c5a059] rounded-lg hover:bg-[#d4af37] transition-all flex items-center gap-2"
+              className="px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all flex items-center gap-2"
             >
               <span>Submit Inquiry</span>
               <ArrowRight className="w-4 h-4" />
