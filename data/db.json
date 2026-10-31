@@ -31,7 +31,9 @@
       "metaTitle": "Shifa Productions | Premier Pakistani Film & Cinematography Agency",
       "metaDescription": "High-end wedding films, commercial brand cinema, corporate films, and drone videography across Lahore, Karachi, Islamabad, and nationwide.",
       "keywords": "production house pakistan, wedding cinematography lahore, commercial film maker karachi, drone videography islamabad, video production pakistan"
-    }
+    },
+    "legal": {},
+    "theme": {}
   },
   "services": [
     {
@@ -753,8 +755,69 @@
     "id": "admin-1",
     "username": "Shifa Productions Admin",
     "email": "shifaproductions.pk@gmail.com",
-    "passwordHash": "b3b8ac72a0fa13b03cfe30e4088c21bcf1a77a5fd8a1b9596f911c5fa214b3c29efe718bd3b6a8f1296d3d43bcb1a7d24f92696b1583545f37990bb0145f965f",
-    "salt": "2c59928ab9b3b5bb8db86bb32af48fb8",
+    "passwordHash": "f3f8e6577d404c8008404d439c10dda3c08f0e043d2694b20b316b45ff5bb4f3d78742d49dcfdb2f15711ab9a96f1985162e0d2f3bef7e35d8b504912ace782c",
+    "salt": "dc01f5fe536cd7c7e491fd13a8e48b58",
     "createdAt": "2026-10-28T09:59:02.352Z"
-  }
+  },
+  "team": [
+    {
+      "id": "team-owner-1",
+      "name": "Umair Wyne",
+      "roleType": "owner",
+      "title": "Founder & Studio Owner",
+      "bio": "Visionary filmmaker and founder of Shifa Productions. Dedicated to producing theatrical-grade Pakistani cinema, high-impact commercials, and regal wedding films with cutting-edge cinema technology.",
+      "photo": "/images/hero_cinematic_production_1793180767552.jpg",
+      "email": "umairwyc@gmail.com",
+      "phone": "+92 300 8492026",
+      "instagram": "https://instagram.com",
+      "linkedin": "https://linkedin.com",
+      "displayOrder": 1
+    },
+    {
+      "id": "team-ceo-1",
+      "name": "Shifa Ur Rehman",
+      "roleType": "ceo",
+      "title": "Chief Executive Officer (CEO)",
+      "bio": "Leads executive studio operations, director-level client commissions, and production strategy across Lahore, Karachi, and Islamabad studio branches with an obsessive focus on cinematic precision.",
+      "photo": "/images/commercial_film_set_1793180800619.jpg",
+      "email": "shifaproductions.pk@gmail.com",
+      "phone": "+92 300 8492026",
+      "instagram": "https://instagram.com",
+      "linkedin": "https://linkedin.com",
+      "displayOrder": 2
+    },
+    {
+      "id": "team-member-1",
+      "name": "Bilal Ahmad",
+      "roleType": "team_member",
+      "title": "Director of Photography (DoP)",
+      "bio": "Master of ARRI & RED 8K cinema packages, anamorphic lens flares, and bespoke lighting architecture. Specializes in luxury wedding cinema and narrative brand commercials.",
+      "photo": "/images/wedding_cinematography_1793180783307.jpg",
+      "email": "bilal.dop@shifaproductions.pk",
+      "phone": "+92 300 8492026",
+      "instagram": "https://instagram.com",
+      "displayOrder": 3
+    },
+    {
+      "id": "team-member-2",
+      "name": "Hamza Tariq",
+      "roleType": "team_member",
+      "title": "Lead Aerial & Drone Cinematographer",
+      "bio": "Certified DJI Inspire 3 & FPV drone pilot. Captures sweeping 8K aerial vistas, royal venue reveals, and dynamic chase sequences across Pakistan.",
+      "photo": "/images/drone_videography_1793180816827.jpg",
+      "email": "hamza.aerial@shifaproductions.pk",
+      "phone": "+92 300 8492026",
+      "displayOrder": 4
+    },
+    {
+      "id": "team-member-3",
+      "name": "Ayesha Nadeem",
+      "roleType": "team_member",
+      "title": "Senior Colorist & Post-Production Supervisor",
+      "bio": "DaVinci Resolve certified colorist bringing theatrical tone curves, skin tone perfection, and film-emulation color grades to all Shifa Productions master deliverables.",
+      "photo": "/images/commercial_film_set_1793180800619.jpg",
+      "email": "ayesha.post@shifaproductions.pk",
+      "displayOrder": 5
+    }
+  ]
 }

@@ -60,6 +60,12 @@ export function verifyPassword(password: string, hash: string, salt: string): bo
   }
 }
 
+export function createSessionWithToken(token: string, email: string, username?: string, avatar?: string): void {
+  const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+  SESSIONS.set(token, { email, expiresAt, username, avatar });
+  persistSessions();
+}
+
 export function createSession(email: string, username?: string, avatar?: string): string {
   const token = crypto.randomBytes(32).toString('hex');
   // 30 days session
@@ -80,7 +86,26 @@ export function getSession(token?: string): { email: string; username?: string; 
     };
   }
 
-  const session = SESSIONS.get(token);
+  let session = SESSIONS.get(token);
+  if (!session) {
+    // Re-check disk persistence in case another request or reload wrote it
+    try {
+      if (fs.existsSync(SESSIONS_FILE)) {
+        const raw = fs.readFileSync(SESSIONS_FILE, 'utf-8');
+        const parsed: Record<string, SessionData> = JSON.parse(raw);
+        const now = Date.now();
+        for (const [t, data] of Object.entries(parsed)) {
+          if (data.expiresAt > now) {
+            SESSIONS.set(t, data);
+          }
+        }
+        session = SESSIONS.get(token);
+      }
+    } catch (err) {
+      console.error('Error reloading sessions:', err);
+    }
+  }
+
   if (!session) return null;
   if (Date.now() > session.expiresAt) {
     SESSIONS.delete(token);

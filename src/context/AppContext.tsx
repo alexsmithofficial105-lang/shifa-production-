@@ -81,13 +81,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const refreshData = useCallback(async () => {
     try {
       const [sett, srv, prt, pkg, tst, fq, tm] = await Promise.all([
-        apiClient.getSettings(),
-        apiClient.getServices(),
-        apiClient.getPortfolio(),
-        apiClient.getPackages(),
-        apiClient.getTestimonials(),
-        apiClient.getFaqs(),
-        apiClient.getTeam(),
+        apiClient.getSettings().catch(() => null),
+        apiClient.getServices().catch(() => []),
+        apiClient.getPortfolio().catch(() => []),
+        apiClient.getPackages().catch(() => []),
+        apiClient.getTestimonials().catch(() => []),
+        apiClient.getFaqs().catch(() => []),
+        apiClient.getTeam().catch(() => []),
       ]);
       if (sett) setSettings(sett);
       if (srv && srv.length > 0) setServices(srv);

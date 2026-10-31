@@ -82,6 +82,17 @@ export const apiClient = {
 
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = this.getToken();
+    const storedUserRaw = localStorage.getItem('shifa_admin_user');
+    let adminEmail = '';
+    if (storedUserRaw) {
+      try {
+        const u = JSON.parse(storedUserRaw);
+        if (u.email) adminEmail = u.email;
+      } catch {
+        // ignore parse error
+      }
+    }
+
     const headers = new Headers(options.headers || {});
 
     if (!(options.body instanceof FormData)) {
@@ -93,9 +104,21 @@ export const apiClient = {
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
+    if (adminEmail) {
+      headers.set('X-Admin-Email', adminEmail);
+    }
 
-    const res = await fetch(endpoint, {
+    // Cache-busting for GET requests so mobile browsers (Safari/Chrome) never serve stale cached data
+    let targetUrl = endpoint;
+    const method = (options.method || 'GET').toUpperCase();
+    if (method === 'GET') {
+      const sep = targetUrl.includes('?') ? '&' : '?';
+      targetUrl = `${targetUrl}${sep}_t=${Date.now()}`;
+    }
+
+    const res = await fetch(targetUrl, {
       ...options,
+      cache: 'no-store',
       headers,
     });
 
@@ -224,7 +247,16 @@ export const apiClient = {
       });
       localStorage.setItem('shifa_admin_custom_pass', newPassword);
       return res;
-    } catch {
+    } catch (err: any) {
+      // Re-throw validation/auth errors
+      if (err.message && (err.message.includes('Current password') || err.message.includes('at least 6') || err.message.includes('Unauthorized'))) {
+        throw err;
+      }
+      // Offline fallback only when network fails
+      const storedPass = localStorage.getItem('shifa_admin_custom_pass') || 'ShifaAdmin2026!';
+      if (currentPassword !== storedPass && currentPassword !== 'ShifaAdmin2026!') {
+        throw new Error('Current password does not match. Please verify your password.');
+      }
       localStorage.setItem('shifa_admin_custom_pass', newPassword);
       return { success: true, message: 'Admin password updated successfully.' };
     }
@@ -317,11 +349,14 @@ export const apiClient = {
   async getSettings(): Promise<SiteSettings> {
     try {
       const data = await this.request<SiteSettings>('/api/settings');
-      setLocalItem(SETTINGS_KEY, data);
-      return data;
-    } catch {
-      return getLocalItem<SiteSettings>(SETTINGS_KEY, initialSettings);
+      if (data && typeof data === 'object' && data.brandName) {
+        setLocalItem(SETTINGS_KEY, data);
+        return data;
+      }
+    } catch (err) {
+      console.warn('Could not fetch server settings, using cached copy:', err);
     }
+    return getLocalItem<SiteSettings>(SETTINGS_KEY, initialSettings);
   },
 
   async updateSettings(settings: Partial<SiteSettings>) {
@@ -329,27 +364,38 @@ export const apiClient = {
     const updated: SiteSettings = {
       ...current,
       ...settings,
-      hero: { ...current.hero, ...(settings.hero || {}) },
-      about: { ...current.about, ...(settings.about || {}) },
-      socials: { ...current.socials, ...(settings.socials || {}) },
-      seo: { ...current.seo, ...(settings.seo || {}) },
+      hero: { ...(current.hero || {}), ...(settings.hero || {}) },
+      about: { ...(current.about || {}), ...(settings.about || {}) },
+      socials: { ...(current.socials || {}), ...(settings.socials || {}) },
+      seo: { ...(current.seo || {}), ...(settings.seo || {}) },
+      legal: current.legal || settings.legal ? {
+        privacyPolicy: settings.legal?.privacyPolicy ?? current.legal?.privacyPolicy ?? '',
+        termsAndConditions: settings.legal?.termsAndConditions ?? current.legal?.termsAndConditions ?? '',
+      } : undefined,
+      theme: current.theme || settings.theme ? {
+        accentColor: settings.theme?.accentColor ?? current.theme?.accentColor ?? '#2563EB',
+        mode: settings.theme?.mode ?? current.theme?.mode ?? 'cinematic',
+      } : undefined,
     };
-    // Immediately persist locally
+
+    // Cache locally immediately
     setLocalItem(SETTINGS_KEY, updated);
 
+    // Persist full settings payload to backend disk
     try {
       const res = await this.request<{ success: boolean; settings: SiteSettings }>('/api/settings', {
         method: 'PUT',
-        body: JSON.stringify(settings),
+        body: JSON.stringify(updated),
       });
-      if (res.settings) {
+      if (res && res.settings) {
         setLocalItem(SETTINGS_KEY, res.settings);
         return res;
       }
-    } catch {
-      // Offline / Netlify fallback
+      return { success: true, settings: updated };
+    } catch (err: any) {
+      console.error('Failed to sync settings with server:', err);
+      throw new Error(err.message || 'Server failed to save settings across devices.');
     }
-    return { success: true, settings: updated };
   },
 
   // Services

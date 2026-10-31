@@ -47,6 +47,10 @@ import {
   Mail,
   MapPin,
   Eye,
+  EyeOff,
+  KeyRound,
+  ShieldCheck,
+  AlertCircle,
   Upload,
   Copy,
   Lock,
@@ -75,6 +79,9 @@ type AdminSection =
   | 'portfolio'
   | 'packages'
   | 'testimonials'
+  | 'owner-profile'
+  | 'ceo-profile'
+  | 'team-members'
   | 'team'
   | 'content'
   | 'contact-social'
@@ -136,6 +143,17 @@ export const AdminDashboardPage: React.FC = () => {
   // Settings
   const [settingsForm, setSettingsForm] = useState<SiteSettings | null>(null);
   const [savingSettings, setSavingSettings] = useState(false);
+
+  // Change Admin Password State
+  const [currentPasswordInput, setCurrentPasswordInput] = useState('');
+  const [newPasswordInput, setNewPasswordInput] = useState('');
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+  const [showCurrentPass, setShowCurrentPass] = useState(false);
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordStatusMsg, setPasswordStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 
   // Analytics
   const [analytics, setAnalytics] = useState<StudioAnalyticsData | null>(null);
@@ -609,6 +627,55 @@ export const AdminDashboardPage: React.FC = () => {
     }
   };
 
+  // ----------------- Admin Password Change -----------------
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordStatusMsg(null);
+
+    const curr = currentPasswordInput.trim();
+    const next = newPasswordInput.trim();
+    const conf = confirmPasswordInput.trim();
+
+    if (!curr) {
+      setPasswordStatusMsg({ type: 'error', text: 'Please enter your current administrator password.' });
+      return;
+    }
+
+    if (!next) {
+      setPasswordStatusMsg({ type: 'error', text: 'Please enter the new administrator password.' });
+      return;
+    }
+
+    if (next.length < 6) {
+      setPasswordStatusMsg({ type: 'error', text: 'New password must be at least 6 characters long.' });
+      return;
+    }
+
+    if (next !== conf) {
+      setPasswordStatusMsg({ type: 'error', text: 'New password and confirmation password do not match.' });
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      const res = await apiClient.changePassword(curr, next);
+      setPasswordStatusMsg({
+        type: 'success',
+        text: res.message || 'Password changed successfully! You can now use your new password across all devices.',
+      });
+      showToast('Admin password changed successfully!', 'success');
+      setCurrentPasswordInput('');
+      setNewPasswordInput('');
+      setConfirmPasswordInput('');
+    } catch (err: any) {
+      const msg = err.message || 'Failed to update password. Please check your current password.';
+      setPasswordStatusMsg({ type: 'error', text: msg });
+      showToast(msg, 'error');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   const navigationItems: Array<{ id: AdminSection; label: string; icon: React.ComponentType<{ className?: string }>; badge?: number }> = [
     { id: 'overview', label: 'Dashboard Overview', icon: LayoutDashboard },
     { id: 'analytics', label: 'Studio Analytics', icon: BarChart3 },
@@ -617,7 +684,9 @@ export const AdminDashboardPage: React.FC = () => {
     { id: 'portfolio', label: 'Portfolio & Works', icon: Film },
     { id: 'packages', label: 'Pricing & Packages', icon: Tag },
     { id: 'testimonials', label: 'Client Reviews', icon: Star },
-    { id: 'team', label: 'Leadership & Team', icon: Users },
+    { id: 'owner-profile', label: 'Owner Profile', icon: Crown },
+    { id: 'ceo-profile', label: 'CEO Profile', icon: Briefcase },
+    { id: 'team-members', label: 'Team Member Profiles', icon: Users },
     { id: 'content', label: 'Hero & About Content', icon: Sliders },
     { id: 'contact-social', label: 'Contact & Socials', icon: Phone },
     { id: 'faqs-legal', label: 'FAQs & Legal Pages', icon: FileText },
@@ -700,6 +769,17 @@ export const AdminDashboardPage: React.FC = () => {
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>View Public Website</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveSection('settings');
+                setPasswordModalOpen(true);
+              }}
+              className="w-full px-3.5 py-2 text-xs font-medium text-blue-200 hover:text-white bg-blue-950/40 border border-blue-800/60 rounded-xl hover:bg-blue-900/50 transition-colors flex items-center justify-center gap-2"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-[#3b82f6]" />
+              <span>Change Password</span>
             </button>
 
             <button
@@ -806,6 +886,18 @@ export const AdminDashboardPage: React.FC = () => {
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>View Public Website</span>
               </button>
+              <button
+                onClick={() => {
+                  setActiveSection('settings');
+                  setMobileNavOpen(false);
+                  setPasswordModalOpen(true);
+                }}
+                className="w-full min-h-[42px] py-2 text-xs font-medium text-blue-200 bg-blue-950/40 border border-blue-800/60 rounded-xl flex items-center justify-center gap-2"
+              >
+                <KeyRound className="w-3.5 h-3.5 text-[#3b82f6]" />
+                <span>Change Password (پاسورڈ تبدیل کریں)</span>
+              </button>
+
               <button
                 onClick={logout}
                 className="w-full min-h-[42px] py-2 text-xs font-semibold text-rose-300 bg-rose-950/40 border border-rose-800/70 rounded-xl flex items-center justify-center gap-2"
@@ -958,6 +1050,235 @@ export const AdminDashboardPage: React.FC = () => {
                   <div className="text-xs font-bold text-white">Media Vault</div>
                   <div className="text-[10px] text-neutral-400">Upload raw assets & video</div>
                 </button>
+              </div>
+            </div>
+
+            {/* Leadership & Profile Cards on Overview */}
+            <div className="p-6 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-300 font-brand">
+                    Leadership & Team Profiles Manager
+                  </h3>
+                  <p className="text-xs text-neutral-400 mt-0.5">
+                    Directly manage Owner Profile, CEO Profile, and Team Member profiles with Add, Edit & Delete options.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* 1. Owner Profile Card */}
+                <div className="p-5 rounded-2xl bg-gradient-to-br from-[#111c38]/50 to-[#0a0f1d] border border-amber-500/40 space-y-4 relative overflow-hidden">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
+                      <Crown className="w-3 h-3 text-amber-400" />
+                      <span>Owner Profile</span>
+                    </span>
+                    <button
+                      onClick={() =>
+                        setEditingTeamMember({
+                          roleType: 'owner',
+                          title: 'Founder & Studio Owner',
+                          photo: '/images/hero_cinematic_production_1793180767552.jpg',
+                          displayOrder: 1,
+                        })
+                      }
+                      className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 font-semibold"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Owner</span>
+                    </button>
+                  </div>
+
+                  {teamList.filter((m) => m.roleType === 'owner').length > 0 ? (
+                    teamList
+                      .filter((m) => m.roleType === 'owner')
+                      .slice(0, 1)
+                      .map((owner) => (
+                        <div key={owner.id} className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-xl overflow-hidden border border-amber-500/50 bg-neutral-900 shrink-0">
+                              <img src={owner.photo} alt={owner.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <h4 className="text-sm font-bold text-white truncate">{owner.name}</h4>
+                              <p className="text-xs text-amber-400 truncate">{owner.title}</p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-neutral-400 line-clamp-2">{owner.bio}</p>
+                          <div className="pt-2 border-t border-neutral-800 flex items-center justify-between">
+                            <button
+                              onClick={() => setEditingTeamMember(owner)}
+                              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] flex items-center gap-1 transition-colors"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                              <span>Edit Owner</span>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTeamMember(owner.id, owner.name)}
+                              className="p-1.5 text-neutral-400 hover:text-rose-400 rounded-lg hover:bg-rose-950/40 transition-colors"
+                              title="Delete Owner Profile"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <div className="py-6 text-center space-y-2">
+                      <p className="text-xs text-neutral-400">No owner profile found.</p>
+                      <button
+                        onClick={() =>
+                          setEditingTeamMember({
+                            roleType: 'owner',
+                            title: 'Founder & Studio Owner',
+                            photo: '/images/hero_cinematic_production_1793180767552.jpg',
+                            displayOrder: 1,
+                          })
+                        }
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-300 bg-amber-950/40 border border-amber-500/40"
+                      >
+                        + Create Owner Profile
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. CEO Profile Card */}
+                <div className="p-5 rounded-2xl bg-gradient-to-br from-[#0f172a] to-[#080d19] border border-sky-500/40 space-y-4 relative overflow-hidden">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-500/40 flex items-center gap-1">
+                      <Briefcase className="w-3 h-3 text-sky-400" />
+                      <span>CEO Profile</span>
+                    </span>
+                    <button
+                      onClick={() =>
+                        setEditingTeamMember({
+                          roleType: 'ceo',
+                          title: 'Chief Executive Officer (CEO)',
+                          photo: '/images/commercial_film_set_1793180800619.jpg',
+                          displayOrder: 2,
+                        })
+                      }
+                      className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 font-semibold"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add CEO</span>
+                    </button>
+                  </div>
+
+                  {teamList.filter((m) => m.roleType === 'ceo').length > 0 ? (
+                    teamList
+                      .filter((m) => m.roleType === 'ceo')
+                      .slice(0, 1)
+                      .map((ceo) => (
+                        <div key={ceo.id} className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-xl overflow-hidden border border-sky-500/50 bg-neutral-900 shrink-0">
+                              <img src={ceo.photo} alt={ceo.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <h4 className="text-sm font-bold text-white truncate">{ceo.name}</h4>
+                              <p className="text-xs text-sky-400 truncate">{ceo.title}</p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-neutral-400 line-clamp-2">{ceo.bio}</p>
+                          <div className="pt-2 border-t border-neutral-800 flex items-center justify-between">
+                            <button
+                              onClick={() => setEditingTeamMember(ceo)}
+                              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] flex items-center gap-1 transition-colors"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                              <span>Edit CEO</span>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTeamMember(ceo.id, ceo.name)}
+                              className="p-1.5 text-neutral-400 hover:text-rose-400 rounded-lg hover:bg-rose-950/40 transition-colors"
+                              title="Delete CEO Profile"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <div className="py-6 text-center space-y-2">
+                      <p className="text-xs text-neutral-400">No CEO profile found.</p>
+                      <button
+                        onClick={() =>
+                          setEditingTeamMember({
+                            roleType: 'ceo',
+                            title: 'Chief Executive Officer (CEO)',
+                            photo: '/images/commercial_film_set_1793180800619.jpg',
+                            displayOrder: 2,
+                          })
+                        }
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-sky-300 bg-sky-950/40 border border-sky-500/40"
+                      >
+                        + Create CEO Profile
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Team Member Profiles Card */}
+                <div className="p-5 rounded-2xl bg-gradient-to-br from-[#0f172a] to-[#080d19] border border-blue-500/40 space-y-4 relative overflow-hidden">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/40 flex items-center gap-1">
+                      <Users className="w-3 h-3 text-blue-400" />
+                      <span>Team Members</span>
+                    </span>
+                    <button
+                      onClick={() =>
+                        setEditingTeamMember({
+                          roleType: 'team_member',
+                          title: 'Director of Photography',
+                          photo: '/images/wedding_cinematography_1793180783307.jpg',
+                          displayOrder: teamList.length + 1,
+                        })
+                      }
+                      className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 font-semibold"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Member</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="text-2xl font-bold text-white font-brand">
+                      {teamList.filter((m) => m.roleType === 'team_member').length} Active
+                    </div>
+                    <p className="text-xs text-neutral-400">
+                      DoPs, Drone Pilots, Colorists, and sound artisans powering production.
+                    </p>
+                    <div className="pt-2 border-t border-neutral-800 flex items-center justify-between">
+                      <button
+                        onClick={() => {
+                          setActiveSection('team-members');
+                          setTeamRoleFilter('team_member');
+                        }}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] flex items-center gap-1 transition-colors"
+                      >
+                        <Users className="w-3 h-3" />
+                        <span>Manage All ({teamList.filter((m) => m.roleType === 'team_member').length})</span>
+                      </button>
+                      <button
+                        onClick={() =>
+                          setEditingTeamMember({
+                            roleType: 'team_member',
+                            title: 'Cinematographer',
+                            photo: '/images/wedding_cinematography_1793180783307.jpg',
+                            displayOrder: teamList.length + 1,
+                          })
+                        }
+                        className="p-1.5 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition-colors"
+                        title="Add Team Member"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1464,17 +1785,45 @@ export const AdminDashboardPage: React.FC = () => {
         )}
 
         {/* ================= LEADERSHIP & TEAM (OWNER, CEO & CREATIVE TEAM) ================= */}
-        {activeSection === 'team' && (
+        {(activeSection === 'team' ||
+          activeSection === 'owner-profile' ||
+          activeSection === 'ceo-profile' ||
+          activeSection === 'team-members') && (
           <div className="space-y-8 animate-fadeIn">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-bold text-white font-brand flex items-center gap-2.5">
-                  <Users className="w-6 h-6 text-[#3b82f6]" />
-                  <span>Leadership & Team Management</span>
+                  {activeSection === 'owner-profile' ? (
+                    <>
+                      <Crown className="w-6 h-6 text-amber-400" />
+                      <span>Studio Owner Profile Management</span>
+                    </>
+                  ) : activeSection === 'ceo-profile' ? (
+                    <>
+                      <Briefcase className="w-6 h-6 text-sky-400" />
+                      <span>CEO Profile Management</span>
+                    </>
+                  ) : activeSection === 'team-members' ? (
+                    <>
+                      <Users className="w-6 h-6 text-blue-400" />
+                      <span>Creative Team Member Profiles</span>
+                    </>
+                  ) : (
+                    <>
+                      <Users className="w-6 h-6 text-[#3b82f6]" />
+                      <span>Leadership & Team Management</span>
+                    </>
+                  )}
                 </h1>
                 <p className="text-xs text-neutral-400 mt-1">
-                  Manage Studio Owner profile, CEO profile, and Creative Team member profiles with full Add, Edit, and Delete options.
+                  {activeSection === 'owner-profile'
+                    ? 'Manage Studio Owner & Founder profile details with Add, Edit, and Delete control.'
+                    : activeSection === 'ceo-profile'
+                    ? 'Manage Chief Executive Officer (CEO) profile details with Add, Edit, and Delete control.'
+                    : activeSection === 'team-members'
+                    ? 'Manage Cinematographers, Drone Pilots, Editors and Specialists with Add, Edit, and Delete control.'
+                    : 'Manage Studio Owner profile, CEO profile, and Creative Team member profiles with full Add, Edit, and Delete options.'}
                 </p>
               </div>
 
@@ -1488,7 +1837,7 @@ export const AdminDashboardPage: React.FC = () => {
                       displayOrder: 1,
                     })
                   }
-                  className="min-h-[40px] px-3.5 py-1.5 text-xs font-semibold text-amber-200 bg-amber-950/40 border border-amber-600/40 rounded-xl hover:bg-amber-900/50 transition-all flex items-center gap-1.5"
+                  className="min-h-[40px] px-3.5 py-1.5 text-xs font-semibold text-amber-200 bg-amber-950/40 border border-amber-600/40 rounded-xl hover:bg-amber-900/50 transition-all flex items-center gap-1.5 shadow-sm"
                 >
                   <Crown className="w-3.5 h-3.5 text-amber-400" />
                   <span>+ Add Owner Profile</span>
@@ -1503,7 +1852,7 @@ export const AdminDashboardPage: React.FC = () => {
                       displayOrder: 2,
                     })
                   }
-                  className="min-h-[40px] px-3.5 py-1.5 text-xs font-semibold text-sky-200 bg-sky-950/40 border border-sky-600/40 rounded-xl hover:bg-sky-900/50 transition-all flex items-center gap-1.5"
+                  className="min-h-[40px] px-3.5 py-1.5 text-xs font-semibold text-sky-200 bg-sky-950/40 border border-sky-600/40 rounded-xl hover:bg-sky-900/50 transition-all flex items-center gap-1.5 shadow-sm"
                 >
                   <Briefcase className="w-3.5 h-3.5 text-sky-400" />
                   <span>+ Add CEO Profile</span>
@@ -1526,55 +1875,71 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Quick Filter Tabs */}
+            {/* Quick Profile Navigation Switcher */}
             <div className="flex flex-wrap items-center gap-2 pb-1 border-b border-neutral-800">
               <button
-                onClick={() => setTeamRoleFilter('all')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  teamRoleFilter === 'all'
-                    ? 'bg-[#2563eb] text-white font-semibold'
-                    : 'text-neutral-400 hover:text-white bg-neutral-900/60'
-                }`}
-              >
-                All Profiles ({teamList.length})
-              </button>
-              <button
-                onClick={() => setTeamRoleFilter('owner')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
-                  teamRoleFilter === 'owner'
-                    ? 'bg-amber-600 text-white font-semibold'
-                    : 'text-neutral-400 hover:text-white bg-neutral-900/60'
+                onClick={() => {
+                  setActiveSection('owner-profile');
+                  setTeamRoleFilter('owner');
+                }}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 border ${
+                  activeSection === 'owner-profile' || (activeSection === 'team' && teamRoleFilter === 'owner')
+                    ? 'bg-amber-600/20 border-amber-500 text-amber-300 font-bold'
+                    : 'text-neutral-400 hover:text-white bg-neutral-900/60 border-neutral-800'
                 }`}
               >
                 <Crown className="w-3.5 h-3.5 text-amber-400" />
-                <span>Studio Owner ({teamList.filter((m) => m.roleType === 'owner').length})</span>
+                <span>Owner Profile ({teamList.filter((m) => m.roleType === 'owner').length})</span>
               </button>
+
               <button
-                onClick={() => setTeamRoleFilter('ceo')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
-                  teamRoleFilter === 'ceo'
-                    ? 'bg-sky-600 text-white font-semibold'
-                    : 'text-neutral-400 hover:text-white bg-neutral-900/60'
+                onClick={() => {
+                  setActiveSection('ceo-profile');
+                  setTeamRoleFilter('ceo');
+                }}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 border ${
+                  activeSection === 'ceo-profile' || (activeSection === 'team' && teamRoleFilter === 'ceo')
+                    ? 'bg-sky-600/20 border-sky-500 text-sky-300 font-bold'
+                    : 'text-neutral-400 hover:text-white bg-neutral-900/60 border-neutral-800'
                 }`}
               >
                 <Briefcase className="w-3.5 h-3.5 text-sky-400" />
-                <span>CEO ({teamList.filter((m) => m.roleType === 'ceo').length})</span>
+                <span>CEO Profile ({teamList.filter((m) => m.roleType === 'ceo').length})</span>
               </button>
+
               <button
-                onClick={() => setTeamRoleFilter('team_member')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
-                  teamRoleFilter === 'team_member'
-                    ? 'bg-blue-600 text-white font-semibold'
-                    : 'text-neutral-400 hover:text-white bg-neutral-900/60'
+                onClick={() => {
+                  setActiveSection('team-members');
+                  setTeamRoleFilter('team_member');
+                }}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 border ${
+                  activeSection === 'team-members' || (activeSection === 'team' && teamRoleFilter === 'team_member')
+                    ? 'bg-blue-600/20 border-blue-500 text-blue-300 font-bold'
+                    : 'text-neutral-400 hover:text-white bg-neutral-900/60 border-neutral-800'
                 }`}
               >
                 <Users className="w-3.5 h-3.5 text-blue-400" />
                 <span>Team Members ({teamList.filter((m) => m.roleType === 'team_member').length})</span>
               </button>
+
+              <button
+                onClick={() => {
+                  setActiveSection('team');
+                  setTeamRoleFilter('all');
+                }}
+                className={`px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
+                  activeSection === 'team' && teamRoleFilter === 'all'
+                    ? 'bg-[#2563eb] text-white font-semibold'
+                    : 'text-neutral-400 hover:text-white bg-neutral-900/60'
+                }`}
+              >
+                View All Profiles Together ({teamList.length})
+              </button>
             </div>
 
             {/* CATEGORY 1: OWNER PROFILES */}
-            {(teamRoleFilter === 'all' || teamRoleFilter === 'owner') && (
+            {(activeSection === 'owner-profile' ||
+              (activeSection === 'team' && (teamRoleFilter === 'all' || teamRoleFilter === 'owner'))) && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -1682,7 +2047,8 @@ export const AdminDashboardPage: React.FC = () => {
             )}
 
             {/* CATEGORY 2: CEO PROFILES */}
-            {(teamRoleFilter === 'all' || teamRoleFilter === 'ceo') && (
+            {(activeSection === 'ceo-profile' ||
+              (activeSection === 'team' && (teamRoleFilter === 'all' || teamRoleFilter === 'ceo'))) && (
               <div className="space-y-4 pt-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -1790,7 +2156,8 @@ export const AdminDashboardPage: React.FC = () => {
             )}
 
             {/* CATEGORY 3: CREATIVE TEAM MEMBERS */}
-            {(teamRoleFilter === 'all' || teamRoleFilter === 'team_member') && (
+            {(activeSection === 'team-members' ||
+              (activeSection === 'team' && (teamRoleFilter === 'all' || teamRoleFilter === 'team_member'))) && (
               <div className="space-y-4 pt-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -2666,9 +3033,348 @@ export const AdminDashboardPage: React.FC = () => {
                 <span className="text-[11px] text-neutral-500">1-Click bypass disabled. Secret password required.</span>
               </div>
             </div>
+
+            {/* Dedicated Change Password Card */}
+            <div id="admin-password-card" className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-[#2563eb]/40 shadow-xl space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#2563eb]/20 border border-[#2563eb]/40 flex items-center justify-center text-[#3b82f6] shrink-0">
+                    <KeyRound className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white font-brand flex items-center gap-2">
+                      <span>Change Admin Password</span>
+                      <span className="text-xs font-normal text-neutral-400">(پاسورڈ تبدیل کریں)</span>
+                    </h3>
+                    <p className="text-xs text-neutral-400 mt-0.5">
+                      Update master security credentials for administrator logins across all devices.
+                    </p>
+                  </div>
+                </div>
+                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-800 text-[11px] text-emerald-300">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>PBKDF2 SHA-512 Encrypted</span>
+                </div>
+              </div>
+
+              {passwordStatusMsg && (
+                <div
+                  className={`p-3.5 rounded-xl border text-xs flex items-start gap-2.5 ${
+                    passwordStatusMsg.type === 'success'
+                      ? 'bg-emerald-950/50 border-emerald-800 text-emerald-200'
+                      : 'bg-rose-950/50 border-rose-800 text-rose-200'
+                  }`}
+                >
+                  {passwordStatusMsg.type === 'success' ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1">
+                    <div className="font-semibold">{passwordStatusMsg.text}</div>
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={handleChangePassword} className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Current Password */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-neutral-300 flex items-center justify-between">
+                      <span>Current Password (موجودہ پاسورڈ)</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showCurrentPass ? 'text' : 'password'}
+                        required
+                        value={currentPasswordInput}
+                        onChange={(e) => setCurrentPasswordInput(e.target.value)}
+                        placeholder="Enter current password"
+                        className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrentPass(!showCurrentPass)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                        title={showCurrentPass ? 'Hide password' : 'Show password'}
+                      >
+                        {showCurrentPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* New Password */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-neutral-300 flex items-center justify-between">
+                      <span>New Password (نیا پاسورڈ)</span>
+                      <span className="text-[10px] text-neutral-500">Min 6 characters</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showNewPass ? 'text' : 'password'}
+                        required
+                        minLength={6}
+                        value={newPasswordInput}
+                        onChange={(e) => setNewPasswordInput(e.target.value)}
+                        placeholder="Enter new password"
+                        className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPass(!showNewPass)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                        title={showNewPass ? 'Hide password' : 'Show password'}
+                      >
+                        {showNewPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Confirm New Password */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-neutral-300 flex items-center justify-between">
+                      <span>Confirm Password (تصدیق)</span>
+                      {confirmPasswordInput && (
+                        <span
+                          className={`text-[10px] ${
+                            newPasswordInput === confirmPasswordInput ? 'text-emerald-400' : 'text-rose-400'
+                          }`}
+                        >
+                          {newPasswordInput === confirmPasswordInput ? 'Matched' : 'Mismatch'}
+                        </span>
+                      )}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmPass ? 'text' : 'password'}
+                        required
+                        minLength={6}
+                        value={confirmPasswordInput}
+                        onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                        placeholder="Re-enter new password"
+                        className={`w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border text-sm text-white placeholder-neutral-500 focus:outline-none ${
+                          confirmPasswordInput && newPasswordInput !== confirmPasswordInput
+                            ? 'border-rose-700 focus:border-rose-500'
+                            : 'border-neutral-800 focus:border-[#2563eb]'
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPass(!showConfirmPass)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                        title={showConfirmPass ? 'Hide password' : 'Show password'}
+                      >
+                        {showConfirmPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-neutral-800/80">
+                  <div className="text-[11px] text-neutral-400">
+                    This updates password security across all devices for both authorized admin accounts.
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={changingPassword || !currentPasswordInput || !newPasswordInput}
+                    className="min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shrink-0 shadow-lg shadow-[#2563eb]/20"
+                  >
+                    {changingPassword ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Updating Password...</span>
+                      </>
+                    ) : (
+                      <>
+                        <KeyRound className="w-4 h-4" />
+                        <span>Update Admin Password (پاسورڈ محفوظ کریں)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
       </main>
+
+      {/* ================= MODAL: CHANGE ADMIN PASSWORD ================= */}
+      {passwordModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn"
+          onClick={() => {
+            setPasswordModalOpen(false);
+            setPasswordStatusMsg(null);
+          }}
+        >
+          <div
+            className="w-full max-w-lg bg-[#111827] border border-[#2563eb]/40 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#2563eb]/20 border border-[#2563eb]/40 flex items-center justify-center text-[#3b82f6] shrink-0">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white font-brand">
+                    Change Admin Password
+                  </h3>
+                  <p className="text-xs text-neutral-400">
+                    ایڈمن کا نیا پاسورڈ سیٹ کریں
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setPasswordModalOpen(false);
+                  setPasswordStatusMsg(null);
+                }}
+                className="p-1 text-neutral-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {passwordStatusMsg && (
+              <div
+                className={`p-3.5 rounded-xl border text-xs flex items-start gap-2.5 ${
+                  passwordStatusMsg.type === 'success'
+                    ? 'bg-emerald-950/50 border-emerald-800 text-emerald-200'
+                    : 'bg-rose-950/50 border-rose-800 text-rose-200'
+                }`}
+              >
+                {passwordStatusMsg.type === 'success' ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                )}
+                <div className="flex-1 font-medium">{passwordStatusMsg.text}</div>
+              </div>
+            )}
+
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              {/* Current Password */}
+              <div className="space-y-1.5">
+                <label className="text-xs text-neutral-300 font-medium">
+                  Current Password (موجودہ پاسورڈ)
+                </label>
+                <div className="relative">
+                  <input
+                    type={showCurrentPass ? 'text' : 'password'}
+                    required
+                    value={currentPasswordInput}
+                    onChange={(e) => setCurrentPasswordInput(e.target.value)}
+                    placeholder="Enter current password"
+                    className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPass(!showCurrentPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                  >
+                    {showCurrentPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* New Password */}
+              <div className="space-y-1.5">
+                <label className="text-xs text-neutral-300 font-medium flex items-center justify-between">
+                  <span>New Password (نیا پاسورڈ)</span>
+                  <span className="text-[10px] text-neutral-500">Min 6 characters</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showNewPass ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    value={newPasswordInput}
+                    onChange={(e) => setNewPasswordInput(e.target.value)}
+                    placeholder="Enter new password"
+                    className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPass(!showNewPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                  >
+                    {showNewPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm New Password */}
+              <div className="space-y-1.5">
+                <label className="text-xs text-neutral-300 font-medium flex items-center justify-between">
+                  <span>Confirm New Password (تصدیق)</span>
+                  {confirmPasswordInput && (
+                    <span
+                      className={`text-[10px] ${
+                        newPasswordInput === confirmPasswordInput ? 'text-emerald-400' : 'text-rose-400'
+                      }`}
+                    >
+                      {newPasswordInput === confirmPasswordInput ? 'Matched' : 'Mismatch'}
+                    </span>
+                  )}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPass ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    value={confirmPasswordInput}
+                    onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                    placeholder="Re-enter new password"
+                    className={`w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border text-sm text-white placeholder-neutral-500 focus:outline-none ${
+                      confirmPasswordInput && newPasswordInput !== confirmPasswordInput
+                        ? 'border-rose-700 focus:border-rose-500'
+                        : 'border-neutral-800 focus:border-[#2563eb]'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPass(!showConfirmPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                  >
+                    {showConfirmPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-neutral-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPasswordModalOpen(false);
+                    setPasswordStatusMsg(null);
+                  }}
+                  className="min-h-[40px] px-4 py-2 text-xs text-neutral-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={changingPassword || !currentPasswordInput || !newPasswordInput}
+                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center gap-2"
+                >
+                  {changingPassword ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Updating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <KeyRound className="w-4 h-4" />
+                      <span>Update Password</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ================= MODAL: INQUIRY DETAIL & NOTES ================= */}
       {selectedInquiry && (
@@ -3286,6 +3992,299 @@ export const AdminDashboardPage: React.FC = () => {
                   className="min-h-[40px] px-6 py-2 text-xs font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8]"
                 >
                   Save Question
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: EDIT / ADD TEAM MEMBER (OWNER, CEO & TEAM) ================= */}
+      {editingTeamMember && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn overflow-y-auto"
+          onClick={() => setEditingTeamMember(null)}
+        >
+          <div
+            className="w-full max-w-xl bg-[#111827] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-5 my-8 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Hidden Photo Upload Input */}
+            <input
+              type="file"
+              ref={teamPhotoInputRef}
+              onChange={handleTeamPhotoUpload}
+              className="hidden"
+              accept="image/*"
+            />
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                {editingTeamMember.roleType === 'owner' ? (
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
+                    <Crown className="w-4 h-4 text-amber-400" />
+                  </div>
+                ) : editingTeamMember.roleType === 'ceo' ? (
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/20 border border-sky-500/40 flex items-center justify-center">
+                    <Briefcase className="w-4 h-4 text-sky-400" />
+                  </div>
+                ) : (
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/40 flex items-center justify-center">
+                    <Users className="w-4 h-4 text-blue-400" />
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-lg font-bold text-white font-brand">
+                    {editingTeamMember.id
+                      ? editingTeamMember.roleType === 'owner'
+                        ? 'Edit Owner Profile'
+                        : editingTeamMember.roleType === 'ceo'
+                        ? 'Edit CEO Profile'
+                        : 'Edit Team Member Profile'
+                      : editingTeamMember.roleType === 'owner'
+                      ? 'Add New Owner Profile'
+                      : editingTeamMember.roleType === 'ceo'
+                      ? 'Add New CEO Profile'
+                      : 'Add New Team Member'}
+                  </h3>
+                  <p className="text-[11px] text-neutral-400">
+                    Changes will be saved to disk and reflected across the live website.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setEditingTeamMember(null)}
+                className="p-1 text-neutral-400 hover:text-white rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveTeamMember} className="space-y-4">
+              {/* Role Type Selection */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-neutral-300">
+                  Profile Category / Role
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setEditingTeamMember({
+                        ...editingTeamMember,
+                        roleType: 'owner',
+                        title: editingTeamMember.title || 'Founder & Studio Owner',
+                      })
+                    }
+                    className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
+                      editingTeamMember.roleType === 'owner'
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-300'
+                        : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    <Crown className="w-3.5 h-3.5" />
+                    <span>Owner</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setEditingTeamMember({
+                        ...editingTeamMember,
+                        roleType: 'ceo',
+                        title: editingTeamMember.title || 'Chief Executive Officer (CEO)',
+                      })
+                    }
+                    className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
+                      editingTeamMember.roleType === 'ceo'
+                        ? 'bg-sky-500/20 border-sky-500 text-sky-300'
+                        : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    <Briefcase className="w-3.5 h-3.5" />
+                    <span>CEO</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setEditingTeamMember({
+                        ...editingTeamMember,
+                        roleType: 'team_member',
+                        title: editingTeamMember.title || 'Cinematographer',
+                      })
+                    }
+                    className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
+                      editingTeamMember.roleType === 'team_member'
+                        ? 'bg-blue-500/20 border-blue-500 text-blue-300'
+                        : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    <span>Team Member</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Full Name & Designation */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400">Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingTeamMember.name || ''}
+                    onChange={(e) => setEditingTeamMember({ ...editingTeamMember, name: e.target.value })}
+                    placeholder="e.g. Umair Wyne or Shifa Ur Rehman"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400">Job Title / Designation *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingTeamMember.title || ''}
+                    onChange={(e) => setEditingTeamMember({ ...editingTeamMember, title: e.target.value })}
+                    placeholder="e.g. Founder & Studio Owner or Director of Photography"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
+              </div>
+
+              {/* Profile Photo */}
+              <div className="space-y-2">
+                <label className="text-xs text-neutral-400">Profile Photo</label>
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-xl overflow-hidden border border-neutral-700 bg-neutral-900 shrink-0">
+                    {editingTeamMember.photo ? (
+                      <img
+                        src={editingTeamMember.photo}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/images/hero_cinematic_production_1793180767552.jpg';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-neutral-600">
+                        <ImageIcon className="w-6 h-6" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-1.5">
+                    <input
+                      type="text"
+                      value={editingTeamMember.photo || ''}
+                      onChange={(e) => setEditingTeamMember({ ...editingTeamMember, photo: e.target.value })}
+                      placeholder="Photo URL or upload image"
+                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => teamPhotoInputRef.current?.click()}
+                      disabled={uploadingMedia}
+                      className="min-h-[32px] px-3 py-1 text-xs font-semibold text-neutral-300 bg-neutral-800 hover:text-white rounded-lg flex items-center gap-1.5 transition-colors"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-[#3b82f6]" />
+                      <span>{uploadingMedia ? 'Uploading...' : 'Upload Image File'}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Biography */}
+              <div className="space-y-1">
+                <label className="text-xs text-neutral-400">Biography / Experience</label>
+                <textarea
+                  rows={3}
+                  value={editingTeamMember.bio || ''}
+                  onChange={(e) => setEditingTeamMember({ ...editingTeamMember, bio: e.target.value })}
+                  placeholder="Describe role, cinema gear mastery, filmmaking background, or studio leadership..."
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                />
+              </div>
+
+              {/* Contact Information */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400">Direct Email</label>
+                  <input
+                    type="email"
+                    value={editingTeamMember.email || ''}
+                    onChange={(e) => setEditingTeamMember({ ...editingTeamMember, email: e.target.value })}
+                    placeholder="e.g. contact@shifaproductions.pk"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400">Direct Phone / WhatsApp</label>
+                  <input
+                    type="text"
+                    value={editingTeamMember.phone || ''}
+                    onChange={(e) => setEditingTeamMember({ ...editingTeamMember, phone: e.target.value })}
+                    placeholder="e.g. +92 300 8492026"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
+              </div>
+
+              {/* Social Links & Display Order */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400">Instagram URL</label>
+                  <input
+                    type="text"
+                    value={editingTeamMember.instagram || ''}
+                    onChange={(e) => setEditingTeamMember({ ...editingTeamMember, instagram: e.target.value })}
+                    placeholder="https://instagram.com/..."
+                    className="w-full px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400">LinkedIn URL</label>
+                  <input
+                    type="text"
+                    value={editingTeamMember.linkedin || ''}
+                    onChange={(e) => setEditingTeamMember({ ...editingTeamMember, linkedin: e.target.value })}
+                    placeholder="https://linkedin.com/in/..."
+                    className="w-full px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400">Display Order</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={editingTeamMember.displayOrder || 1}
+                    onChange={(e) =>
+                      setEditingTeamMember({ ...editingTeamMember, displayOrder: parseInt(e.target.value) || 1 })
+                    }
+                    className="w-full px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-3 border-t border-neutral-800">
+                <button
+                  type="button"
+                  onClick={() => setEditingTeamMember(null)}
+                  className="min-h-[40px] px-4 py-2 text-xs text-neutral-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] shadow-sm flex items-center gap-1.5"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Save Profile</span>
                 </button>
               </div>
             </form>
