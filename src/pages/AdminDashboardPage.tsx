@@ -617,10 +617,14 @@ export const AdminDashboardPage: React.FC = () => {
       setSavingSettings(true);
       const res = await apiClient.updateSettings(settingsForm);
       if (res.success) {
-        showToast('Website settings and branding saved persistently!', 'success');
-        refreshData();
+        if (res.settings) {
+          setSettingsForm(res.settings);
+        }
+        showToast('Website settings and branding saved persistently to database!', 'success');
+        await refreshData();
       }
     } catch (err: any) {
+      console.error('Settings save error:', err);
       showToast(err.message || 'Failed to save settings', 'error');
     } finally {
       setSavingSettings(false);
@@ -706,18 +710,28 @@ export const AdminDashboardPage: React.FC = () => {
         <div className="flex flex-col h-full overflow-y-auto p-4 space-y-6">
           {/* Logo / Studio Header */}
           <div className="px-2 pt-2 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-base shadow-sm shrink-0">
-              S
-            </div>
-            <div className="truncate">
-              <div className="font-brand font-bold text-white text-base tracking-wide truncate">
-                Shifa Productions
+            {settingsForm?.logoUrl ? (
+              <img
+                src={settingsForm.logoUrl}
+                alt="Shifa Productions Logo"
+                className="h-10 w-auto object-contain max-w-[170px]"
+              />
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-base shadow-sm shrink-0">
+                  S
+                </div>
+                <div className="truncate">
+                  <div className="font-brand font-bold text-white text-base tracking-wide truncate">
+                    Shifa Productions
+                  </div>
+                  <div className="text-[11px] text-neutral-400 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>Admin Studio</span>
+                  </div>
+                </div>
               </div>
-              <div className="text-[11px] text-neutral-400 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Admin Studio</span>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* User profile tag */}
@@ -796,9 +810,17 @@ export const AdminDashboardPage: React.FC = () => {
       {/* ================= MOBILE ADMIN TOP BAR ================= */}
       <div className="md:hidden sticky top-0 z-40 bg-[#0d0d0d] border-b border-neutral-800 px-4 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-xs">
-            S
-          </div>
+          {settingsForm?.logoUrl ? (
+            <img
+              src={settingsForm.logoUrl}
+              alt="Shifa Productions"
+              className="h-7 w-auto object-contain max-w-[120px]"
+            />
+          ) : (
+            <div className="w-7 h-7 rounded-lg bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-xs">
+              S
+            </div>
+          )}
           <div>
             <div className="font-brand font-bold text-white text-sm">Shifa Admin</div>
             <div className="text-[10px] text-[#3b82f6] uppercase tracking-wider font-semibold">

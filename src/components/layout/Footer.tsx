@@ -20,14 +20,27 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-neutral-900">
           {/* Brand column */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-base shadow-sm">
-                S
-              </div>
-              <span className="font-brand text-xl font-bold tracking-wider text-neutral-100">
-                {brandName}
-              </span>
-            </div>
+            <button
+              onClick={() => navigateTo('home')}
+              className="flex items-center gap-2.5 text-left focus:outline-none"
+            >
+              {settings?.logoUrl ? (
+                <img
+                  src={settings.logoUrl}
+                  alt={brandName}
+                  className="h-10 w-auto object-contain max-w-[200px]"
+                />
+              ) : (
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-base shadow-sm">
+                    S
+                  </div>
+                  <span className="font-brand text-xl font-bold tracking-wider text-neutral-100">
+                    {brandName}
+                  </span>
+                </div>
+              )}
+            </button>
             <p className="text-neutral-400 text-sm leading-relaxed max-w-sm">
               Pakistan’s premier cinema production agency. We craft high-end commercial films, regal wedding cinematography, corporate documentaries, and aerial drone experiences across Pakistan.
             </p>

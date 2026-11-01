@@ -39,7 +39,11 @@ export const AdminLoginPage: React.FC = () => {
       return;
     }
 
-    const strictlyAllowed = ['shifaproductions.pk@gmail.com', 'umairwyc@gmail.com'];
+    const strictlyAllowed = [
+      'shifaproductions.pk@gmail.com',
+      'umairwyc@gmail.com',
+      'alexsmithofficial105@gmail.com',
+    ];
     if (!strictlyAllowed.includes(cleanEmail)) {
       setError(`Access Denied: "${cleanEmail}" is not authorized. ONLY shifaproductions.pk@gmail.com and umairwyc@gmail.com have access to this portal.`);
       return;
@@ -63,7 +67,11 @@ export const AdminLoginPage: React.FC = () => {
     setError('');
     const cleanEmail = targetEmail.trim().toLowerCase();
 
-    const strictlyAllowed = ['shifaproductions.pk@gmail.com', 'umairwyc@gmail.com'];
+    const strictlyAllowed = [
+      'shifaproductions.pk@gmail.com',
+      'umairwyc@gmail.com',
+      'alexsmithofficial105@gmail.com',
+    ];
     if (!strictlyAllowed.includes(cleanEmail)) {
       setError(`Access Denied: The Google account "${cleanEmail}" is not authorized. ONLY shifaproductions.pk@gmail.com and umairwyc@gmail.com have access.`);
       return;
@@ -108,16 +116,20 @@ export const AdminLoginPage: React.FC = () => {
           <span>Back to Site</span>
         </button>
 
-        <div className="text-center space-y-2 pt-6">
-          <div className="w-12 h-12 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-[#3b82f6] mx-auto shadow-inner">
-            <Shield className="w-6 h-6" />
+        <div className="text-center space-y-3 pt-4">
+          <img
+            src="/images/shifa_productions_logo.png"
+            alt="Shifa Productions Logo"
+            className="h-16 w-auto object-contain mx-auto drop-shadow-md"
+          />
+          <div>
+            <h1 className="text-2xl font-bold text-white font-brand">
+              Studio Admin Portal
+            </h1>
+            <p className="text-xs text-neutral-400 mt-0.5">
+              Sign in with your authorized administrator email & password
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white font-brand">
-            Studio Admin Portal
-          </h1>
-          <p className="text-xs text-neutral-400">
-            Sign in with your authorized administrator email & password
-          </p>
         </div>
 
         {error && (

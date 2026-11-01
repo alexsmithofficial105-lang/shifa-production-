@@ -75,6 +75,7 @@ function getInitialData(): AppDatabase {
     settings: {
       brandName: 'Shifa Productions',
       tagline: 'Turning Your Vision Into Reality',
+      logoUrl: '/images/shifa_productions_logo.png',
       phone: '+92 300 8492026',
       whatsapp: '+92 300 8492026',
       email: 'contact@shifaproductions.pk',
