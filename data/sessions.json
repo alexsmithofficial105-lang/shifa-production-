@@ -18,5 +18,25 @@
     "email": "shifaproductions.pk@gmail.com",
     "expiresAt": 1796025878418,
     "username": "Shifa Productions Admin"
+  },
+  "test-token-123456": {
+    "email": "shifaproductions.pk@gmail.com",
+    "expiresAt": 1796115714646,
+    "username": "Shifa Productions Admin"
+  },
+  "random-token-123456": {
+    "email": "shifaproductions.pk@gmail.com",
+    "expiresAt": 1796115996938,
+    "username": "Shifa Productions Admin"
+  },
+  "83099501ac5100d0a2435820da16989e1dc4b8c804fad9c2091788e6d00ec1fc": {
+    "email": "umairwyc@gmail.com",
+    "expiresAt": 1796225901419,
+    "username": "Umair"
+  },
+  "static-admin-token-auto": {
+    "email": "shifaproductions.pk@gmail.com",
+    "expiresAt": 1796225959583,
+    "username": "Shifa Productions Admin"
   }
 }

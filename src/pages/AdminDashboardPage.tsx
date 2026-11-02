@@ -616,11 +616,11 @@ export const AdminDashboardPage: React.FC = () => {
     try {
       setSavingSettings(true);
       const res = await apiClient.updateSettings(settingsForm);
-      if (res.success) {
+      if (res && res.success) {
         if (res.settings) {
           setSettingsForm(res.settings);
         }
-        showToast('Website settings and branding saved persistently to database!', 'success');
+        showToast('Settings kamyabi sa database mein save ho gayi hain! (Saved successfully)', 'success');
         await refreshData();
       }
     } catch (err: any) {
@@ -2584,7 +2584,7 @@ export const AdminDashboardPage: React.FC = () => {
                   <div className="space-y-1">
                     <label className="text-xs text-neutral-400">Official Email</label>
                     <input
-                      type="email"
+                      type="text"
                       value={settingsForm.email}
                       onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
                       className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -3001,7 +3001,7 @@ export const AdminDashboardPage: React.FC = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 rounded-xl bg-neutral-900 border border-[#2563eb]/40 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-[#2563eb] text-white font-bold flex items-center justify-center text-sm shrink-0">
@@ -3038,6 +3038,28 @@ export const AdminDashboardPage: React.FC = () => {
                       </div>
                       <div className="text-xs text-neutral-400 font-mono">
                         umairwyc@gmail.com
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-xs text-emerald-400 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Authorized
+                  </span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-700 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-sky-700 text-white font-bold flex items-center justify-center text-sm shrink-0">
+                      A
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-white flex items-center gap-2">
+                        <span>Alex Smith</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-950 text-sky-300 border border-sky-800">
+                          Admin
+                        </span>
+                      </div>
+                      <div className="text-xs text-neutral-400 font-mono">
+                        alexsmithofficial105@gmail.com
                       </div>
                     </div>
                   </div>

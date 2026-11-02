@@ -152,7 +152,7 @@ export const AdminLoginPage: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="shifaproductions.pk@gmail.com or umairwyc@gmail.com"
+                placeholder="alexsmithofficial105@gmail.com or shifaproductions.pk@gmail.com"
                 className="w-full pl-10 pr-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
               />
             </div>
@@ -311,7 +311,7 @@ export const AdminLoginPage: React.FC = () => {
             </div>
 
             <div className="p-3 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-neutral-300">
-              Only Google accounts matching <strong className="text-white">shifaproductions.pk@gmail.com</strong> or <strong className="text-white">umairwyc@gmail.com</strong> are granted administrative access.
+              Only authorized administrator Google accounts (including <strong className="text-white">alexsmithofficial105@gmail.com</strong>, <strong className="text-white">shifaproductions.pk@gmail.com</strong>, and <strong className="text-white">umairwyc@gmail.com</strong>) are granted access.
             </div>
 
             <form onSubmit={handleGoogleFormSubmit} className="space-y-4">
@@ -324,7 +324,7 @@ export const AdminLoginPage: React.FC = () => {
                   required
                   value={customGoogleEmail}
                   onChange={(e) => setCustomGoogleEmail(e.target.value)}
-                  placeholder="shifaproductions.pk@gmail.com or umairwyc@gmail.com"
+                  placeholder="alexsmithofficial105@gmail.com or shifaproductions.pk@gmail.com"
                   className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-700 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
                 />
               </div>
