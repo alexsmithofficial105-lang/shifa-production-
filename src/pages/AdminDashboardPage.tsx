@@ -24,6 +24,11 @@ import {
   initialTeam,
 } from '../data/initialData.ts';
 import {
+  saveDynamicFirebaseConfig,
+  clearDynamicFirebaseConfig,
+  detectFirebaseConfig,
+} from '../services/firebase.ts';
+import {
   LayoutDashboard,
   Inbox,
   Layers,
@@ -91,7 +96,7 @@ type AdminSection =
 
 export const AdminDashboardPage: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
-  const { navigateTo, showToast, refreshData } = useApp();
+  const { navigateTo, showToast, refreshData, isCloudActive, cloudSyncMode } = useApp();
 
   const [activeSection, setActiveSection] = useState<AdminSection>('overview');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -141,7 +146,7 @@ export const AdminDashboardPage: React.FC = () => {
   const portfolioImgInputRef = useRef<HTMLInputElement>(null);
 
   // Settings
-  const [settingsForm, setSettingsForm] = useState<SiteSettings | null>(null);
+  const [settingsForm, setSettingsForm] = useState<SiteSettings>(initialSettings);
   const [savingSettings, setSavingSettings] = useState(false);
 
   // Change Admin Password State
@@ -157,6 +162,86 @@ export const AdminDashboardPage: React.FC = () => {
 
   // Analytics
   const [analytics, setAnalytics] = useState<StudioAnalyticsData | null>(null);
+
+  // Firebase Cloud Config state
+  const [showFbConfigForm, setShowFbConfigForm] = useState(false);
+  const [fbApiKey, setFbApiKey] = useState('');
+  const [fbAuthDomain, setFbAuthDomain] = useState('');
+  const [fbProjectId, setFbProjectId] = useState('');
+  const [fbStorageBucket, setFbStorageBucket] = useState('');
+  const [fbMessagingSenderId, setFbMessagingSenderId] = useState('');
+  const [fbAppId, setFbAppId] = useState('');
+  const [fbJsonInput, setFbJsonInput] = useState('');
+  const [savingFbConfig, setSavingFbConfig] = useState(false);
+
+  useEffect(() => {
+    const existing = detectFirebaseConfig();
+    if (existing) {
+      if (existing.apiKey) setFbApiKey(existing.apiKey);
+      if (existing.authDomain) setFbAuthDomain(existing.authDomain);
+      if (existing.projectId) setFbProjectId(existing.projectId);
+      if (existing.storageBucket) setFbStorageBucket(existing.storageBucket);
+      if (existing.messagingSenderId) setFbMessagingSenderId(existing.messagingSenderId);
+      if (existing.appId) setFbAppId(existing.appId);
+    }
+  }, []);
+
+  const handleParseFirebaseJson = (raw: string) => {
+    setFbJsonInput(raw);
+    try {
+      const jsonStr = raw
+        .replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":')
+        .replace(/'/g, '"')
+        .replace(/^[^{]*(\{[\s\S]*\})[^}]*$/, '$1');
+      const parsed = JSON.parse(jsonStr);
+      if (parsed.apiKey) setFbApiKey(parsed.apiKey);
+      if (parsed.authDomain) setFbAuthDomain(parsed.authDomain);
+      if (parsed.projectId) setFbProjectId(parsed.projectId);
+      if (parsed.storageBucket) setFbStorageBucket(parsed.storageBucket);
+      if (parsed.messagingSenderId) setFbMessagingSenderId(parsed.messagingSenderId);
+      if (parsed.appId) setFbAppId(parsed.appId);
+      showToast('Firebase config fields parsed from JSON!', 'info');
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleSaveFirebaseConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fbApiKey.trim() || !fbProjectId.trim()) {
+      showToast('Please provide at least API Key and Project ID', 'error');
+      return;
+    }
+    setSavingFbConfig(true);
+    try {
+      const ok = saveDynamicFirebaseConfig({
+        apiKey: fbApiKey.trim(),
+        authDomain: fbAuthDomain.trim() || `${fbProjectId.trim()}.firebaseapp.com`,
+        projectId: fbProjectId.trim(),
+        storageBucket: fbStorageBucket.trim() || `${fbProjectId.trim()}.appspot.com`,
+        messagingSenderId: fbMessagingSenderId.trim(),
+        appId: fbAppId.trim(),
+      });
+      if (ok) {
+        showToast('Firebase Cloud Database Connected & Active! All devices will sync in real time.', 'success');
+        setShowFbConfigForm(false);
+        await refreshData();
+      } else {
+        showToast('Could not initialize Firebase with these credentials. Please check project ID.', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Firebase initialization failed', 'error');
+    } finally {
+      setSavingFbConfig(false);
+    }
+  };
+
+  const handleDisconnectFirebase = async () => {
+    if (!window.confirm('Disconnect cloud Firebase sync and return to server storage?')) return;
+    clearDynamicFirebaseConfig();
+    showToast('Firebase cloud disconnected. Operating in local server mode.', 'info');
+    await refreshData();
+  };
 
   // Load Admin Data
   const loadAdminData = async () => {
@@ -181,7 +266,23 @@ export const AdminDashboardPage: React.FC = () => {
       setTestimonialsList(tests && tests.length ? tests : initialTestimonials);
       setFaqsList(fqs && fqs.length ? fqs : initialFaqs);
       setTeamList(tm && tm.length ? tm : initialTeam);
-      setSettingsForm(sett || initialSettings);
+      const safeSett: SiteSettings = {
+        ...initialSettings,
+        ...(sett || {}),
+        hero: { ...initialSettings.hero, ...(sett?.hero || {}) },
+        about: { ...initialSettings.about, ...(sett?.about || {}) },
+        socials: { ...initialSettings.socials, ...(sett?.socials || {}) },
+        seo: { ...initialSettings.seo, ...(sett?.seo || {}) },
+        legal: {
+          privacyPolicy: sett?.legal?.privacyPolicy ?? initialSettings.legal?.privacyPolicy ?? '',
+          termsAndConditions: sett?.legal?.termsAndConditions ?? initialSettings.legal?.termsAndConditions ?? '',
+        },
+        theme: {
+          accentColor: sett?.theme?.accentColor ?? initialSettings.theme?.accentColor ?? '#E50914',
+          mode: (sett?.theme?.mode as 'cinematic' | 'dark') ?? initialSettings.theme?.mode ?? 'cinematic',
+        },
+      };
+      setSettingsForm(safeSett);
       setInquiries(inqs && inqs.length ? inqs : (initialInquiries as any));
       setMediaList(med || []);
 
@@ -2367,11 +2468,11 @@ export const AdminDashboardPage: React.FC = () => {
                     </label>
                     <input
                       type="text"
-                      value={settingsForm.hero.heading}
+                      value={settingsForm?.hero?.heading || ''}
                       onChange={(e) =>
                         setSettingsForm({
                           ...settingsForm,
-                          hero: { ...settingsForm.hero, heading: e.target.value },
+                          hero: { ...(settingsForm?.hero || {}), heading: e.target.value },
                         })
                       }
                       className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2384,11 +2485,11 @@ export const AdminDashboardPage: React.FC = () => {
                     </label>
                     <textarea
                       rows={3}
-                      value={settingsForm.hero.subheading}
+                      value={settingsForm?.hero?.subheading || ''}
                       onChange={(e) =>
                         setSettingsForm({
                           ...settingsForm,
-                          hero: { ...settingsForm.hero, subheading: e.target.value },
+                          hero: { ...(settingsForm?.hero || {}), subheading: e.target.value },
                         })
                       }
                       className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2401,11 +2502,11 @@ export const AdminDashboardPage: React.FC = () => {
                     </label>
                     <input
                       type="text"
-                      value={settingsForm.hero.bgImage}
+                      value={settingsForm?.hero?.bgImage || ''}
                       onChange={(e) =>
                         setSettingsForm({
                           ...settingsForm,
-                          hero: { ...settingsForm.hero, bgImage: e.target.value },
+                          hero: { ...(settingsForm?.hero || {}), bgImage: e.target.value },
                         })
                       }
                       className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2427,11 +2528,11 @@ export const AdminDashboardPage: React.FC = () => {
                     </label>
                     <input
                       type="text"
-                      value={settingsForm.about.title}
+                      value={settingsForm?.about?.title || ''}
                       onChange={(e) =>
                         setSettingsForm({
                           ...settingsForm,
-                          about: { ...settingsForm.about, title: e.target.value },
+                          about: { ...(settingsForm?.about || {}), title: e.target.value },
                         })
                       }
                       className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2444,11 +2545,11 @@ export const AdminDashboardPage: React.FC = () => {
                     </label>
                     <textarea
                       rows={4}
-                      value={settingsForm.about.story}
+                      value={settingsForm?.about?.story || ''}
                       onChange={(e) =>
                         setSettingsForm({
                           ...settingsForm,
-                          about: { ...settingsForm.about, story: e.target.value },
+                          about: { ...(settingsForm?.about || {}), story: e.target.value },
                         })
                       }
                       className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2461,11 +2562,11 @@ export const AdminDashboardPage: React.FC = () => {
                     </label>
                     <textarea
                       rows={3}
-                      value={settingsForm.about.cinematicVision}
+                      value={settingsForm?.about?.cinematicVision || ''}
                       onChange={(e) =>
                         setSettingsForm({
                           ...settingsForm,
-                          about: { ...settingsForm.about, cinematicVision: e.target.value },
+                          about: { ...(settingsForm?.about || {}), cinematicVision: e.target.value },
                         })
                       }
                       className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2477,11 +2578,11 @@ export const AdminDashboardPage: React.FC = () => {
                       <label className="text-xs text-neutral-400">Completed Projects</label>
                       <input
                         type="text"
-                        value={settingsForm.about.completedProjects}
+                        value={settingsForm?.about?.completedProjects || ''}
                         onChange={(e) =>
                           setSettingsForm({
                             ...settingsForm,
-                            about: { ...settingsForm.about, completedProjects: e.target.value },
+                            about: { ...(settingsForm?.about || {}), completedProjects: e.target.value },
                           })
                         }
                         className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2491,11 +2592,11 @@ export const AdminDashboardPage: React.FC = () => {
                       <label className="text-xs text-neutral-400">Years Experience</label>
                       <input
                         type="text"
-                        value={settingsForm.about.experienceYears}
+                        value={settingsForm?.about?.experienceYears || ''}
                         onChange={(e) =>
                           setSettingsForm({
                             ...settingsForm,
-                            about: { ...settingsForm.about, experienceYears: e.target.value },
+                            about: { ...(settingsForm?.about || {}), experienceYears: e.target.value },
                           })
                         }
                         className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2505,11 +2606,11 @@ export const AdminDashboardPage: React.FC = () => {
                       <label className="text-xs text-neutral-400">Filmmakers & Crew Count</label>
                       <input
                         type="text"
-                        value={settingsForm.about.filmmakersCount}
+                        value={settingsForm?.about?.filmmakersCount || ''}
                         onChange={(e) =>
                           setSettingsForm({
                             ...settingsForm,
-                            about: { ...settingsForm.about, filmmakersCount: e.target.value },
+                            about: { ...(settingsForm?.about || {}), filmmakersCount: e.target.value },
                           })
                         }
                         className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2626,11 +2727,11 @@ export const AdminDashboardPage: React.FC = () => {
                     <label className="text-xs text-neutral-400">Instagram Profile URL</label>
                     <input
                       type="text"
-                      value={settingsForm.socials.instagram}
+                      value={settingsForm?.socials?.instagram || ''}
                       onChange={(e) =>
                         setSettingsForm({
                           ...settingsForm,
-                          socials: { ...settingsForm.socials, instagram: e.target.value },
+                          socials: { ...(settingsForm?.socials || {}), instagram: e.target.value },
                         })
                       }
                       className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2641,11 +2742,11 @@ export const AdminDashboardPage: React.FC = () => {
                     <label className="text-xs text-neutral-400">YouTube Channel URL</label>
                     <input
                       type="text"
-                      value={settingsForm.socials.youtube}
+                      value={settingsForm?.socials?.youtube || ''}
                       onChange={(e) =>
                         setSettingsForm({
                           ...settingsForm,
-                          socials: { ...settingsForm.socials, youtube: e.target.value },
+                          socials: { ...(settingsForm?.socials || {}), youtube: e.target.value },
                         })
                       }
                       className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2656,11 +2757,11 @@ export const AdminDashboardPage: React.FC = () => {
                     <label className="text-xs text-neutral-400">Vimeo Portfolio URL</label>
                     <input
                       type="text"
-                      value={settingsForm.socials.vimeo}
+                      value={settingsForm?.socials?.vimeo || ''}
                       onChange={(e) =>
                         setSettingsForm({
                           ...settingsForm,
-                          socials: { ...settingsForm.socials, vimeo: e.target.value },
+                          socials: { ...(settingsForm?.socials || {}), vimeo: e.target.value },
                         })
                       }
                       className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2671,11 +2772,11 @@ export const AdminDashboardPage: React.FC = () => {
                     <label className="text-xs text-neutral-400">LinkedIn Page URL</label>
                     <input
                       type="text"
-                      value={settingsForm.socials.linkedin}
+                      value={settingsForm?.socials?.linkedin || ''}
                       onChange={(e) =>
                         setSettingsForm({
                           ...settingsForm,
-                          socials: { ...settingsForm.socials, linkedin: e.target.value },
+                          socials: { ...(settingsForm?.socials || {}), linkedin: e.target.value },
                         })
                       }
                       className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2917,6 +3018,225 @@ export const AdminDashboardPage: React.FC = () => {
               </p>
             </div>
 
+            {/* Centralized Cloud Database & Multi-Device Sync Status Card */}
+            <div className={`p-6 sm:p-7 rounded-2xl border ${isCloudActive ? 'bg-emerald-950/20 border-emerald-800/60' : 'bg-[#0f172a] border-blue-900/40'} space-y-4`}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isCloudActive ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-blue-500/20 text-[#3b82f6] border border-blue-500/40'}`}>
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-bold text-white font-brand">
+                        Centralized Cloud Database & Cross-Device Sync
+                      </h3>
+                      <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${isCloudActive ? 'bg-emerald-950 text-emerald-300 border-emerald-700' : 'bg-amber-950 text-amber-300 border-amber-700'}`}>
+                        {isCloudActive ? 'CLOUD LIVE (FIREBASE FIRESTORE)' : 'STANDBY (HYBRID-SERVER MODE)'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-400 mt-0.5">
+                      {isCloudActive
+                        ? 'Connected to Firebase Firestore & Storage. Changes made from any mobile or desktop device update automatically and permanently in real time.'
+                        : 'Currently operating in container backend server mode. For 100% instant sync across different external phones and computers, see credentials instructions below.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setShowFbConfigForm(!showFbConfigForm)}
+                    className="px-3.5 py-2 text-xs font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] rounded-xl flex items-center gap-1.5 transition-colors shadow-sm"
+                  >
+                    <Settings className="w-3.5 h-3.5" />
+                    <span>{showFbConfigForm ? 'Hide Config Form' : isCloudActive ? 'Edit Cloud Keys' : 'Configure Firebase Keys'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await refreshData();
+                      showToast('Database state refreshed from server', 'info');
+                    }}
+                    className="px-3.5 py-2 text-xs font-medium text-neutral-300 bg-neutral-900 border border-neutral-700 rounded-xl hover:bg-neutral-800 flex items-center gap-1.5 transition-colors"
+                  >
+                    <Clock className="w-3.5 h-3.5 text-[#3b82f6]" />
+                    <span>Sync Now</span>
+                  </button>
+
+                  {isCloudActive && (
+                    <button
+                      type="button"
+                      onClick={handleDisconnectFirebase}
+                      className="px-3 py-2 text-xs font-medium text-rose-400 hover:text-rose-300 bg-rose-950/40 border border-rose-800/60 rounded-xl transition-colors"
+                      title="Disconnect Cloud DB"
+                    >
+                      Disconnect
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Interactive Firebase Configuration Form */}
+              {showFbConfigForm && (
+                <form onSubmit={handleSaveFirebaseConfig} className="p-5 rounded-xl bg-neutral-950 border border-neutral-800 space-y-4 animate-fadeIn">
+                  <div className="flex items-center justify-between pb-2 border-b border-neutral-800">
+                    <div>
+                      <h4 className="text-sm font-bold text-white font-brand">Firebase Cloud Configuration (کلاؤڈ ڈیٹا بیس سیٹنگز)</h4>
+                      <p className="text-[11px] text-neutral-400">
+                        Paste your Firebase Web App configuration from Firebase Console to enable instant multi-device sync.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowFbConfigForm(false)}
+                      className="text-neutral-400 hover:text-white p-1"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Paste JSON / JS helper */}
+                  <div className="space-y-1">
+                    <label className="text-xs text-neutral-300 font-medium flex items-center justify-between">
+                      <span>Quick Paste: Paste Firebase SDK snippet or JSON here</span>
+                      <span className="text-[10px] text-neutral-500">Auto-fills fields below</span>
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={fbJsonInput}
+                      onChange={(e) => handleParseFirebaseJson(e.target.value)}
+                      placeholder='const firebaseConfig = { apiKey: "...", projectId: "...", ... };'
+                      className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs font-mono text-neutral-200 focus:outline-none focus:border-[#2563eb]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="space-y-1">
+                      <label className="text-neutral-400 font-medium">API Key (apiKey) *</label>
+                      <input
+                        type="text"
+                        required
+                        value={fbApiKey}
+                        onChange={(e) => setFbApiKey(e.target.value)}
+                        placeholder="AIzaSy..."
+                        className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs font-mono text-white focus:outline-none focus:border-[#2563eb]"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-neutral-400 font-medium">Project ID (projectId) *</label>
+                      <input
+                        type="text"
+                        required
+                        value={fbProjectId}
+                        onChange={(e) => setFbProjectId(e.target.value)}
+                        placeholder="your-project-id"
+                        className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs font-mono text-white focus:outline-none focus:border-[#2563eb]"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-neutral-400 font-medium">Auth Domain (authDomain)</label>
+                      <input
+                        type="text"
+                        value={fbAuthDomain}
+                        onChange={(e) => setFbAuthDomain(e.target.value)}
+                        placeholder="your-project.firebaseapp.com"
+                        className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs font-mono text-white focus:outline-none focus:border-[#2563eb]"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-neutral-400 font-medium">Storage Bucket (storageBucket)</label>
+                      <input
+                        type="text"
+                        value={fbStorageBucket}
+                        onChange={(e) => setFbStorageBucket(e.target.value)}
+                        placeholder="your-project.appspot.com"
+                        className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs font-mono text-white focus:outline-none focus:border-[#2563eb]"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-neutral-400 font-medium">App ID (appId)</label>
+                      <input
+                        type="text"
+                        value={fbAppId}
+                        onChange={(e) => setFbAppId(e.target.value)}
+                        placeholder="1:123456789:web:abcdef..."
+                        className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs font-mono text-white focus:outline-none focus:border-[#2563eb]"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-neutral-400 font-medium">Messaging Sender ID</label>
+                      <input
+                        type="text"
+                        value={fbMessagingSenderId}
+                        onChange={(e) => setFbMessagingSenderId(e.target.value)}
+                        placeholder="123456789"
+                        className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs font-mono text-white focus:outline-none focus:border-[#2563eb]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-neutral-800">
+                    <span className="text-[11px] text-neutral-400">
+                      Credentials are encrypted and activated immediately for this domain.
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowFbConfigForm(false)}
+                        className="px-3 py-1.5 text-xs text-neutral-400 hover:text-white"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={savingFbConfig}
+                        className="px-5 py-2 text-xs font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] rounded-xl flex items-center gap-1.5 transition-all shadow-md disabled:opacity-50"
+                      >
+                        {savingFbConfig ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <span>Connecting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Save & Connect Firebase Cloud (ڈیٹا بیس کنیکٹ کریں)</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              )}
+
+              {!isCloudActive && !showFbConfigForm && (
+                <div className="p-4 rounded-xl bg-neutral-950/80 border border-neutral-800 space-y-2.5 text-xs text-neutral-300">
+                  <div className="font-semibold text-white flex items-center gap-1.5">
+                    <AlertCircle className="w-4 h-4 text-amber-400" />
+                    <span>How to enable permanent cross-device sync on all phones & computers:</span>
+                  </div>
+                  <p className="text-neutral-400 text-[11px] leading-relaxed">
+                    Google Cloud Run uses isolated sandbox containers. To ensure changes made on your phone or laptop immediately show on every other device worldwide, click <strong className="text-white">"Configure Firebase Keys"</strong> above or add credentials in <code className="text-amber-300 bg-black/50 px-1 py-0.5 rounded font-mono">.env</code>:
+                  </p>
+                  <div className="p-3 bg-black/60 rounded-lg border border-neutral-800/80 font-mono text-[10px] text-neutral-300 overflow-x-auto space-y-1">
+                    <div><span className="text-neutral-500">VITE_FIREBASE_API_KEY</span>=AIzaSy...</div>
+                    <div><span className="text-neutral-500">VITE_FIREBASE_PROJECT_ID</span>=your-project-id</div>
+                    <div><span className="text-neutral-500">VITE_FIREBASE_STORAGE_BUCKET</span>=your-project-id.appspot.com</div>
+                    <div><span className="text-neutral-500">VITE_FIREBASE_APP_ID</span>=1:...:web:...</div>
+                  </div>
+                  <p className="text-[11px] text-neutral-400">
+                    Once these variables are present, the website automatically switches to real-time Firestore with zero code changes needed.
+                  </p>
+                </div>
+              )}
+            </div>
+
             <form onSubmit={handleSaveSettings} className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
               <h3 className="text-base font-bold text-white font-brand">
                 General Branding & SEO Metadata
@@ -2949,11 +3269,11 @@ export const AdminDashboardPage: React.FC = () => {
                   <label className="text-xs text-neutral-400">Google SEO Title</label>
                   <input
                     type="text"
-                    value={settingsForm.seo.metaTitle}
+                    value={settingsForm?.seo?.metaTitle || ''}
                     onChange={(e) =>
                       setSettingsForm({
                         ...settingsForm,
-                        seo: { ...settingsForm.seo, metaTitle: e.target.value },
+                        seo: { ...(settingsForm?.seo || {}), metaTitle: e.target.value },
                       })
                     }
                     className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2964,11 +3284,11 @@ export const AdminDashboardPage: React.FC = () => {
                   <label className="text-xs text-neutral-400">Google SEO Meta Description</label>
                   <textarea
                     rows={2}
-                    value={settingsForm.seo.metaDescription}
+                    value={settingsForm?.seo?.metaDescription || ''}
                     onChange={(e) =>
                       setSettingsForm({
                         ...settingsForm,
-                        seo: { ...settingsForm.seo, metaDescription: e.target.value },
+                        seo: { ...(settingsForm?.seo || {}), metaDescription: e.target.value },
                       })
                     }
                     className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs sm:text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -4249,6 +4569,61 @@ export const AdminDashboardPage: React.FC = () => {
                   placeholder="Describe role, cinema gear mastery, filmmaking background, or studio leadership..."
                   className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                 />
+              </div>
+
+              {/* Urdu Designation & Experience */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400">Urdu Designation (اردو عہدہ)</label>
+                  <input
+                    type="text"
+                    value={editingTeamMember.urduTitle || ''}
+                    onChange={(e) => setEditingTeamMember({ ...editingTeamMember, urduTitle: e.target.value })}
+                    placeholder="e.g. سٹوڈیو بانی / ڈائریکٹر آف فوٹوگرافی"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400">Experience Years</label>
+                  <input
+                    type="text"
+                    value={editingTeamMember.experienceYears || ''}
+                    onChange={(e) => setEditingTeamMember({ ...editingTeamMember, experienceYears: e.target.value })}
+                    placeholder="e.g. 10+ Years or 8 Years"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
+              </div>
+
+              {/* Cinema Gear & Specialties */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400">Primary Cinema Gear</label>
+                  <input
+                    type="text"
+                    value={editingTeamMember.gear || ''}
+                    onChange={(e) => setEditingTeamMember({ ...editingTeamMember, gear: e.target.value })}
+                    placeholder="e.g. ARRI Alexa Mini LF, RED V-Raptor, Cooke Anamorphic"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-neutral-400">Specialties (comma separated)</label>
+                  <input
+                    type="text"
+                    value={(editingTeamMember.specialties || []).join(', ')}
+                    onChange={(e) =>
+                      setEditingTeamMember({
+                        ...editingTeamMember,
+                        specialties: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
+                      })
+                    }
+                    placeholder="e.g. Direction, Anamorphic Cinema, DaVinci Grading"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
               </div>
 
               {/* Contact Information */}

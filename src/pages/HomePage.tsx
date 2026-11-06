@@ -3,6 +3,7 @@ import { HeroSection } from '../components/home/HeroSection.tsx';
 import { AboutSection } from '../components/home/AboutSection.tsx';
 import { ServicesSection } from '../components/home/ServicesSection.tsx';
 import { PortfolioSection } from '../components/home/PortfolioSection.tsx';
+import { TeamSection } from '../components/home/TeamSection.tsx';
 import { WhyChooseUs } from '../components/home/WhyChooseUs.tsx';
 import { ProcessSection } from '../components/home/ProcessSection.tsx';
 import { TestimonialsSection } from '../components/home/TestimonialsSection.tsx';
@@ -15,6 +16,7 @@ export const HomePage: React.FC = () => {
       <AboutSection />
       <ServicesSection />
       <PortfolioSection />
+      <TeamSection />
       <WhyChooseUs />
       <ProcessSection />
       <TestimonialsSection />

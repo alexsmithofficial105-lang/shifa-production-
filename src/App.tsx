@@ -18,10 +18,13 @@ import { FaqPage } from './pages/FaqPage.tsx';
 import { LegalPage } from './pages/LegalPage.tsx';
 import { AdminLoginPage } from './pages/AdminLoginPage.tsx';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.tsx';
+import { TeamPage } from './pages/TeamPage.tsx';
 import { NotFoundPage } from './pages/NotFoundPage.tsx';
+import { TeamMemberModal } from './components/modals/TeamMemberModal.tsx';
+import { AlertTriangle, Database } from 'lucide-react';
 
 const AppContent: React.FC = () => {
-  const { currentRoute, loading } = useApp();
+  const { currentRoute, loading, isCloudActive, navigateTo } = useApp();
 
   const isAdminDashboard = currentRoute === 'admin-dashboard';
 
@@ -31,6 +34,8 @@ const AppContent: React.FC = () => {
         return <HomePage />;
       case 'about':
         return <AboutPage />;
+      case 'team':
+        return <TeamPage />;
       case 'services':
         return <ServicesPage />;
       case 'portfolio':
@@ -57,6 +62,25 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#060913] text-neutral-100 selection:bg-[#2563eb] selection:text-white">
+      {/* Prominent Cloud Connection Warning if Firebase is not active */}
+      {!isCloudActive && (
+        <div className="bg-rose-950/95 border-b border-rose-800 text-rose-200 px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-3 z-50 shadow-lg">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+            <span>
+              <strong>Firebase connected nahi hai:</strong> Website cloud database se connected nahi hai. Changes doosre devices par sync nahi hon gi jab tak Firebase credentials connect na hon.
+            </span>
+          </div>
+          <button
+            onClick={() => navigateTo('admin-dashboard')}
+            className="px-3.5 py-1 rounded-lg bg-rose-800 hover:bg-rose-700 text-white font-semibold text-[11px] transition-colors flex items-center gap-1.5 shrink-0"
+          >
+            <Database className="w-3.5 h-3.5" />
+            <span>Connect Firebase Now</span>
+          </button>
+        </div>
+      )}
+
       {!isAdminDashboard && <Navbar />}
 
       <main className="flex-1">
@@ -79,6 +103,7 @@ const AppContent: React.FC = () => {
       {/* Global Modals & Notifications */}
       <ProjectDetailModal />
       <ServiceDetailModal />
+      <TeamMemberModal />
       <ToastContainer />
       <FloatingWhatsApp />
     </div>

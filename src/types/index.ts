@@ -85,12 +85,16 @@ export interface TeamMember {
   name: string;
   roleType: TeamRoleType;
   title: string;
+  urduTitle?: string;
   bio: string;
   photo: string;
   email?: string;
   phone?: string;
   instagram?: string;
   linkedin?: string;
+  specialties?: string[];
+  experienceYears?: string;
+  gear?: string;
   displayOrder: number;
 }
 
@@ -142,6 +146,7 @@ export interface SiteSettings {
 export type PageRoute =
   | 'home'
   | 'about'
+  | 'team'
   | 'services'
   | 'portfolio'
   | 'pricing'

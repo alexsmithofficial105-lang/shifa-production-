@@ -1,0 +1,189 @@
+{
+  "entities": {
+    "SiteSettings": {
+      "title": "SiteSettings",
+      "description": "Global website branding, contact numbers, studio locations, SEO metadata and hero/about content.",
+      "type": "object",
+      "properties": {
+        "brandName": { "type": "string" },
+        "tagline": { "type": "string" },
+        "logoUrl": { "type": "string" },
+        "phone": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "email": { "type": "string" },
+        "addressLahore": { "type": "string" },
+        "addressIslamabad": { "type": "string" },
+        "hero": { "type": "object" },
+        "about": { "type": "object" },
+        "socials": { "type": "object" },
+        "seo": { "type": "object" },
+        "legal": { "type": "object" },
+        "theme": { "type": "object" }
+      },
+      "required": ["brandName"]
+    },
+    "ServiceItem": {
+      "title": "ServiceItem",
+      "description": "Film, photography, aerial, and cinematography services offered by Shifa Productions.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "slug": { "type": "string" },
+        "title": { "type": "string" },
+        "shortDesc": { "type": "string" },
+        "fullDesc": { "type": "string" },
+        "iconName": { "type": "string" },
+        "image": { "type": "string" },
+        "features": { "type": "array" },
+        "deliverables": { "type": "array" },
+        "startingPricePkr": { "type": "string" },
+        "turnaroundTime": { "type": "string" },
+        "displayOrder": { "type": "number" }
+      },
+      "required": ["title", "slug"]
+    },
+    "PortfolioItem": {
+      "title": "PortfolioItem",
+      "description": "Showcased cinematic projects, wedding films, commercials and documentaries.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "client": { "type": "string" },
+        "location": { "type": "string" },
+        "description": { "type": "string" },
+        "image": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "year": { "type": "string" },
+        "gearUsed": { "type": "string" },
+        "deliverables": { "type": "array" },
+        "isFeatured": { "type": "boolean" }
+      },
+      "required": ["title", "category", "image"]
+    },
+    "PackageItem": {
+      "title": "PackageItem",
+      "description": "Pricing tiers and production packages for brand films and weddings.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "tagline": { "type": "string" },
+        "pricePkr": { "type": "string" },
+        "isCustomQuote": { "type": "boolean" },
+        "duration": { "type": "string" },
+        "crewSize": { "type": "string" },
+        "includedServices": { "type": "array" },
+        "deliverables": { "type": "array" },
+        "optionalAddons": { "type": "array" },
+        "isPopular": { "type": "boolean" }
+      },
+      "required": ["name", "pricePkr"]
+    },
+    "TestimonialItem": {
+      "title": "TestimonialItem",
+      "description": "Verified client reviews and testimonials from corporate brands and wedding couples.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "clientName": { "type": "string" },
+        "roleOrBrand": { "type": "string" },
+        "city": { "type": "string" },
+        "rating": { "type": "number" },
+        "reviewText": { "type": "string" },
+        "projectType": { "type": "string" },
+        "isVerifiedCustomer": { "type": "boolean" },
+        "date": { "type": "string" }
+      },
+      "required": ["clientName", "reviewText", "rating"]
+    },
+    "FaqItem": {
+      "title": "FaqItem",
+      "description": "Frequently asked questions regarding booking, cinema packages and shoot schedules.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "question": { "type": "string" },
+        "answer": { "type": "string" },
+        "category": { "type": "string" }
+      },
+      "required": ["question", "answer"]
+    },
+    "TeamMember": {
+      "title": "TeamMember",
+      "description": "Studio owner, CEO, directors of photography, drone pilots, and senior editors.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "roleType": { "type": "string" },
+        "title": { "type": "string" },
+        "bio": { "type": "string" },
+        "photo": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "instagram": { "type": "string" },
+        "linkedin": { "type": "string" },
+        "displayOrder": { "type": "number" }
+      },
+      "required": ["name", "roleType"]
+    },
+    "Inquiry": {
+      "title": "Inquiry",
+      "description": "Client quote inquiries submitted through the website.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fullName": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "email": { "type": "string" },
+        "city": { "type": "string" },
+        "requiredService": { "type": "string" },
+        "projectDescription": { "type": "string" },
+        "preferredDate": { "type": "string" },
+        "estimatedBudget": { "type": "string" },
+        "preferredContactMethod": { "type": "string" },
+        "status": { "type": "string" },
+        "internalNotes": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["fullName", "phoneNumber", "email", "city", "requiredService"]
+    }
+  },
+  "firestore": {
+    "/settings/{settingId}": {
+      "schema": "SiteSettings",
+      "description": "Global website settings and content configuration."
+    },
+    "/services/{serviceId}": {
+      "schema": "ServiceItem",
+      "description": "Production services published on the website."
+    },
+    "/portfolio/{portfolioId}": {
+      "schema": "PortfolioItem",
+      "description": "Portfolio productions and showreels."
+    },
+    "/packages/{packageId}": {
+      "schema": "PackageItem",
+      "description": "Production and wedding packages."
+    },
+    "/testimonials/{testimonialId}": {
+      "schema": "TestimonialItem",
+      "description": "Client testimonials and reviews."
+    },
+    "/faqs/{faqId}": {
+      "schema": "FaqItem",
+      "description": "Frequently asked questions."
+    },
+    "/team/{teamMemberId}": {
+      "schema": "TeamMember",
+      "description": "Leadership and creative team profiles."
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "Inquiry",
+      "description": "Incoming client booking inquiries."
+    }
+  }
+}

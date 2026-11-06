@@ -13,6 +13,7 @@ export const Navbar: React.FC = () => {
   const navLinks = [
     { label: 'Home', route: 'home' as const },
     { label: 'About Us', route: 'about' as const },
+    { label: 'Our Team', route: 'team' as const },
     { label: 'Services', route: 'services' as const },
     { label: 'Portfolio', route: 'portfolio' as const },
     { label: 'Pricing', route: 'pricing' as const },

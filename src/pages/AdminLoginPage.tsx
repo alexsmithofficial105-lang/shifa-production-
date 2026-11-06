@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { useApp } from '../context/AppContext.tsx';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, Shield, CheckCircle2, X } from 'lucide-react';
@@ -16,9 +16,14 @@ export const AdminLoginPage: React.FC = () => {
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [customGoogleEmail, setCustomGoogleEmail] = useState('');
 
-  // If already authenticated, redirect
+  // If already authenticated, redirect via useEffect (avoids React render-phase state update)
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigateTo('admin-dashboard');
+    }
+  }, [isAuthenticated, navigateTo]);
+
   if (isAuthenticated) {
-    navigateTo('admin-dashboard');
     return null;
   }
 
@@ -43,9 +48,10 @@ export const AdminLoginPage: React.FC = () => {
       'shifaproductions.pk@gmail.com',
       'umairwyc@gmail.com',
       'alexsmithofficial105@gmail.com',
+      'ahmednaeem6b@gmail.com',
     ];
     if (!strictlyAllowed.includes(cleanEmail)) {
-      setError(`Access Denied: "${cleanEmail}" is not authorized. ONLY shifaproductions.pk@gmail.com and umairwyc@gmail.com have access to this portal.`);
+      setError(`Access Denied: "${cleanEmail}" is not authorized for administrator access.`);
       return;
     }
 
@@ -71,9 +77,10 @@ export const AdminLoginPage: React.FC = () => {
       'shifaproductions.pk@gmail.com',
       'umairwyc@gmail.com',
       'alexsmithofficial105@gmail.com',
+      'ahmednaeem6b@gmail.com',
     ];
     if (!strictlyAllowed.includes(cleanEmail)) {
-      setError(`Access Denied: The Google account "${cleanEmail}" is not authorized. ONLY shifaproductions.pk@gmail.com and umairwyc@gmail.com have access.`);
+      setError(`Access Denied: The Google account "${cleanEmail}" is not authorized for administrator access.`);
       return;
     }
 

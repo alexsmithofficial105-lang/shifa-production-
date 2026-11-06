@@ -3,7 +3,7 @@ import { useApp } from '../../context/AppContext.tsx';
 import { Phone, Mail, MapPin, MessageSquare, Instagram, Youtube, Lock } from 'lucide-react';
 
 export const Footer: React.FC = () => {
-  const { navigateTo, settings } = useApp();
+  const { navigateTo, settings, isCloudActive, lastUpdatedTime } = useApp();
 
   const brandName = settings?.brandName || 'Shifa Productions';
   const phone = settings?.phone || '+92 300 8492026';
@@ -84,6 +84,11 @@ export const Footer: React.FC = () => {
               <li>
                 <button onClick={() => navigateTo('about')} className="hover:text-white transition-colors">
                   About Us
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navigateTo('team')} className="hover:text-white transition-colors">
+                  Our Team (ہماری ٹیم)
                 </button>
               </li>
               <li>
@@ -179,8 +184,31 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
+        {/* Cloud Sync Debug Info */}
+        <div className="pt-6 pb-2 border-t border-neutral-900 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono">
+          <div className="flex items-center gap-2">
+            <span
+              className={`inline-block w-2 h-2 rounded-full ${
+                isCloudActive ? 'bg-emerald-400 animate-pulse' : 'bg-amber-500'
+              }`}
+            />
+            <span className="text-neutral-400">
+              Data source:{' '}
+              <strong className={isCloudActive ? 'text-emerald-400 font-semibold' : 'text-amber-400 font-semibold'}>
+                {isCloudActive ? 'Firestore' : 'Disconnected (Firebase connected nahi hai)'}
+              </strong>
+            </span>
+          </div>
+          <div className="text-neutral-500">
+            Last updated:{' '}
+            <span className="text-neutral-300 font-mono">
+              {lastUpdatedTime || (isCloudActive ? 'Connected (Live onSnapshot)' : 'Not Connected')}
+            </span>
+          </div>
+        </div>
+
         {/* Bottom bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
+        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
           <div>
             © {new Date().getFullYear()} {brandName}. All rights reserved. Registered Production Studio in Pakistan.
           </div>

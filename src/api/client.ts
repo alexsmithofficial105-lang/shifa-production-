@@ -9,6 +9,23 @@ import {
   initialInquiries,
   initialTeam,
 } from '../data/initialData.ts';
+import {
+  isFirebaseActive,
+  saveDocument,
+  deleteDocument,
+  uploadFileToCloud,
+  getDb as getFirestoreDb,
+} from '../services/firebase.ts';
+import { collection, doc, getDoc, getDocs, query, orderBy } from 'firebase/firestore';
+
+const syncBroadcast = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('shifa_cloud_sync') : null;
+export function notifyCloudSync(): void {
+  try {
+    syncBroadcast?.postMessage({ type: 'DATA_SYNC', timestamp: Date.now() });
+  } catch {
+    // ignore
+  }
+}
 
 export interface StudioAnalyticsData {
   funnel: {
@@ -354,73 +371,135 @@ export const apiClient = {
 
   // Settings
   async getSettings(): Promise<SiteSettings> {
+    if (isFirebaseActive()) {
+      try {
+        const db = getFirestoreDb();
+        if (db) {
+          const snap = await getDoc(doc(db, 'settings', 'global'));
+          if (snap.exists()) {
+            const data = snap.data() as Partial<SiteSettings>;
+            const merged: SiteSettings = {
+              ...initialSettings,
+              ...data,
+              hero: { ...initialSettings.hero, ...(data?.hero || {}) },
+              about: { ...initialSettings.about, ...(data?.about || {}) },
+              socials: { ...initialSettings.socials, ...(data?.socials || {}) },
+              seo: { ...initialSettings.seo, ...(data?.seo || {}) },
+              legal: {
+                privacyPolicy: data?.legal?.privacyPolicy ?? initialSettings.legal?.privacyPolicy ?? '',
+                termsAndConditions: data?.legal?.termsAndConditions ?? initialSettings.legal?.termsAndConditions ?? '',
+              },
+              theme: {
+                accentColor: data?.theme?.accentColor ?? initialSettings.theme?.accentColor ?? '#E50914',
+                mode: (data?.theme?.mode as 'cinematic' | 'dark') ?? initialSettings.theme?.mode ?? 'cinematic',
+              },
+            };
+            return merged;
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore getSettings note:', err);
+      }
+    }
+
     try {
       const data = await this.request<SiteSettings>('/api/settings');
       if (data && typeof data === 'object' && data.brandName) {
-        setLocalItem(SETTINGS_KEY, data);
-        return data;
+        return {
+          ...initialSettings,
+          ...data,
+          hero: { ...initialSettings.hero, ...(data?.hero || {}) },
+          about: { ...initialSettings.about, ...(data?.about || {}) },
+          socials: { ...initialSettings.socials, ...(data?.socials || {}) },
+          seo: { ...initialSettings.seo, ...(data?.seo || {}) },
+          legal: {
+            privacyPolicy: data?.legal?.privacyPolicy ?? initialSettings.legal?.privacyPolicy ?? '',
+            termsAndConditions: data?.legal?.termsAndConditions ?? initialSettings.legal?.termsAndConditions ?? '',
+          },
+          theme: {
+            accentColor: data?.theme?.accentColor ?? initialSettings.theme?.accentColor ?? '#E50914',
+            mode: (data?.theme?.mode as 'cinematic' | 'dark') ?? initialSettings.theme?.mode ?? 'cinematic',
+          },
+        };
       }
     } catch (err) {
       console.warn('Could not fetch server settings, using cached copy:', err);
     }
-    return getLocalItem<SiteSettings>(SETTINGS_KEY, initialSettings);
+    return initialSettings;
   },
 
   async updateSettings(settings: Partial<SiteSettings>): Promise<{ success: boolean; settings: SiteSettings }> {
-    const current = getLocalItem<SiteSettings>(SETTINGS_KEY, initialSettings);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Settings save karne aur doosre devices par sync karne ke liye please pehle Firebase configure karein.');
+    }
+
+    const currentDoc = await this.getSettings();
     const updated: SiteSettings = {
-      ...current,
+      ...currentDoc,
       ...settings,
-      hero: { ...(current?.hero || {}), ...(settings.hero || {}) },
-      about: { ...(current?.about || {}), ...(settings.about || {}) },
-      socials: { ...(current?.socials || {}), ...(settings.socials || {}) },
-      seo: { ...(current?.seo || {}), ...(settings.seo || {}) },
+      hero: { ...(currentDoc?.hero || {}), ...(settings.hero || {}) },
+      about: { ...(currentDoc?.about || {}), ...(settings.about || {}) },
+      socials: { ...(currentDoc?.socials || {}), ...(settings.socials || {}) },
+      seo: { ...(currentDoc?.seo || {}), ...(settings.seo || {}) },
       legal: {
-        privacyPolicy: settings.legal?.privacyPolicy ?? current?.legal?.privacyPolicy ?? '',
-        termsAndConditions: settings.legal?.termsAndConditions ?? current?.legal?.termsAndConditions ?? '',
+        privacyPolicy: settings.legal?.privacyPolicy ?? currentDoc?.legal?.privacyPolicy ?? '',
+        termsAndConditions: settings.legal?.termsAndConditions ?? currentDoc?.legal?.termsAndConditions ?? '',
       },
       theme: {
-        accentColor: settings.theme?.accentColor ?? current?.theme?.accentColor ?? '#2563EB',
-        mode: settings.theme?.mode ?? current?.theme?.mode ?? 'cinematic',
+        accentColor: settings.theme?.accentColor ?? currentDoc?.theme?.accentColor ?? '#2563EB',
+        mode: settings.theme?.mode ?? currentDoc?.theme?.mode ?? 'cinematic',
       },
     };
 
-    // Cache locally immediately so UI is always responsive
-    setLocalItem(SETTINGS_KEY, updated);
+    // 1. Direct Cloud Firestore persistence - will throw on permission or network failure
+    await saveDocument('settings', 'global', updated);
 
-    // Persist full settings payload to backend disk
+    // 2. Broadcast synchronization
+    notifyCloudSync();
+
+    // 3. Optional local express route update if available (swallowed if backend isn't mounted)
     try {
-      const res = await this.request<{ success: boolean; settings: SiteSettings }>('/api/settings', {
+      await this.request<{ success: boolean; settings: SiteSettings }>('/api/settings', {
         method: 'PUT',
         body: JSON.stringify(updated),
       });
-      if (res && res.settings) {
-        setLocalItem(SETTINGS_KEY, res.settings);
-        return { success: true, settings: res.settings };
-      }
-      return { success: true, settings: updated };
-    } catch (err: any) {
-      console.warn('Backend sync warning on updateSettings, local cached:', err);
-      return { success: true, settings: updated };
+    } catch {
+      // cloud write is primary
     }
+
+    return { success: true, settings: updated };
   },
 
   // Services
   async getServices(): Promise<ServiceItem[]> {
+    if (isFirebaseActive()) {
+      try {
+        const db = getFirestoreDb();
+        if (db) {
+          const snap = await getDocs(query(collection(db, 'services'), orderBy('displayOrder')));
+          if (!snap.empty) {
+            return snap.docs.map((d) => ({ id: d.id, ...d.data() } as ServiceItem));
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore getServices note:', err);
+      }
+    }
+
     try {
       const data = await this.request<ServiceItem[]>('/api/services');
-      if (data && data.length > 0) {
-        setLocalItem(SERVICES_KEY, data);
-        return data;
-      }
+      if (data && data.length > 0) return data;
     } catch {
-      // fallback
+      // fallback to initial
     }
-    return getLocalItem<ServiceItem[]>(SERVICES_KEY, initialServices);
+    return initialServices;
   },
 
   async createService(service: Partial<ServiceItem>): Promise<ServiceItem> {
-    const list = getLocalItem<ServiceItem[]>(SERVICES_KEY, initialServices);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Naya service save karne ke liye Firebase configure karein.');
+    }
+
     const newService: ServiceItem = {
       id: `srv-${Date.now()}`,
       slug: service.slug || (service.title || 'service').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
@@ -433,89 +512,92 @@ export const apiClient = {
       deliverables: service.deliverables || [],
       startingPricePkr: service.startingPricePkr || '250,000',
       turnaroundTime: service.turnaroundTime || '2-3 weeks',
-      displayOrder: list.length + 1,
+      displayOrder: service.displayOrder || Date.now(),
       ...service,
     };
 
-    list.push(newService);
-    setLocalItem(SERVICES_KEY, list);
+    await saveDocument('services', newService.id, newService);
+    notifyCloudSync();
 
     try {
-      const res = await this.request<ServiceItem>('/api/services', {
+      await this.request<ServiceItem>('/api/services', {
         method: 'POST',
         body: JSON.stringify(service),
       });
-      if (res && res.id) {
-        // update local item with server id if different
-        const updatedList = list.map((s) => (s.id === newService.id ? res : s));
-        setLocalItem(SERVICES_KEY, updatedList);
-        return res;
-      }
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return newService;
   },
 
   async updateService(id: string, service: Partial<ServiceItem>): Promise<ServiceItem> {
-    const list = getLocalItem<ServiceItem[]>(SERVICES_KEY, initialServices);
-    const idx = list.findIndex((s) => s.id === id);
-    let updatedService: ServiceItem = { ...(list[idx] || {}), ...service, id } as ServiceItem;
-
-    if (idx !== -1) {
-      list[idx] = updatedService;
-    } else {
-      list.push(updatedService);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Service update karne ke liye Firebase configure karein.');
     }
-    setLocalItem(SERVICES_KEY, list);
+
+    const updatedService: ServiceItem = { ...service, id } as ServiceItem;
+    await saveDocument('services', id, updatedService);
+    notifyCloudSync();
 
     try {
-      const res = await this.request<ServiceItem>(`/api/services/${id}`, {
+      await this.request<ServiceItem>(`/api/services/${id}`, {
         method: 'PUT',
         body: JSON.stringify(service),
       });
-      if (res) {
-        const freshList = list.map((s) => (s.id === id ? res : s));
-        setLocalItem(SERVICES_KEY, freshList);
-        return res;
-      }
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return updatedService;
   },
 
   async deleteService(id: string): Promise<{ success: boolean }> {
-    const list = getLocalItem<ServiceItem[]>(SERVICES_KEY, initialServices);
-    const filtered = list.filter((s) => s.id !== id);
-    setLocalItem(SERVICES_KEY, filtered);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Service delete karne ke liye Firebase configure karein.');
+    }
+
+    await deleteDocument('services', id);
+    notifyCloudSync();
 
     try {
       await this.request<{ success: boolean }>(`/api/services/${id}`, {
         method: 'DELETE',
       });
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return { success: true };
   },
 
   // Portfolio
   async getPortfolio(): Promise<PortfolioItem[]> {
+    if (isFirebaseActive()) {
+      try {
+        const db = getFirestoreDb();
+        if (db) {
+          const snap = await getDocs(collection(db, 'portfolio'));
+          if (!snap.empty) {
+            return snap.docs.map((d) => ({ id: d.id, ...d.data() } as PortfolioItem));
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore getPortfolio note:', err);
+      }
+    }
+
     try {
       const data = await this.request<PortfolioItem[]>('/api/portfolio');
-      if (data && data.length > 0) {
-        setLocalItem(PORTFOLIO_KEY, data);
-        return data;
-      }
+      if (data && data.length > 0) return data;
     } catch {
       // fallback
     }
-    return getLocalItem<PortfolioItem[]>(PORTFOLIO_KEY, initialPortfolio);
+    return initialPortfolio;
   },
 
   async createPortfolio(project: Partial<PortfolioItem>): Promise<PortfolioItem> {
-    const list = getLocalItem<PortfolioItem[]>(PORTFOLIO_KEY, initialPortfolio);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Naya portfolio project save karne ke liye Firebase configure karein.');
+    }
+
     const newProject: PortfolioItem = {
       id: `port-${Date.now()}`,
       title: project.title || 'New Production',
@@ -532,84 +614,88 @@ export const apiClient = {
       ...project,
     };
 
-    list.unshift(newProject);
-    setLocalItem(PORTFOLIO_KEY, list);
+    await saveDocument('portfolio', newProject.id, newProject);
+    notifyCloudSync();
 
     try {
-      const res = await this.request<PortfolioItem>('/api/portfolio', {
+      await this.request<PortfolioItem>('/api/portfolio', {
         method: 'POST',
         body: JSON.stringify(project),
       });
-      if (res && res.id) {
-        const freshList = list.map((p) => (p.id === newProject.id ? res : p));
-        setLocalItem(PORTFOLIO_KEY, freshList);
-        return res;
-      }
     } catch {
-      // offline / Netlify
+      // cloud write is primary
     }
     return newProject;
   },
 
   async updatePortfolio(id: string, project: Partial<PortfolioItem>): Promise<PortfolioItem> {
-    const list = getLocalItem<PortfolioItem[]>(PORTFOLIO_KEY, initialPortfolio);
-    const idx = list.findIndex((p) => p.id === id);
-    let updatedProject: PortfolioItem = { ...(list[idx] || {}), ...project, id } as PortfolioItem;
-
-    if (idx !== -1) {
-      list[idx] = updatedProject;
-    } else {
-      list.unshift(updatedProject);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Portfolio project update karne ke liye Firebase configure karein.');
     }
-    setLocalItem(PORTFOLIO_KEY, list);
+
+    const updatedProject: PortfolioItem = { ...project, id } as PortfolioItem;
+    await saveDocument('portfolio', id, updatedProject);
+    notifyCloudSync();
 
     try {
-      const res = await this.request<PortfolioItem>(`/api/portfolio/${id}`, {
+      await this.request<PortfolioItem>(`/api/portfolio/${id}`, {
         method: 'PUT',
         body: JSON.stringify(project),
       });
-      if (res) {
-        const freshList = list.map((p) => (p.id === id ? res : p));
-        setLocalItem(PORTFOLIO_KEY, freshList);
-        return res;
-      }
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return updatedProject;
   },
 
   async deletePortfolio(id: string): Promise<{ success: boolean }> {
-    const list = getLocalItem<PortfolioItem[]>(PORTFOLIO_KEY, initialPortfolio);
-    const filtered = list.filter((p) => p.id !== id);
-    setLocalItem(PORTFOLIO_KEY, filtered);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Portfolio project delete karne ke liye Firebase configure karein.');
+    }
+
+    await deleteDocument('portfolio', id);
+    notifyCloudSync();
 
     try {
       await this.request<{ success: boolean }>(`/api/portfolio/${id}`, {
         method: 'DELETE',
       });
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return { success: true };
   },
 
   // Packages
   async getPackages(): Promise<PackageItem[]> {
+    if (isFirebaseActive()) {
+      try {
+        const db = getFirestoreDb();
+        if (db) {
+          const snap = await getDocs(collection(db, 'packages'));
+          if (!snap.empty) {
+            return snap.docs.map((d) => ({ id: d.id, ...d.data() } as PackageItem));
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore getPackages note:', err);
+      }
+    }
+
     try {
       const data = await this.request<PackageItem[]>('/api/packages');
-      if (data && data.length > 0) {
-        setLocalItem(PACKAGES_KEY, data);
-        return data;
-      }
+      if (data && data.length > 0) return data;
     } catch {
       // fallback
     }
-    return getLocalItem<PackageItem[]>(PACKAGES_KEY, initialPackages);
+    return initialPackages;
   },
 
   async createPackage(pkg: Partial<PackageItem>): Promise<PackageItem> {
-    const list = getLocalItem<PackageItem[]>(PACKAGES_KEY, initialPackages);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Naya package save karne ke liye Firebase configure karein.');
+    }
+
     const newPkg: PackageItem = {
       id: `pkg-${Date.now()}`,
       name: pkg.name || 'New Package',
@@ -625,84 +711,88 @@ export const apiClient = {
       ...pkg,
     };
 
-    list.push(newPkg);
-    setLocalItem(PACKAGES_KEY, list);
+    await saveDocument('packages', newPkg.id, newPkg);
+    notifyCloudSync();
 
     try {
-      const res = await this.request<PackageItem>('/api/packages', {
+      await this.request<PackageItem>('/api/packages', {
         method: 'POST',
         body: JSON.stringify(pkg),
       });
-      if (res && res.id) {
-        const freshList = list.map((p) => (p.id === newPkg.id ? res : p));
-        setLocalItem(PACKAGES_KEY, freshList);
-        return res;
-      }
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return newPkg;
   },
 
   async updatePackage(id: string, pkg: Partial<PackageItem>): Promise<PackageItem> {
-    const list = getLocalItem<PackageItem[]>(PACKAGES_KEY, initialPackages);
-    const idx = list.findIndex((p) => p.id === id);
-    let updated: PackageItem = { ...(list[idx] || {}), ...pkg, id } as PackageItem;
-
-    if (idx !== -1) {
-      list[idx] = updated;
-    } else {
-      list.push(updated);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Package update karne ke liye Firebase configure karein.');
     }
-    setLocalItem(PACKAGES_KEY, list);
+
+    const updated: PackageItem = { ...pkg, id } as PackageItem;
+    await saveDocument('packages', id, updated);
+    notifyCloudSync();
 
     try {
-      const res = await this.request<PackageItem>(`/api/packages/${id}`, {
+      await this.request<PackageItem>(`/api/packages/${id}`, {
         method: 'PUT',
         body: JSON.stringify(pkg),
       });
-      if (res) {
-        const freshList = list.map((p) => (p.id === id ? res : p));
-        setLocalItem(PACKAGES_KEY, freshList);
-        return res;
-      }
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return updated;
   },
 
   async deletePackage(id: string): Promise<{ success: boolean }> {
-    const list = getLocalItem<PackageItem[]>(PACKAGES_KEY, initialPackages);
-    const filtered = list.filter((p) => p.id !== id);
-    setLocalItem(PACKAGES_KEY, filtered);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Package delete karne ke liye Firebase configure karein.');
+    }
+
+    await deleteDocument('packages', id);
+    notifyCloudSync();
 
     try {
       await this.request<{ success: boolean }>(`/api/packages/${id}`, {
         method: 'DELETE',
       });
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return { success: true };
   },
 
   // Testimonials
   async getTestimonials(): Promise<TestimonialItem[]> {
+    if (isFirebaseActive()) {
+      try {
+        const db = getFirestoreDb();
+        if (db) {
+          const snap = await getDocs(collection(db, 'testimonials'));
+          if (!snap.empty) {
+            return snap.docs.map((d) => ({ id: d.id, ...d.data() } as TestimonialItem));
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore getTestimonials note:', err);
+      }
+    }
+
     try {
       const data = await this.request<TestimonialItem[]>('/api/testimonials');
-      if (data && data.length > 0) {
-        setLocalItem(TESTIMONIALS_KEY, data);
-        return data;
-      }
+      if (data && data.length > 0) return data;
     } catch {
       // fallback
     }
-    return getLocalItem<TestimonialItem[]>(TESTIMONIALS_KEY, initialTestimonials);
+    return initialTestimonials;
   },
 
   async createTestimonial(t: Partial<TestimonialItem>): Promise<TestimonialItem> {
-    const list = getLocalItem<TestimonialItem[]>(TESTIMONIALS_KEY, initialTestimonials);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Testimonial save karne ke liye Firebase configure karein.');
+    }
+
     const newT: TestimonialItem = {
       id: `tst-${Date.now()}`,
       clientName: t.clientName || 'Client Name',
@@ -716,84 +806,88 @@ export const apiClient = {
       ...t,
     };
 
-    list.unshift(newT);
-    setLocalItem(TESTIMONIALS_KEY, list);
+    await saveDocument('testimonials', newT.id, newT);
+    notifyCloudSync();
 
     try {
-      const res = await this.request<TestimonialItem>('/api/testimonials', {
+      await this.request<TestimonialItem>('/api/testimonials', {
         method: 'POST',
         body: JSON.stringify(t),
       });
-      if (res && res.id) {
-        const freshList = list.map((item) => (item.id === newT.id ? res : item));
-        setLocalItem(TESTIMONIALS_KEY, freshList);
-        return res;
-      }
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return newT;
   },
 
   async updateTestimonial(id: string, t: Partial<TestimonialItem>): Promise<TestimonialItem> {
-    const list = getLocalItem<TestimonialItem[]>(TESTIMONIALS_KEY, initialTestimonials);
-    const idx = list.findIndex((item) => item.id === id);
-    let updated: TestimonialItem = { ...(list[idx] || {}), ...t, id } as TestimonialItem;
-
-    if (idx !== -1) {
-      list[idx] = updated;
-    } else {
-      list.unshift(updated);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Testimonial update karne ke liye Firebase configure karein.');
     }
-    setLocalItem(TESTIMONIALS_KEY, list);
+
+    const updated: TestimonialItem = { ...t, id } as TestimonialItem;
+    await saveDocument('testimonials', id, updated);
+    notifyCloudSync();
 
     try {
-      const res = await this.request<TestimonialItem>(`/api/testimonials/${id}`, {
+      await this.request<TestimonialItem>(`/api/testimonials/${id}`, {
         method: 'PUT',
         body: JSON.stringify(t),
       });
-      if (res) {
-        const freshList = list.map((item) => (item.id === id ? res : item));
-        setLocalItem(TESTIMONIALS_KEY, freshList);
-        return res;
-      }
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return updated;
   },
 
   async deleteTestimonial(id: string): Promise<{ success: boolean }> {
-    const list = getLocalItem<TestimonialItem[]>(TESTIMONIALS_KEY, initialTestimonials);
-    const filtered = list.filter((t) => t.id !== id);
-    setLocalItem(TESTIMONIALS_KEY, filtered);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Testimonial delete karne ke liye Firebase configure karein.');
+    }
+
+    await deleteDocument('testimonials', id);
+    notifyCloudSync();
 
     try {
       await this.request<{ success: boolean }>(`/api/testimonials/${id}`, {
         method: 'DELETE',
       });
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return { success: true };
   },
 
   // FAQs
   async getFaqs(): Promise<FaqItem[]> {
+    if (isFirebaseActive()) {
+      try {
+        const db = getFirestoreDb();
+        if (db) {
+          const snap = await getDocs(collection(db, 'faqs'));
+          if (!snap.empty) {
+            return snap.docs.map((d) => ({ id: d.id, ...d.data() } as FaqItem));
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore getFaqs note:', err);
+      }
+    }
+
     try {
       const data = await this.request<FaqItem[]>('/api/faqs');
-      if (data && data.length > 0) {
-        setLocalItem(FAQS_KEY, data);
-        return data;
-      }
+      if (data && data.length > 0) return data;
     } catch {
       // fallback
     }
-    return getLocalItem<FaqItem[]>(FAQS_KEY, initialFaqs);
+    return initialFaqs;
   },
 
   async createFaq(faq: Partial<FaqItem>): Promise<FaqItem> {
-    const list = getLocalItem<FaqItem[]>(FAQS_KEY, initialFaqs);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! FAQ save karne ke liye Firebase configure karein.');
+    }
+
     const newFaq: FaqItem = {
       id: `faq-${Date.now()}`,
       question: faq.question || 'New Question',
@@ -802,84 +896,88 @@ export const apiClient = {
       ...faq,
     };
 
-    list.push(newFaq);
-    setLocalItem(FAQS_KEY, list);
+    await saveDocument('faqs', newFaq.id, newFaq);
+    notifyCloudSync();
 
     try {
-      const res = await this.request<FaqItem>('/api/faqs', {
+      await this.request<FaqItem>('/api/faqs', {
         method: 'POST',
         body: JSON.stringify(faq),
       });
-      if (res && res.id) {
-        const freshList = list.map((f) => (f.id === newFaq.id ? res : f));
-        setLocalItem(FAQS_KEY, freshList);
-        return res;
-      }
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return newFaq;
   },
 
   async updateFaq(id: string, faq: Partial<FaqItem>): Promise<FaqItem> {
-    const list = getLocalItem<FaqItem[]>(FAQS_KEY, initialFaqs);
-    const idx = list.findIndex((f) => f.id === id);
-    let updated: FaqItem = { ...(list[idx] || {}), ...faq, id } as FaqItem;
-
-    if (idx !== -1) {
-      list[idx] = updated;
-    } else {
-      list.push(updated);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! FAQ update karne ke liye Firebase configure karein.');
     }
-    setLocalItem(FAQS_KEY, list);
+
+    const updated: FaqItem = { ...faq, id } as FaqItem;
+    await saveDocument('faqs', id, updated);
+    notifyCloudSync();
 
     try {
-      const res = await this.request<FaqItem>(`/api/faqs/${id}`, {
+      await this.request<FaqItem>(`/api/faqs/${id}`, {
         method: 'PUT',
         body: JSON.stringify(faq),
       });
-      if (res) {
-        const freshList = list.map((f) => (f.id === id ? res : f));
-        setLocalItem(FAQS_KEY, freshList);
-        return res;
-      }
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return updated;
   },
 
   async deleteFaq(id: string): Promise<{ success: boolean }> {
-    const list = getLocalItem<FaqItem[]>(FAQS_KEY, initialFaqs);
-    const filtered = list.filter((f) => f.id !== id);
-    setLocalItem(FAQS_KEY, filtered);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! FAQ delete karne ke liye Firebase configure karein.');
+    }
+
+    await deleteDocument('faqs', id);
+    notifyCloudSync();
 
     try {
       await this.request<{ success: boolean }>(`/api/faqs/${id}`, {
         method: 'DELETE',
       });
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return { success: true };
   },
 
   // Team & Leadership
   async getTeam(): Promise<TeamMember[]> {
+    if (isFirebaseActive()) {
+      try {
+        const db = getFirestoreDb();
+        if (db) {
+          const snap = await getDocs(query(collection(db, 'team'), orderBy('displayOrder')));
+          if (!snap.empty) {
+            return snap.docs.map((d) => ({ id: d.id, ...d.data() } as TeamMember));
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore getTeam note:', err);
+      }
+    }
+
     try {
       const data = await this.request<TeamMember[]>('/api/team');
-      if (data && data.length > 0) {
-        setLocalItem(TEAM_KEY, data);
-        return data;
-      }
+      if (data && data.length > 0) return data;
     } catch {
-      // offline / Netlify fallback
+      // fallback
     }
-    return getLocalItem<TeamMember[]>(TEAM_KEY, initialTeam);
+    return initialTeam;
   },
 
   async createTeamMember(member: Partial<TeamMember>): Promise<TeamMember> {
-    const list = getLocalItem<TeamMember[]>(TEAM_KEY, initialTeam);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Team member save karne ke liye Firebase configure karein.');
+    }
+
     const newMember: TeamMember = {
       id: `team-${Date.now()}`,
       name: member.name || 'Untitled Member',
@@ -891,68 +989,58 @@ export const apiClient = {
       phone: member.phone || '',
       instagram: member.instagram || '',
       linkedin: member.linkedin || '',
-      displayOrder: typeof member.displayOrder === 'number' ? member.displayOrder : list.length + 1,
+      displayOrder: typeof member.displayOrder === 'number' ? member.displayOrder : Date.now(),
       ...member,
     };
 
-    list.push(newMember);
-    setLocalItem(TEAM_KEY, list);
+    await saveDocument('team', newMember.id, newMember);
+    notifyCloudSync();
 
     try {
-      const res = await this.request<TeamMember>('/api/team', {
+      await this.request<TeamMember>('/api/team', {
         method: 'POST',
         body: JSON.stringify(member),
       });
-      if (res && res.id) {
-        const freshList = list.map((m) => (m.id === newMember.id ? res : m));
-        setLocalItem(TEAM_KEY, freshList);
-        return res;
-      }
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return newMember;
   },
 
   async updateTeamMember(id: string, member: Partial<TeamMember>): Promise<TeamMember> {
-    const list = getLocalItem<TeamMember[]>(TEAM_KEY, initialTeam);
-    const idx = list.findIndex((m) => m.id === id);
-    let updated: TeamMember = { ...(list[idx] || {}), ...member, id } as TeamMember;
-
-    if (idx !== -1) {
-      list[idx] = updated;
-    } else {
-      list.push(updated);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Team member update karne ke liye Firebase configure karein.');
     }
-    setLocalItem(TEAM_KEY, list);
+
+    const updated: TeamMember = { ...member, id } as TeamMember;
+    await saveDocument('team', id, updated);
+    notifyCloudSync();
 
     try {
-      const res = await this.request<TeamMember>(`/api/team/${id}`, {
+      await this.request<TeamMember>(`/api/team/${id}`, {
         method: 'PUT',
         body: JSON.stringify(member),
       });
-      if (res) {
-        const freshList = list.map((m) => (m.id === id ? res : m));
-        setLocalItem(TEAM_KEY, freshList);
-        return res;
-      }
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return updated;
   },
 
   async deleteTeamMember(id: string): Promise<{ success: boolean }> {
-    const list = getLocalItem<TeamMember[]>(TEAM_KEY, initialTeam);
-    const filtered = list.filter((m) => m.id !== id);
-    setLocalItem(TEAM_KEY, filtered);
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Team member delete karne ke liye Firebase configure karein.');
+    }
+
+    await deleteDocument('team', id);
+    notifyCloudSync();
 
     try {
       await this.request<{ success: boolean }>(`/api/team/${id}`, {
         method: 'DELETE',
       });
     } catch {
-      // offline / Netlify
+      // cloud is authority
     }
     return { success: true };
   },
@@ -981,6 +1069,15 @@ export const apiClient = {
     list.unshift(newInquiry);
     setLocalItem(INQUIRIES_KEY, list);
 
+    if (isFirebaseActive()) {
+      try {
+        await saveDocument('inquiries', newInquiry.id, newInquiry);
+      } catch (err) {
+        console.warn('Firestore submitInquiry note:', err);
+      }
+    }
+    notifyCloudSync();
+
     try {
       const res = await this.request<{ success: boolean; message: string; inquiry: Inquiry }>('/api/inquiries', {
         method: 'POST',
@@ -998,6 +1095,35 @@ export const apiClient = {
   },
 
   async getInquiries(params?: { status?: string; search?: string }): Promise<Inquiry[]> {
+    if (isFirebaseActive()) {
+      try {
+        const db = getFirestoreDb();
+        if (db) {
+          const snap = await getDocs(collection(db, 'inquiries'));
+          if (!snap.empty) {
+            let list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Inquiry));
+            if (params?.status && params.status !== 'all') {
+              list = list.filter((i) => i.status.toLowerCase() === params.status?.toLowerCase());
+            }
+            if (params?.search) {
+              const q = params.search.toLowerCase();
+              list = list.filter(
+                (i) =>
+                  i.fullName.toLowerCase().includes(q) ||
+                  i.email.toLowerCase().includes(q) ||
+                  i.phoneNumber.toLowerCase().includes(q) ||
+                  i.city.toLowerCase().includes(q)
+              );
+            }
+            setLocalItem(INQUIRIES_KEY, list);
+            return list;
+          }
+        }
+      } catch (err) {
+        console.warn('Firestore getInquiries note:', err);
+      }
+    }
+
     try {
       const qs = new URLSearchParams();
       if (params?.status) qs.append('status', params.status);
@@ -1044,6 +1170,15 @@ export const apiClient = {
     }
     setLocalItem(INQUIRIES_KEY, list);
 
+    if (isFirebaseActive()) {
+      try {
+        await saveDocument('inquiries', id, updated);
+      } catch (err) {
+        console.warn('Firestore updateInquiry note:', err);
+      }
+    }
+    notifyCloudSync();
+
     try {
       const res = await this.request<{ success: boolean; inquiry: Inquiry }>(`/api/inquiries/${id}`, {
         method: 'PATCH',
@@ -1065,6 +1200,15 @@ export const apiClient = {
     const filtered = list.filter((i) => i.id !== id);
     setLocalItem(INQUIRIES_KEY, filtered);
 
+    if (isFirebaseActive()) {
+      try {
+        await deleteDocument('inquiries', id);
+      } catch (err) {
+        console.warn('Firestore deleteInquiry note:', err);
+      }
+    }
+    notifyCloudSync();
+
     try {
       await this.request<{ success: boolean; message: string }>(`/api/inquiries/${id}`, {
         method: 'DELETE',
@@ -1077,53 +1221,22 @@ export const apiClient = {
 
   // Media
   async uploadMedia(file: File): Promise<{ success: boolean; url: string; filename: string; size: number }> {
-    try {
-      const formData = new FormData();
-      formData.append('mediaFile', file);
-      const res = await this.request<{ success: boolean; url: string; filename: string; size: number }>('/api/media/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (res.url) {
-        const currentList = getLocalItem<Array<{ filename: string; url: string; size: number; createdAt: string }>>(MEDIA_KEY, []);
-        currentList.unshift({
-          filename: res.filename,
-          url: res.url,
-          size: res.size,
-          createdAt: new Date().toISOString(),
-        });
-        setLocalItem(MEDIA_KEY, currentList);
-        return res;
-      }
-    } catch {
-      // Fallback for static platforms like Netlify
+    if (!isFirebaseActive()) {
+      throw new Error('Firebase connected nahi hai! Images ko permanent cloud storage mein save karne ke liye Firebase configure karein.');
     }
 
-    // Convert file to base64 Data URL so it is fully usable and viewable offline/on Netlify
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
-    const currentList = getLocalItem<Array<{ filename: string; url: string; size: number; createdAt: string }>>(MEDIA_KEY, []);
-    const newMedia = {
-      filename: file.name,
-      url: dataUrl,
-      size: file.size,
-      createdAt: new Date().toISOString(),
-    };
-    currentList.unshift(newMedia);
-    setLocalItem(MEDIA_KEY, currentList);
-
-    return {
-      success: true,
-      url: dataUrl,
-      filename: file.name,
-      size: file.size,
-    };
+    try {
+      const url = await uploadFileToCloud(file, 'uploads');
+      notifyCloudSync();
+      return {
+        success: true,
+        url,
+        filename: file.name,
+        size: file.size,
+      };
+    } catch (err: any) {
+      throw new Error(`Firebase Storage upload failed: ${err.message || 'Storage write failed'}. Please make sure Firebase Storage is enabled in your Firebase Console.`);
+    }
   },
 
   async getMediaList(): Promise<Array<{ filename: string; url: string; size: number; createdAt: string }>> {
