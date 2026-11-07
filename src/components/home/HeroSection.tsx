@@ -36,10 +36,10 @@ export const HeroSection: React.FC = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-28 pb-12 sm:pb-16 flex-1 flex flex-col justify-center">
         <div className="max-w-3xl space-y-5 sm:space-y-6">
           {/* Subtle unboxed metadata kicker */}
-          <div className="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs uppercase tracking-widest text-[#3b82f6] font-semibold">
+          <div className="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs uppercase tracking-widest text-[#EAB308] font-semibold">
             <span>Cinema & Film Production</span>
             <span aria-hidden="true">·</span>
-            <span>Lahore & Islamabad</span>
+            <span>Creative Visual Arts</span>
             <span aria-hidden="true">·</span>
             <span>Nationwide Coverage</span>
           </div>
@@ -71,14 +71,14 @@ export const HeroSection: React.FC = () => {
 
             <button
               onClick={() => navigateTo('portfolio')}
-              className="min-h-[48px] px-6 sm:px-7 py-3.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#2563eb]/15"
+              className="min-h-[48px] px-6 sm:px-7 py-3.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#EAB308]/20"
             >
               <span>Explore Our Work</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => navigateTo('quote')}
-              className="min-h-[48px] px-6 sm:px-7 py-3.5 text-xs uppercase tracking-wider font-semibold text-white bg-black/70 hover:bg-neutral-900 border border-neutral-700/80 rounded-xl hover:border-neutral-500 transition-all flex items-center justify-center gap-2 backdrop-blur-md"
+              className="min-h-[48px] px-6 sm:px-7 py-3.5 text-xs uppercase tracking-wider font-semibold text-white bg-black/70 hover:bg-neutral-900 border border-neutral-700/80 rounded-xl hover:border-[#EAB308]/50 transition-all flex items-center justify-center gap-2 backdrop-blur-md"
             >
               <span>Get a Quote</span>
             </button>
@@ -87,7 +87,7 @@ export const HeroSection: React.FC = () => {
       </div>
 
       {/* Full-width 4-column trust strip placed below hero split */}
-      <div className="relative z-10 border-t border-neutral-800/80 bg-black/80 backdrop-blur-md py-5 sm:py-6">
+      <div className="relative z-10 border-t border-neutral-800/80 bg-black/85 backdrop-blur-md py-5 sm:py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-neutral-300">
             <div className="space-y-0.5 sm:space-y-1">
@@ -109,16 +109,16 @@ export const HeroSection: React.FC = () => {
             </div>
 
             <div className="space-y-0.5 sm:space-y-1">
-              <div className="text-lg sm:text-2xl font-bold text-white font-brand">
-                Lahore & Islamabad
+              <div className="text-lg sm:text-2xl font-bold text-[#EAB308] font-brand">
+                Serving All Pakistan
               </div>
               <div className="text-[11px] sm:text-xs text-neutral-400">
-                Two Active Studio Hubs
+                Full Production Fleet
               </div>
             </div>
 
             <div className="space-y-0.5 sm:space-y-1">
-              <div className="text-lg sm:text-2xl font-bold text-[#3b82f6] font-brand">
+              <div className="text-lg sm:text-2xl font-bold text-[#EAB308] font-brand">
                 4K & 8K Cinema
               </div>
               <div className="text-[11px] sm:text-xs text-neutral-400">

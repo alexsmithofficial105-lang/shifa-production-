@@ -166,7 +166,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               termsAndConditions: data?.legal?.termsAndConditions ?? prev?.legal?.termsAndConditions ?? initialSettings.legal?.termsAndConditions ?? '',
             },
             theme: {
-              accentColor: data?.theme?.accentColor ?? prev?.theme?.accentColor ?? initialSettings.theme?.accentColor ?? '#E50914',
+              accentColor: data?.theme?.accentColor ?? prev?.theme?.accentColor ?? initialSettings.theme?.accentColor ?? '#EAB308',
               mode: (data?.theme?.mode ?? prev?.theme?.mode ?? initialSettings.theme?.mode ?? 'cinematic') as 'cinematic' | 'dark',
             },
           }));

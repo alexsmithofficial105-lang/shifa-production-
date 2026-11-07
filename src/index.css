@@ -5,11 +5,15 @@
     --font-serif: 'Cinzel', serif;
     --font-heading: 'Outfit', sans-serif;
     --font-body: 'Plus Jakarta Sans', sans-serif;
+    --gold-primary: #EAB308;
+    --gold-metallic: #D4AF37;
+    --gold-light: #FBBF24;
+    --gold-dark: #CA8A04;
   }
 
   body {
     font-family: var(--font-body);
-    background-color: #060913;
+    background-color: #050505;
     color: #e5e5e5;
     overflow-x: hidden;
   }
@@ -31,31 +35,51 @@
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0d0d0d;
+  background: #050505;
 }
 ::-webkit-scrollbar-thumb {
-  background: #262626;
+  background: #27272a;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #EAB308;
 }
 
-/* Glassmorphism effects with zero-slop restraint */
+/* Glassmorphism effects with gold accents */
 .glass-nav {
-  background: rgba(10, 10, 10, 0.85);
+  background: rgba(5, 5, 5, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid rgba(234, 179, 8, 0.12);
 }
 
 .card-luxury {
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0c0c0c;
+  border: 1px solid rgba(234, 179, 8, 0.12);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-luxury:hover {
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: rgba(234, 179, 8, 0.45);
+  box-shadow: 0 8px 30px rgba(234, 179, 8, 0.08);
   transform: translateY(-2px);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #FDE68A 0%, #F59E0B 50%, #D4AF37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-gradient-btn {
+  background: linear-gradient(135deg, #FBBF24 0%, #EAB308 50%, #CA8A04 100%);
+  color: #000000;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.gold-gradient-btn:hover {
+  background: linear-gradient(135deg, #FDE68A 0%, #FBBF24 50%, #EAB308 100%);
+  box-shadow: 0 4px 20px rgba(234, 179, 8, 0.35);
+  transform: translateY(-1px);
 }

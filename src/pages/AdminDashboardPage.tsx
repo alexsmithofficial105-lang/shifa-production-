@@ -278,7 +278,7 @@ export const AdminDashboardPage: React.FC = () => {
           termsAndConditions: sett?.legal?.termsAndConditions ?? initialSettings.legal?.termsAndConditions ?? '',
         },
         theme: {
-          accentColor: sett?.theme?.accentColor ?? initialSettings.theme?.accentColor ?? '#E50914',
+          accentColor: sett?.theme?.accentColor ?? initialSettings.theme?.accentColor ?? '#EAB308',
           mode: (sett?.theme?.mode as 'cinematic' | 'dark') ?? initialSettings.theme?.mode ?? 'cinematic',
         },
       };
@@ -805,9 +805,9 @@ export const AdminDashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#060913] text-neutral-100 flex flex-col md:flex-row antialiased">
+    <div className="min-h-screen bg-[#050505] text-neutral-100 flex flex-col md:flex-row antialiased">
       {/* ================= DESKTOP SIDEBAR ================= */}
-      <aside className="hidden md:flex md:w-64 lg:w-72 bg-[#0a0f1d] border-r border-neutral-800/90 flex-col justify-between shrink-0 h-screen sticky top-0 z-30 select-none">
+      <aside className="hidden md:flex md:w-64 lg:w-72 bg-[#0a0a0a] border-r border-neutral-800/90 flex-col justify-between shrink-0 h-screen sticky top-0 z-30 select-none">
         <div className="flex flex-col h-full overflow-y-auto p-4 space-y-6">
           {/* Logo / Studio Header */}
           <div className="px-2 pt-2 flex items-center gap-3">
@@ -819,7 +819,7 @@ export const AdminDashboardPage: React.FC = () => {
               />
             ) : (
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-base shadow-sm shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] flex items-center justify-center font-bold text-black font-brand text-base shadow-sm shrink-0">
                   S
                 </div>
                 <div className="truncate">
@@ -827,7 +827,7 @@ export const AdminDashboardPage: React.FC = () => {
                     Shifa Productions
                   </div>
                   <div className="text-[11px] text-neutral-400 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#EAB308] animate-pulse" />
                     <span>Admin Studio</span>
                   </div>
                 </div>
@@ -837,7 +837,7 @@ export const AdminDashboardPage: React.FC = () => {
 
           {/* User profile tag */}
           <div className="p-3 rounded-xl bg-neutral-900/60 border border-neutral-800 text-xs text-neutral-300 space-y-0.5">
-            <div className="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+            <div className="text-[10px] uppercase tracking-wider text-[#EAB308] font-semibold">
               Authenticated Admin
             </div>
             <div className="truncate font-medium text-white text-xs">{user?.email}</div>
@@ -852,9 +852,9 @@ export const AdminDashboardPage: React.FC = () => {
                 <button
                   key={item.id}
                   onClick={() => handleTabSelect(item.id)}
-                  className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  className={`w-full px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-between transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#2563eb] text-white shadow-md font-bold'
+                      ? 'bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] text-black shadow-md font-bold'
                       : 'text-neutral-400 hover:text-white hover:bg-neutral-900/80'
                   }`}
                 >
@@ -865,7 +865,7 @@ export const AdminDashboardPage: React.FC = () => {
                   {item.badge !== undefined && item.badge > 0 && (
                     <span
                       className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
-                        isActive ? 'bg-black text-[#3b82f6]' : 'bg-amber-500/20 text-amber-300'
+                        isActive ? 'bg-black text-[#EAB308]' : 'bg-[#EAB308]/20 text-[#FBBF24]'
                       }`}
                     >
                       {item.badge}
@@ -880,7 +880,7 @@ export const AdminDashboardPage: React.FC = () => {
           <div className="pt-4 border-t border-neutral-800/80 space-y-2">
             <button
               onClick={() => navigateTo('home')}
-              className="w-full px-3.5 py-2 text-xs font-medium text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-800 rounded-xl hover:border-neutral-700 transition-colors flex items-center justify-center gap-2"
+              className="w-full px-3.5 py-2 text-xs font-medium text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-800 rounded-xl hover:border-neutral-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>View Public Website</span>
@@ -891,15 +891,15 @@ export const AdminDashboardPage: React.FC = () => {
                 setActiveSection('settings');
                 setPasswordModalOpen(true);
               }}
-              className="w-full px-3.5 py-2 text-xs font-medium text-blue-200 hover:text-white bg-blue-950/40 border border-blue-800/60 rounded-xl hover:bg-blue-900/50 transition-colors flex items-center justify-center gap-2"
+              className="w-full px-3.5 py-2 text-xs font-medium text-[#FBBF24] hover:text-white bg-[#EAB308]/10 border border-[#EAB308]/30 rounded-xl hover:bg-[#EAB308]/20 transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
-              <KeyRound className="w-3.5 h-3.5 text-[#3b82f6]" />
+              <KeyRound className="w-3.5 h-3.5 text-[#EAB308]" />
               <span>Change Password</span>
             </button>
 
             <button
               onClick={logout}
-              className="w-full px-3.5 py-2 text-xs font-semibold text-rose-300 hover:text-rose-200 bg-rose-950/40 border border-rose-800/70 rounded-xl hover:bg-rose-900/50 transition-colors flex items-center justify-center gap-2"
+              className="w-full px-3.5 py-2 text-xs font-semibold text-rose-300 hover:text-rose-200 bg-rose-950/40 border border-rose-800/70 rounded-xl hover:bg-rose-900/50 transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>
@@ -955,7 +955,7 @@ export const AdminDashboardPage: React.FC = () => {
           onClick={() => setMobileNavOpen(false)}
         >
           <div
-            className="fixed top-0 left-0 bottom-0 w-[80%] max-w-xs bg-[#0f172a] border-r border-neutral-800 p-5 flex flex-col justify-between shadow-2xl z-50 overflow-y-auto"
+            className="fixed top-0 left-0 bottom-0 w-[80%] max-w-xs bg-[#0c0c0c] border-r border-neutral-800 p-5 flex flex-col justify-between shadow-2xl z-50 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="space-y-4">
@@ -963,7 +963,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <span className="font-brand font-bold text-white text-base">Admin Navigation</span>
                 <button
                   onClick={() => setMobileNavOpen(false)}
-                  className="p-1.5 text-neutral-400 hover:text-white"
+                  className="p-1.5 text-neutral-400 hover:text-white cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -977,9 +977,9 @@ export const AdminDashboardPage: React.FC = () => {
                     <button
                       key={item.id}
                       onClick={() => handleTabSelect(item.id)}
-                      className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                      className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${
                         isActive
-                          ? 'bg-[#2563eb] text-white font-bold'
+                          ? 'bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] text-black font-bold'
                           : 'text-neutral-300 hover:bg-neutral-900'
                       }`}
                     >
@@ -988,7 +988,7 @@ export const AdminDashboardPage: React.FC = () => {
                         <span>{item.label}</span>
                       </div>
                       {item.badge !== undefined && item.badge > 0 && (
-                        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300">
+                        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-black text-[#EAB308]">
                           {item.badge}
                         </span>
                       )}
@@ -1004,7 +1004,7 @@ export const AdminDashboardPage: React.FC = () => {
                   navigateTo('home');
                   setMobileNavOpen(false);
                 }}
-                className="w-full min-h-[42px] py-2 text-xs font-medium text-neutral-300 bg-neutral-900 border border-neutral-800 rounded-xl flex items-center justify-center gap-2"
+                className="w-full min-h-[42px] py-2 text-xs font-medium text-neutral-300 bg-neutral-900 border border-neutral-800 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>View Public Website</span>
@@ -1015,9 +1015,9 @@ export const AdminDashboardPage: React.FC = () => {
                   setMobileNavOpen(false);
                   setPasswordModalOpen(true);
                 }}
-                className="w-full min-h-[42px] py-2 text-xs font-medium text-blue-200 bg-blue-950/40 border border-blue-800/60 rounded-xl flex items-center justify-center gap-2"
+                className="w-full min-h-[42px] py-2 text-xs font-medium text-[#FBBF24] bg-[#EAB308]/10 border border-[#EAB308]/30 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
               >
-                <KeyRound className="w-3.5 h-3.5 text-[#3b82f6]" />
+                <KeyRound className="w-3.5 h-3.5 text-[#EAB308]" />
                 <span>Change Password (پاسورڈ تبدیل کریں)</span>
               </button>
 
@@ -2651,14 +2651,14 @@ export const AdminDashboardPage: React.FC = () => {
                 Contact Details & Social Media
               </h1>
               <p className="text-xs text-neutral-400 mt-0.5">
-                Update studio phone number, WhatsApp, email, Lahore/Islamabad addresses, and social links.
+                Update studio phone number, WhatsApp, email, and official social accounts (Instagram, Facebook, LinkedIn).
               </p>
             </div>
 
             <form onSubmit={handleSaveSettings} className="space-y-8">
               <div className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
                 <h3 className="text-base font-bold text-white font-brand">
-                  Pakistani Contact Numbers & Official Channels
+                  Official Communication Channels
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -2692,41 +2692,25 @@ export const AdminDashboardPage: React.FC = () => {
                     />
                   </div>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  <div className="space-y-1">
-                    <label className="text-xs text-neutral-400">Lahore Studio Address</label>
-                    <input
-                      type="text"
-                      value={settingsForm.addressLahore}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, addressLahore: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs text-neutral-400">Islamabad Studio Address</label>
-                    <input
-                      type="text"
-                      value={settingsForm.addressIslamabad}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, addressIslamabad: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
-                    />
-                  </div>
-                </div>
               </div>
 
               {/* Social Media Links */}
               <div className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
-                <h3 className="text-base font-bold text-white font-brand">
-                  Social Media Links
-                </h3>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-white font-brand">
+                    Official Social Media Channels
+                  </h3>
+                  <p className="text-xs text-neutral-400">
+                    Configure your official Instagram, Facebook, and LinkedIn links.
+                  </p>
+                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs text-neutral-400">Instagram Profile URL</label>
                     <input
                       type="text"
+                      placeholder="https://instagram.com/..."
                       value={settingsForm?.socials?.instagram || ''}
                       onChange={(e) =>
                         setSettingsForm({
@@ -2739,29 +2723,15 @@ export const AdminDashboardPage: React.FC = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs text-neutral-400">YouTube Channel URL</label>
+                    <label className="text-xs text-neutral-400">Facebook Page URL</label>
                     <input
                       type="text"
-                      value={settingsForm?.socials?.youtube || ''}
+                      placeholder="https://facebook.com/..."
+                      value={settingsForm?.socials?.facebook || ''}
                       onChange={(e) =>
                         setSettingsForm({
                           ...settingsForm,
-                          socials: { ...(settingsForm?.socials || {}), youtube: e.target.value },
-                        })
-                      }
-                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs text-neutral-400">Vimeo Portfolio URL</label>
-                    <input
-                      type="text"
-                      value={settingsForm?.socials?.vimeo || ''}
-                      onChange={(e) =>
-                        setSettingsForm({
-                          ...settingsForm,
-                          socials: { ...(settingsForm?.socials || {}), vimeo: e.target.value },
+                          socials: { ...(settingsForm?.socials || {}), facebook: e.target.value },
                         })
                       }
                       className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
@@ -2772,6 +2742,7 @@ export const AdminDashboardPage: React.FC = () => {
                     <label className="text-xs text-neutral-400">LinkedIn Page URL</label>
                     <input
                       type="text"
+                      placeholder="https://linkedin.com/in/..."
                       value={settingsForm?.socials?.linkedin || ''}
                       onChange={(e) =>
                         setSettingsForm({

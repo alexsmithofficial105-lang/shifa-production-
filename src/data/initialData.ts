@@ -7,14 +7,10 @@ export const initialSettings: SiteSettings = {
   phone: '+92 300 8492026',
   whatsapp: '+92 300 8492026',
   email: 'contact@shifaproductions.pk',
-  addressLahore: 'Executive Studio 4B, M.M. Alam Road, Gulberg III, Lahore, Pakistan',
-  addressIslamabad: 'Creative Suite 12, Executive Heights, F-7 Markaz, Islamabad, Pakistan',
   socials: {
-    instagram: 'https://instagram.com',
-    youtube: 'https://youtube.com',
-    vimeo: 'https://vimeo.com',
-    facebook: 'https://facebook.com',
-    linkedin: 'https://linkedin.com',
+    instagram: 'https://instagram.com/shifaproductions',
+    facebook: 'https://facebook.com/shifaproductions',
+    linkedin: 'https://linkedin.com/company/shifaproductions',
   },
   hero: {
     heading: 'Turning Your Vision Into Reality.',
@@ -33,6 +29,10 @@ export const initialSettings: SiteSettings = {
     metaTitle: 'Shifa Productions | Premier Pakistani Film & Cinematography Agency',
     metaDescription: 'High-end wedding films, commercial brand cinema, corporate films, and drone videography across Lahore, Karachi, Islamabad, and nationwide.',
     keywords: 'production house pakistan, wedding cinematography lahore, commercial film maker karachi, drone videography islamabad, video production pakistan',
+  },
+  theme: {
+    accentColor: '#EAB308',
+    mode: 'cinematic',
   },
 };
 

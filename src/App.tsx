@@ -61,7 +61,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#060913] text-neutral-100 selection:bg-[#2563eb] selection:text-white">
+    <div className="flex flex-col min-h-screen bg-[#050505] text-neutral-100 selection:bg-[#EAB308] selection:text-black">
       {/* Prominent Cloud Connection Warning if Firebase is not active */}
       {!isCloudActive && (
         <div className="bg-rose-950/95 border-b border-rose-800 text-rose-200 px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-3 z-50 shadow-lg">
@@ -87,8 +87,8 @@ const AppContent: React.FC = () => {
         {loading ? (
           <div className="min-h-[60vh] flex items-center justify-center">
             <div className="flex flex-col items-center gap-3">
-              <div className="w-10 h-10 rounded-full border-2 border-[#2563eb] border-t-transparent animate-spin" />
-              <span className="text-xs font-brand tracking-widest uppercase text-[#3b82f6]">
+              <div className="w-10 h-10 rounded-full border-2 border-[#EAB308] border-t-transparent animate-spin" />
+              <span className="text-xs font-brand tracking-widest uppercase text-[#EAB308]">
                 Shifa Productions
               </span>
             </div>

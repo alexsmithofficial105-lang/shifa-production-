@@ -112,11 +112,11 @@ export const AdminLoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-16 px-4 sm:px-6 bg-[#060913] text-neutral-100 animate-fadeIn relative">
-      <div className="w-full max-w-md bg-[#0d1527] border border-neutral-800 rounded-2xl p-6 sm:p-10 shadow-2xl space-y-7 relative">
+    <div className="min-h-[85vh] flex items-center justify-center py-16 px-4 sm:px-6 bg-[#050505] text-neutral-100 animate-fadeIn relative">
+      <div className="w-full max-w-md bg-[#0c0c0c] border border-neutral-800 rounded-2xl p-6 sm:p-10 shadow-2xl space-y-7 relative">
         <button
           onClick={() => navigateTo('home')}
-          className="absolute top-6 left-6 text-neutral-400 hover:text-white transition-colors flex items-center gap-1.5 text-xs min-h-[44px] min-w-[44px] -ml-2 -mt-2 p-2"
+          className="absolute top-6 left-6 text-neutral-400 hover:text-[#EAB308] transition-colors flex items-center gap-1.5 text-xs min-h-[44px] min-w-[44px] -ml-2 -mt-2 p-2 cursor-pointer"
           aria-label="Back to main site"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -146,7 +146,7 @@ export const AdminLoginPage: React.FC = () => {
           </div>
         )}
 
-        {/* Standard Email & Password Login Form (1-Click removed as requested) */}
+        {/* Standard Email & Password Login Form */}
         <form onSubmit={handleLoginSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
@@ -160,7 +160,7 @@ export const AdminLoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="alexsmithofficial105@gmail.com or shifaproductions.pk@gmail.com"
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
               />
             </div>
           </div>
@@ -177,12 +177,12 @@ export const AdminLoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
-                className="w-full pl-10 pr-11 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                className="w-full pl-10 pr-11 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-200 transition-colors p-1"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-200 transition-colors p-1 cursor-pointer"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -193,16 +193,16 @@ export const AdminLoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading || googleLoading}
-            className="w-full min-h-[48px] py-3.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#2563eb]/15"
+            className="w-full min-h-[48px] py-3.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:brightness-110 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#EAB308]/20 cursor-pointer"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin text-black" />
                 <span>Verifying Credentials...</span>
               </>
             ) : (
               <>
-                <Shield className="w-4 h-4" />
+                <Shield className="w-4 h-4 text-black" />
                 <span>Sign In to Admin Panel</span>
               </>
             )}
@@ -212,7 +212,7 @@ export const AdminLoginPage: React.FC = () => {
         {/* Divider */}
         <div className="relative flex items-center justify-center my-2">
           <div className="border-t border-neutral-800 w-full" />
-          <span className="bg-[#0d1527] px-3 text-[11px] uppercase tracking-wider text-neutral-500 shrink-0 font-medium">
+          <span className="bg-[#0c0c0c] px-3 text-[11px] uppercase tracking-wider text-neutral-500 shrink-0 font-medium">
             Or
           </span>
           <div className="border-t border-neutral-800 w-full" />
@@ -224,7 +224,7 @@ export const AdminLoginPage: React.FC = () => {
             type="button"
             onClick={() => setShowGoogleModal(true)}
             disabled={googleLoading || loading}
-            className="w-full min-h-[46px] py-2.5 px-4 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700/80 hover:border-neutral-500 text-white text-xs font-medium transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50"
+            className="w-full min-h-[46px] py-2.5 px-4 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700/80 hover:border-[#EAB308]/50 text-white text-xs font-medium transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 cursor-pointer"
           >
             {googleLoading ? (
               <>
@@ -259,9 +259,9 @@ export const AdminLoginPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Security Access Note (Password removed from UI) */}
+        {/* Security Access Note */}
         <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-1.5 text-xs text-center">
-          <div className="flex items-center justify-center gap-1.5 text-[#3b82f6] font-semibold uppercase tracking-wider text-[11px]">
+          <div className="flex items-center justify-center gap-1.5 text-[#EAB308] font-semibold uppercase tracking-wider text-[11px]">
             <Shield className="w-3.5 h-3.5" />
             <span>Authorized Administrator Access Only</span>
           </div>

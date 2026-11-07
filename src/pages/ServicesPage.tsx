@@ -53,12 +53,12 @@ export const ServicesPage: React.FC = () => {
   };
 
   return (
-    <div className="py-12 sm:py-24 bg-[#060913] text-neutral-100 animate-fadeIn">
+    <div className="py-12 sm:py-24 bg-[#050505] text-neutral-100 animate-fadeIn">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-12 sm:space-y-16">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-neutral-800">
           <div className="space-y-3 max-w-2xl">
-            <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
+            <div className="text-xs font-semibold uppercase tracking-widest text-[#EAB308]">
               Full Scope Production
             </div>
             <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white font-brand">
@@ -77,7 +77,7 @@ export const ServicesPage: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search services..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
             />
           </div>
         </div>
@@ -91,7 +91,7 @@ export const ServicesPage: React.FC = () => {
             return (
               <div
                 key={srv.id}
-                className="card-luxury rounded-2xl flex flex-col justify-between overflow-hidden space-y-0 group"
+                className="card-luxury rounded-2xl flex flex-col justify-between overflow-hidden space-y-0 group bg-[#0c0c0c] border border-neutral-800/80 hover:border-[#EAB308]/40 transition-all duration-300"
               >
                 {/* Visual Header Image Banner */}
                 <div className="relative aspect-16/9 w-full overflow-hidden bg-neutral-900">
@@ -102,22 +102,22 @@ export const ServicesPage: React.FC = () => {
                     referrerPolicy="no-referrer"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-black/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-black/40 to-transparent" />
 
                   {/* Icon badge overlay */}
-                  <div className="absolute top-3.5 left-3.5 w-10 h-10 rounded-xl bg-black/75 backdrop-blur-md border border-white/15 flex items-center justify-center text-[#3b82f6] shadow-lg group-hover:border-[#2563eb]/60 transition-colors">
+                  <div className="absolute top-3.5 left-3.5 w-10 h-10 rounded-xl bg-black/80 backdrop-blur-md border border-[#EAB308]/30 flex items-center justify-center text-[#EAB308] shadow-lg group-hover:border-[#EAB308] transition-colors">
                     <Icon className="w-5 h-5" />
                   </div>
 
                   {/* Number pill */}
-                  <div className="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/10 text-[11px] font-mono text-neutral-300">
+                  <div className="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/10 text-[11px] font-mono text-neutral-300">
                     {(index + 1).toString().padStart(2, '0')}
                   </div>
                 </div>
 
                 <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
                   <div className="space-y-3">
-                    <h2 className="text-xl font-bold text-white group-hover:text-[#3b82f6] transition-colors font-brand leading-snug">
+                    <h2 className="text-xl font-bold text-white group-hover:text-[#EAB308] transition-colors font-brand leading-snug">
                       {srv.title}
                     </h2>
 
@@ -130,7 +130,7 @@ export const ServicesPage: React.FC = () => {
                       <div className="space-y-1.5 pt-2">
                         {srv.features.slice(0, 3).map((feat, idx) => (
                           <div key={idx} className="flex items-start gap-2 text-xs text-neutral-300">
-                            <Check className="w-3.5 h-3.5 text-[#3b82f6] shrink-0 mt-0.5" />
+                            <Check className="w-3.5 h-3.5 text-[#EAB308] shrink-0 mt-0.5" />
                             <span>{feat}</span>
                           </div>
                         ))}
@@ -142,7 +142,7 @@ export const ServicesPage: React.FC = () => {
                   <div className="flex items-center justify-between text-xs">
                     {srv.startingPricePkr && (
                       <div className="flex items-center gap-1.5 text-neutral-300">
-                        <Tag className="w-3.5 h-3.5 text-[#3b82f6]" />
+                        <Tag className="w-3.5 h-3.5 text-[#EAB308]" />
                         <span>
                           From <strong className="text-white">PKR {srv.startingPricePkr}</strong>
                         </span>
@@ -159,16 +159,16 @@ export const ServicesPage: React.FC = () => {
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => setSelectedService(srv)}
-                      className="w-full py-2.5 text-xs font-medium text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-800 rounded-lg hover:border-neutral-700 transition-colors"
+                      className="w-full py-2.5 text-xs font-medium text-neutral-300 hover:text-white bg-neutral-900 border border-neutral-800 rounded-lg hover:border-neutral-700 transition-colors cursor-pointer"
                     >
                       View Details
                     </button>
                     <button
                       onClick={() => handleBook(srv)}
-                      className="w-full py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-1"
+                      className="w-full py-2.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-lg hover:brightness-110 shadow-md shadow-[#EAB308]/20 transition-all flex items-center justify-center gap-1 cursor-pointer"
                     >
                       <span>Book Service</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3.5 h-3.5 text-black" />
                     </button>
                   </div>
                 </div>

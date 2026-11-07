@@ -390,7 +390,7 @@ export const apiClient = {
                 termsAndConditions: data?.legal?.termsAndConditions ?? initialSettings.legal?.termsAndConditions ?? '',
               },
               theme: {
-                accentColor: data?.theme?.accentColor ?? initialSettings.theme?.accentColor ?? '#E50914',
+                accentColor: data?.theme?.accentColor ?? initialSettings.theme?.accentColor ?? '#EAB308',
                 mode: (data?.theme?.mode as 'cinematic' | 'dark') ?? initialSettings.theme?.mode ?? 'cinematic',
               },
             };
@@ -417,7 +417,7 @@ export const apiClient = {
             termsAndConditions: data?.legal?.termsAndConditions ?? initialSettings.legal?.termsAndConditions ?? '',
           },
           theme: {
-            accentColor: data?.theme?.accentColor ?? initialSettings.theme?.accentColor ?? '#E50914',
+            accentColor: data?.theme?.accentColor ?? initialSettings.theme?.accentColor ?? '#EAB308',
             mode: (data?.theme?.mode as 'cinematic' | 'dark') ?? initialSettings.theme?.mode ?? 'cinematic',
           },
         };
@@ -446,7 +446,7 @@ export const apiClient = {
         termsAndConditions: settings.legal?.termsAndConditions ?? currentDoc?.legal?.termsAndConditions ?? '',
       },
       theme: {
-        accentColor: settings.theme?.accentColor ?? currentDoc?.theme?.accentColor ?? '#2563EB',
+        accentColor: settings.theme?.accentColor ?? currentDoc?.theme?.accentColor ?? '#EAB308',
         mode: settings.theme?.mode ?? currentDoc?.theme?.mode ?? 'cinematic',
       },
     };

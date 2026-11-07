@@ -2,7 +2,6 @@ import React from 'react';
 import { useApp } from '../context/AppContext.tsx';
 import {
   Camera,
-  MapPin,
   Film,
   Sparkles,
   Award,
@@ -28,11 +27,11 @@ export const AboutPage: React.FC = () => {
   const creativeMembers = (team || []).filter((m) => m.roleType === 'team_member');
 
   return (
-    <div className="py-12 sm:py-24 bg-[#060913] text-neutral-100 animate-fadeIn">
+    <div className="py-12 sm:py-24 bg-[#050505] text-neutral-100 animate-fadeIn">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-16 sm:space-y-24">
         {/* Header */}
         <div className="max-w-3xl space-y-4">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
+          <div className="text-xs font-semibold uppercase tracking-widest text-[#EAB308]">
             About Our Production House
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white font-brand">
@@ -276,17 +275,17 @@ export const AboutPage: React.FC = () => {
                 {ceos.map((ceo) => (
                   <div
                     key={ceo.id}
-                    className="p-8 rounded-2xl bg-gradient-to-br from-[#0f172a] via-[#101b33] to-[#060913] border border-sky-500/40 shadow-2xl space-y-6 relative overflow-hidden"
+                    className="p-8 rounded-2xl bg-gradient-to-br from-[#0c0c0c] via-[#151208] to-[#050505] border border-[#EAB308]/40 shadow-2xl space-y-6 relative overflow-hidden"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-500/40 flex items-center gap-1.5 shadow-sm">
-                        <Briefcase className="w-3.5 h-3.5 text-sky-400" />
+                      <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#EAB308]/20 text-[#FBBF24] border border-[#EAB308]/40 flex items-center gap-1.5 shadow-sm">
+                        <Briefcase className="w-3.5 h-3.5 text-[#EAB308]" />
                         <span>Chief Executive Officer</span>
                       </span>
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                      <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-2 border-sky-500/50 shadow-xl shrink-0 bg-neutral-900">
+                      <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-2 border-[#EAB308]/50 shadow-xl shrink-0 bg-neutral-900">
                         <img
                           src={ceo.photo}
                           alt={ceo.name}
@@ -298,7 +297,7 @@ export const AboutPage: React.FC = () => {
                       </div>
                       <div className="space-y-2 text-center sm:text-left flex-1 min-w-0">
                         <h3 className="text-2xl font-bold text-white font-brand">{ceo.name}</h3>
-                        <p className="text-sm text-sky-400 font-medium">{ceo.title}</p>
+                        <p className="text-sm text-[#FBBF24] font-medium">{ceo.title}</p>
                         <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed pt-1">
                           {ceo.bio}
                         </p>
@@ -364,8 +363,8 @@ export const AboutPage: React.FC = () => {
             {creativeMembers && creativeMembers.length > 0 && (
               <div className="space-y-6 pt-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-md bg-blue-500/20 flex items-center justify-center">
-                    <Users className="w-3.5 h-3.5 text-blue-400" />
+                  <div className="w-6 h-6 rounded-md bg-[#EAB308]/20 flex items-center justify-center">
+                    <Users className="w-3.5 h-3.5 text-[#EAB308]" />
                   </div>
                   <h3 className="text-xl font-bold text-white font-brand">Production & Creative Specialists</h3>
                 </div>
@@ -374,11 +373,11 @@ export const AboutPage: React.FC = () => {
                   {creativeMembers.map((member) => (
                     <div
                       key={member.id}
-                      className="p-6 rounded-2xl bg-[#0f172a] border border-neutral-800/90 hover:border-neutral-700 flex flex-col justify-between space-y-4 transition-all group"
+                      className="p-6 rounded-2xl bg-[#0c0c0c] border border-neutral-800 hover:border-[#EAB308]/40 flex flex-col justify-between space-y-4 transition-all group"
                     >
                       <div className="space-y-4">
                         <div className="flex items-start gap-4">
-                          <div className="w-16 h-16 rounded-xl overflow-hidden border border-neutral-700 shrink-0 bg-neutral-900 group-hover:border-[#2563eb] transition-colors">
+                          <div className="w-16 h-16 rounded-xl overflow-hidden border border-neutral-700 shrink-0 bg-neutral-900 group-hover:border-[#EAB308] transition-colors">
                             <img
                               src={member.photo}
                               alt={member.name}
@@ -389,7 +388,7 @@ export const AboutPage: React.FC = () => {
                             />
                           </div>
                           <div className="flex-1 min-w-0 space-y-1">
-                            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-[#EAB308]/15 text-[#FBBF24] border border-[#EAB308]/30">
                               Creative Crew
                             </span>
                             <h4 className="text-base font-bold text-white font-brand truncate">{member.name}</h4>
@@ -422,7 +421,7 @@ export const AboutPage: React.FC = () => {
                       <div className="pt-2 flex justify-end">
                         <button
                           onClick={() => setSelectedTeamMember(member)}
-                          className="px-3.5 py-1.5 text-xs font-semibold text-[#3b82f6] hover:text-white bg-blue-500/10 hover:bg-[#2563eb] border border-blue-500/20 rounded-xl flex items-center gap-1 transition-all"
+                          className="px-3.5 py-1.5 text-xs font-semibold text-[#EAB308] hover:text-black bg-[#EAB308]/10 hover:bg-[#EAB308] border border-[#EAB308]/30 rounded-xl flex items-center gap-1 transition-all cursor-pointer"
                         >
                           <span>View Profile</span>
                           <ArrowRight className="w-3.5 h-3.5" />
@@ -436,45 +435,6 @@ export const AboutPage: React.FC = () => {
           </div>
         )}
 
-        {/* Studio Locations */}
-        <div className="space-y-6">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
-            Physical Presence
-          </div>
-          <h3 className="text-2xl sm:text-3xl font-bold text-white font-brand">
-            Our Studio Footprint in Pakistan
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-8 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-4">
-              <div className="flex items-center gap-2 text-[#3b82f6] text-xs font-semibold uppercase tracking-wider">
-                <MapPin className="w-4 h-4" />
-                <span>Lahore Headquarters</span>
-              </div>
-              <h4 className="text-xl font-bold text-white font-brand">Gulberg III Studio</h4>
-              <p className="text-sm text-neutral-300 leading-relaxed">
-                {settings?.addressLahore || 'Executive Studio 4B, M.M. Alam Road, Gulberg III, Lahore, Pakistan'}
-              </p>
-              <div className="text-xs text-neutral-400 pt-2 border-t border-neutral-800">
-                Equipped with green screen studio, editing suites, and cinema gear vault.
-              </div>
-            </div>
-
-            <div className="p-8 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-4">
-              <div className="flex items-center gap-2 text-[#3b82f6] text-xs font-semibold uppercase tracking-wider">
-                <MapPin className="w-4 h-4" />
-                <span>Islamabad Branch</span>
-              </div>
-              <h4 className="text-xl font-bold text-white font-brand">F-7 Markaz Studio</h4>
-              <p className="text-sm text-neutral-300 leading-relaxed">
-                {settings?.addressIslamabad || 'Creative Suite 12, Executive Heights, F-7 Markaz, Islamabad, Pakistan'}
-              </p>
-              <div className="text-xs text-neutral-400 pt-2 border-t border-neutral-800">
-                Specialized in corporate summits, embassies, and northern Pakistan production logistics.
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Bottom CTA */}
         <div className="pt-8 text-center space-y-4">
           <h3 className="text-2xl font-bold text-white font-brand">
@@ -486,10 +446,10 @@ export const AboutPage: React.FC = () => {
           <div className="pt-2">
             <button
               onClick={() => navigateTo('quote')}
-              className="px-8 py-3.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all inline-flex items-center gap-2"
+              className="px-8 py-3.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-lg hover:brightness-110 shadow-lg shadow-[#EAB308]/20 transition-all inline-flex items-center gap-2 cursor-pointer"
             >
               <span>Request a Production Quote</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 text-black" />
             </button>
           </div>
         </div>

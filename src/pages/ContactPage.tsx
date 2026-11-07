@@ -4,7 +4,9 @@ import { apiClient } from '../api/client.ts';
 import {
   Phone,
   Mail,
-  MapPin,
+  Instagram,
+  Facebook,
+  Linkedin,
   MessageSquare,
   CheckCircle2,
   AlertCircle,
@@ -139,11 +141,11 @@ export const ContactPage: React.FC = () => {
   const cleanWa = whatsapp.replace(/[^0-9]/g, '');
 
   return (
-    <div className="py-12 sm:py-24 bg-[#060913] text-neutral-100 animate-fadeIn">
+    <div className="py-12 sm:py-24 bg-[#050505] text-neutral-100 animate-fadeIn">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-12 sm:space-y-16">
         {/* Header */}
         <div className="max-w-3xl space-y-3">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
+          <div className="text-xs font-semibold uppercase tracking-widest text-[#EAB308]">
             Inquiries & Bookings
           </div>
           <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white font-brand">
@@ -227,7 +229,7 @@ export const ContactPage: React.FC = () => {
                       value={formData.fullName}
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                       placeholder="e.g. Daniyal Khan"
-                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
                     />
                   </div>
 
@@ -241,7 +243,7 @@ export const ContactPage: React.FC = () => {
                       value={formData.phoneNumber}
                       onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                       placeholder="0300-1234567 or +92 3..."
-                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
                     />
                   </div>
                 </div>
@@ -258,7 +260,7 @@ export const ContactPage: React.FC = () => {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="daniyal@example.com"
-                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
                     />
                   </div>
 
@@ -269,7 +271,7 @@ export const ContactPage: React.FC = () => {
                     <select
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                     >
                       {PAKISTANI_CITIES.map((c) => (
                         <option key={c} value={c}>
@@ -290,7 +292,7 @@ export const ContactPage: React.FC = () => {
                       value={formData.customCity}
                       onChange={(e) => setFormData({ ...formData, customCity: e.target.value })}
                       placeholder="e.g. Sahiwal, Kasur, Jhelum"
-                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
                     />
                   </div>
                 )}
@@ -304,7 +306,7 @@ export const ContactPage: React.FC = () => {
                     <select
                       value={formData.requiredService}
                       onChange={(e) => setFormData({ ...formData, requiredService: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                     >
                       <option value="">Select a service...</option>
                       {services.map((s) => (
@@ -323,7 +325,7 @@ export const ContactPage: React.FC = () => {
                       type="date"
                       value={formData.preferredDate}
                       onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                     />
                   </div>
                 </div>
@@ -337,7 +339,7 @@ export const ContactPage: React.FC = () => {
                     <select
                       value={formData.estimatedBudget}
                       onChange={(e) => setFormData({ ...formData, estimatedBudget: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                      className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                     >
                       {BUDGET_RANGES.map((b) => (
                         <option key={b} value={b}>
@@ -359,7 +361,7 @@ export const ContactPage: React.FC = () => {
                           onClick={() => setFormData({ ...formData, preferredContactMethod: method })}
                           className={`py-2.5 text-xs font-medium rounded-xl border transition-all uppercase tracking-wider ${
                             formData.preferredContactMethod === method
-                              ? 'bg-[#2563eb] text-white border-[#2563eb] font-bold shadow-sm'
+                              ? 'bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] text-black border-[#EAB308] font-bold shadow-sm'
                               : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:text-white'
                           }`}
                         >
@@ -381,7 +383,7 @@ export const ContactPage: React.FC = () => {
                     value={formData.projectDescription}
                     onChange={(e) => setFormData({ ...formData, projectDescription: e.target.value })}
                     placeholder="Describe your vision, shooting locations in Pakistan, number of event days, target audience, or specific deliverables..."
-                    className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
 
@@ -390,11 +392,11 @@ export const ContactPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-4 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#2563eb]/20"
+                    className="w-full py-4 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-xl shadow-[#EAB308]/20"
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="w-4 h-4 animate-spin text-black" />
                         <span>Submitting Your Inquiry...</span>
                       </>
                     ) : (
@@ -411,34 +413,34 @@ export const ContactPage: React.FC = () => {
 
           {/* Direct Studio Contacts Sidebar (4 columns) */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
+            <div className="p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800 space-y-6">
               <h3 className="text-lg font-bold text-white font-brand">
                 Direct Studio Contacts
               </h3>
 
               <div className="space-y-4 text-xs text-neutral-300">
                 <div className="flex items-start gap-3">
-                  <Phone className="w-4 h-4 text-[#3b82f6] shrink-0 mt-0.5" />
+                  <Phone className="w-4 h-4 text-[#EAB308] shrink-0 mt-0.5" />
                   <div>
                     <div className="text-neutral-400">Direct Telephone</div>
-                    <a href={`tel:${phone}`} className="text-sm font-semibold text-white hover:text-[#3b82f6] transition-colors">
+                    <a href={`tel:${phone}`} className="text-sm font-semibold text-white hover:text-[#EAB308] transition-colors">
                       {phone}
                     </a>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Mail className="w-4 h-4 text-[#3b82f6] shrink-0 mt-0.5" />
+                  <Mail className="w-4 h-4 text-[#EAB308] shrink-0 mt-0.5" />
                   <div>
                     <div className="text-neutral-400">Official Production Email</div>
-                    <a href={`mailto:${settings?.email || 'contact@shifaproductions.pk'}`} className="text-sm font-semibold text-white hover:text-[#3b82f6] transition-colors break-all">
+                    <a href={`mailto:${settings?.email || 'contact@shifaproductions.pk'}`} className="text-sm font-semibold text-white hover:text-[#EAB308] transition-colors break-all">
                       {settings?.email || 'contact@shifaproductions.pk'}
                     </a>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Clock className="w-4 h-4 text-[#3b82f6] shrink-0 mt-0.5" />
+                  <Clock className="w-4 h-4 text-[#EAB308] shrink-0 mt-0.5" />
                   <div>
                     <div className="text-neutral-400">Studio Operating Hours</div>
                     <div className="text-sm font-medium text-white">
@@ -465,20 +467,59 @@ export const ContactPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Studio Offices */}
-            <div className="p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-4">
+            {/* Official Social Channels */}
+            <div className="p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800 space-y-4">
               <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-300">
-                Visit Our Studios
+                Official Social Channels
               </h3>
-              <div className="space-y-4 text-xs text-neutral-400 leading-relaxed">
-                <div className="space-y-1">
-                  <strong className="text-white block font-brand text-sm">Lahore Headquarters:</strong>
-                  <span>{settings?.addressLahore}</span>
-                </div>
-                <div className="space-y-1 pt-2 border-t border-neutral-800">
-                  <strong className="text-white block font-brand text-sm">Islamabad Branch:</strong>
-                  <span>{settings?.addressIslamabad}</span>
-                </div>
+              <p className="text-xs text-neutral-400">
+                Follow our official social accounts for recent cinema releases, commercials, and BTS reels.
+              </p>
+              <div className="grid grid-cols-1 gap-2.5 pt-1">
+                <a
+                  href={settings?.socials?.instagram || 'https://instagram.com'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-neutral-900/80 border border-neutral-800 hover:border-pink-500/40 text-xs font-medium text-neutral-300 hover:text-white transition-all group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-pink-500/10 text-pink-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Instagram className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-white">Instagram</div>
+                    <div className="text-[11px] text-neutral-400">@shifaproductions</div>
+                  </div>
+                </a>
+
+                <a
+                  href={settings?.socials?.facebook || 'https://facebook.com'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-neutral-900/80 border border-neutral-800 hover:border-blue-500/40 text-xs font-medium text-neutral-300 hover:text-white transition-all group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Facebook className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-white">Facebook</div>
+                    <div className="text-[11px] text-neutral-400">Official Page</div>
+                  </div>
+                </a>
+
+                <a
+                  href={settings?.socials?.linkedin || 'https://linkedin.com'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-neutral-900/80 border border-neutral-800 hover:border-sky-500/40 text-xs font-medium text-neutral-300 hover:text-white transition-all group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Linkedin className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-white">LinkedIn</div>
+                    <div className="text-[11px] text-neutral-400">Corporate & Agency Network</div>
+                  </div>
+                </a>
               </div>
             </div>
           </div>

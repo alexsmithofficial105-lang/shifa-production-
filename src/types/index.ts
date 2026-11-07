@@ -105,14 +105,14 @@ export interface SiteSettings {
   phone: string;
   whatsapp: string;
   email: string;
-  addressLahore: string;
-  addressIslamabad: string;
+  addressLahore?: string;
+  addressIslamabad?: string;
   socials: {
     instagram: string;
-    youtube: string;
-    vimeo: string;
     facebook: string;
     linkedin: string;
+    youtube?: string;
+    vimeo?: string;
   };
   hero: {
     heading: string;

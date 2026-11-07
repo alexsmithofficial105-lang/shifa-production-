@@ -66,7 +66,7 @@ export const ProjectDetailModal: React.FC = () => {
 
           {selectedProject.videoUrl && (
             <div className="absolute bottom-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/80 backdrop-blur-md border border-white/10 text-xs font-medium text-amber-300">
-              <Film className="w-4 h-4 text-[#3b82f6]" />
+              <Film className="w-4 h-4 text-[#EAB308]" />
               <span>Cinematic Reel Available</span>
             </div>
           )}
@@ -76,7 +76,7 @@ export const ProjectDetailModal: React.FC = () => {
         <div className="p-6 sm:p-8 space-y-6">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-400 font-medium">
-              <span className="text-[#3b82f6] uppercase tracking-wider">{selectedProject.category}</span>
+              <span className="text-[#EAB308] font-semibold uppercase tracking-wider">{selectedProject.category}</span>
               <span aria-hidden="true">·</span>
               <span className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5 text-neutral-500" />
@@ -106,7 +106,7 @@ export const ProjectDetailModal: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-neutral-800">
             {selectedProject.gearUsed && (
               <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-1.5">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#EAB308]">
                   <Camera className="w-4 h-4" />
                   <span>Cinema Gear Deployed</span>
                 </div>
@@ -124,7 +124,7 @@ export const ProjectDetailModal: React.FC = () => {
                 <ul className="space-y-1">
                   {selectedProject.deliverables.map((item, idx) => (
                     <li key={idx} className="flex items-center gap-2 text-xs text-neutral-300">
-                      <Check className="w-3.5 h-3.5 text-[#3b82f6] shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-[#EAB308] shrink-0" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -140,10 +140,10 @@ export const ProjectDetailModal: React.FC = () => {
             </div>
             <button
               onClick={handleInquire}
-              className="w-full sm:w-auto px-6 py-3 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2 shrink-0"
+              className="w-full sm:w-auto px-6 py-3 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-lg hover:brightness-110 shadow-lg shadow-[#EAB308]/20 transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
             >
               <span>Inquire About Similar Production</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 text-black" />
             </button>
           </div>
         </div>

@@ -6,10 +6,10 @@ export const TestimonialsSection: React.FC = () => {
   const { testimonials } = useApp();
 
   return (
-    <section className="py-16 sm:py-24 bg-[#060913] text-neutral-100 border-b border-neutral-800/80">
+    <section className="py-16 sm:py-24 bg-[#050505] text-neutral-100 border-b border-neutral-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
+          <div className="text-xs font-semibold uppercase tracking-widest text-[#EAB308]">
             Client Experiences
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-brand">
@@ -24,14 +24,14 @@ export const TestimonialsSection: React.FC = () => {
           {testimonials.map((t) => (
             <div
               key={t.id}
-              className="p-7 rounded-2xl bg-[#0e0e0e] border border-neutral-800/80 hover:border-neutral-700 transition-colors flex flex-col justify-between space-y-6"
+              className="p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800/80 hover:border-[#EAB308]/40 transition-colors flex flex-col justify-between space-y-6"
             >
               <div className="space-y-4">
                 {/* Rating & Verification Tag */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-amber-400">
+                  <div className="flex items-center gap-1 text-[#EAB308]">
                     {Array.from({ length: t.rating || 5 }).map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-current text-[#3b82f6]" />
+                      <Star key={i} className="w-4 h-4 fill-current text-[#EAB308]" />
                     ))}
                   </div>
 

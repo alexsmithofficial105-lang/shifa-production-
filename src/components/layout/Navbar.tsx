@@ -44,7 +44,7 @@ export const Navbar: React.FC = () => {
           {/* Left: Brand Logo / Wordmark */}
           <button
             onClick={() => handleNavClick('home')}
-            className="flex items-center gap-2.5 sm:gap-3 text-left group whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] rounded-lg p-1"
+            className="flex items-center gap-2.5 sm:gap-3 text-left group whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308] rounded-lg p-1"
             aria-label="Shifa Productions Home"
           >
             {settings?.logoUrl ? (
@@ -56,10 +56,10 @@ export const Navbar: React.FC = () => {
               />
             ) : (
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-base shadow-sm shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FBBF24] via-[#EAB308] to-[#CA8A04] flex items-center justify-center font-bold text-black font-brand text-base shadow-sm shrink-0">
                   S
                 </div>
-                <span className="font-brand text-base sm:text-xl font-bold tracking-wider text-neutral-100 group-hover:text-[#3b82f6] transition-colors">
+                <span className="font-brand text-base sm:text-xl font-bold tracking-wider text-neutral-100 group-hover:text-[#EAB308] transition-colors">
                   {brandName}
                 </span>
               </div>
@@ -75,12 +75,12 @@ export const Navbar: React.FC = () => {
                   key={link.route}
                   onClick={() => handleNavClick(link.route)}
                   className={`relative py-1 transition-colors whitespace-nowrap shrink-0 hover:text-white ${
-                    isActive ? 'text-[#3b82f6] font-semibold' : 'text-neutral-400'
+                    isActive ? 'text-[#EAB308] font-semibold' : 'text-neutral-400'
                   }`}
                 >
                   {link.label}
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563eb] rounded-full" />
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#EAB308] rounded-full shadow-[0_0_8px_rgba(234,179,8,0.5)]" />
                   )}
                 </button>
               );
@@ -91,16 +91,16 @@ export const Navbar: React.FC = () => {
           <div className="hidden md:flex items-center gap-3 shrink-0">
             <button
               onClick={() => handleNavClick(isAuthenticated ? 'admin-dashboard' : 'admin-login')}
-              className="px-3 py-2 text-xs font-semibold text-neutral-400 hover:text-[#3b82f6] bg-neutral-900/60 border border-neutral-800 hover:border-neutral-700 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
+              className="px-3 py-2 text-xs font-semibold text-neutral-400 hover:text-[#EAB308] bg-neutral-900/60 border border-neutral-800 hover:border-[#EAB308]/40 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
               title="Admin Portal"
             >
-              <Lock className="w-3.5 h-3.5" />
+              <Lock className="w-3.5 h-3.5 text-[#EAB308]" />
               <span>Admin</span>
             </button>
 
             <button
               onClick={() => handleNavClick('quote')}
-              className="px-5 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] active:scale-95 transition-all whitespace-nowrap shrink-0 shadow-lg shadow-[#2563eb]/10"
+              className="px-5 py-2.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-lg hover:from-[#FDE68A] hover:to-[#EAB308] active:scale-95 transition-all whitespace-nowrap shrink-0 shadow-lg shadow-[#EAB308]/20"
             >
               Request Quote
             </button>
@@ -110,13 +110,13 @@ export const Navbar: React.FC = () => {
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={() => handleNavClick('quote')}
-              className="px-3 py-1.5 text-[11px] uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-md hover:bg-[#1d4ed8] whitespace-nowrap shrink-0"
+              className="px-3 py-1.5 text-[11px] uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-md whitespace-nowrap shrink-0 shadow-sm"
             >
               Quote
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="min-w-[44px] min-h-[44px] p-2.5 text-neutral-200 hover:text-white flex items-center justify-center rounded-lg bg-neutral-900/80 border border-neutral-800 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+              className="min-w-[44px] min-h-[44px] p-2.5 text-neutral-200 hover:text-white flex items-center justify-center rounded-lg bg-neutral-900/80 border border-neutral-800 focus:outline-none focus:ring-2 focus:ring-[#EAB308]"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={mobileMenuOpen}
             >
@@ -137,17 +137,17 @@ export const Navbar: React.FC = () => {
       {/* Mobile Navigation Drawer / Modal */}
       {mobileMenuOpen && (
         <div
-          className="md:hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md transition-opacity duration-300 animate-fadeIn"
+          className="md:hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md transition-opacity duration-300 animate-fadeIn"
           onClick={() => setMobileMenuOpen(false)}
         >
           <div
-            className="fixed top-0 right-0 bottom-0 w-[82%] max-w-sm bg-[#0e0e0e] border-l border-neutral-800 p-6 flex flex-col justify-between shadow-2xl z-50 overflow-y-auto"
+            className="fixed top-0 right-0 bottom-0 w-[82%] max-w-sm bg-[#0a0a0a] border-l border-neutral-800 p-6 flex flex-col justify-between shadow-2xl z-50 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Drawer Header */}
             <div className="flex items-center justify-between pb-6 border-b border-neutral-800/80">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-sm shadow-sm">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FBBF24] via-[#EAB308] to-[#CA8A04] flex items-center justify-center font-bold text-black font-brand text-sm shadow-sm">
                   S
                 </div>
                 <span className="font-brand text-base font-bold text-white tracking-wider">
@@ -173,12 +173,12 @@ export const Navbar: React.FC = () => {
                     onClick={() => handleNavClick(link.route)}
                     className={`min-h-[46px] px-4 rounded-xl text-left text-base font-medium tracking-tight transition-all flex items-center justify-between ${
                       isActive
-                        ? 'bg-[#2563eb]/10 text-[#3b82f6] font-bold border border-[#2563eb]/30'
+                        ? 'bg-[#EAB308]/15 text-[#EAB308] font-bold border border-[#EAB308]/40'
                         : 'text-neutral-300 hover:text-white hover:bg-neutral-900/60'
                     }`}
                   >
                     <span>{link.label}</span>
-                    <ArrowRight className="w-4 h-4 opacity-50" />
+                    <ArrowRight className="w-4 h-4 opacity-50 text-[#EAB308]" />
                   </button>
                 );
               })}
@@ -188,7 +188,7 @@ export const Navbar: React.FC = () => {
             <div className="pt-6 border-t border-neutral-800/80 flex flex-col gap-3">
               <button
                 onClick={() => handleNavClick('quote')}
-                className="w-full min-h-[46px] py-3 text-center text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all shadow-lg shadow-[#2563eb]/15 flex items-center justify-center gap-2"
+                className="w-full min-h-[46px] py-3 text-center text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] transition-all shadow-lg shadow-[#EAB308]/20 flex items-center justify-center gap-2"
               >
                 <span>Request a Quote</span>
                 <ArrowRight className="w-4 h-4" />
@@ -196,14 +196,14 @@ export const Navbar: React.FC = () => {
 
               <button
                 onClick={() => handleNavClick(isAuthenticated ? 'admin-dashboard' : 'admin-login')}
-                className="w-full min-h-[44px] py-2.5 text-center text-xs font-medium text-neutral-400 hover:text-white bg-neutral-900/80 border border-neutral-800 rounded-xl transition-colors flex items-center justify-center gap-2"
+                className="w-full min-h-[44px] py-2.5 text-center text-xs font-medium text-neutral-400 hover:text-[#EAB308] bg-neutral-900/80 border border-neutral-800 hover:border-[#EAB308]/40 rounded-xl transition-colors flex items-center justify-center gap-2"
               >
-                <Lock className="w-3.5 h-3.5 text-[#3b82f6]" />
+                <Lock className="w-3.5 h-3.5 text-[#EAB308]" />
                 <span>{isAuthenticated ? 'Admin Dashboard' : 'Admin Portal Login'}</span>
               </button>
 
               <div className="text-center text-[11px] text-neutral-500 pt-1">
-                Lahore & Islamabad · Serving All Pakistan
+                Nationwide Cinema & Creative Media Production
               </div>
             </div>
           </div>

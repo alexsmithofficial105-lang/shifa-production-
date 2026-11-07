@@ -41,11 +41,11 @@ export const TeamPage: React.FC = () => {
   const creativeCrew = (team || []).filter((m) => m.roleType === 'team_member');
 
   return (
-    <div className="py-12 sm:py-24 bg-[#060913] text-neutral-100 animate-fadeIn">
+    <div className="py-12 sm:py-24 bg-[#050505] text-neutral-100 animate-fadeIn">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-16 sm:space-y-24">
         {/* Page Header */}
         <div className="max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAB308]/10 border border-[#EAB308]/30 text-xs font-semibold uppercase tracking-widest text-[#EAB308]">
             <Film className="w-3.5 h-3.5" />
             <span>Studio Filmmakers & Leadership • ہماری ٹیم پروفائل</span>
           </div>
@@ -61,9 +61,9 @@ export const TeamPage: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 border-b border-neutral-800 pb-4">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
               filter === 'all'
-                ? 'bg-[#2563eb] text-white shadow-lg shadow-[#2563eb]/20'
+                ? 'bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] text-black font-bold shadow-lg shadow-[#EAB308]/20'
                 : 'bg-neutral-900 text-neutral-400 hover:text-white border border-neutral-800'
             }`}
           >
@@ -71,9 +71,9 @@ export const TeamPage: React.FC = () => {
           </button>
           <button
             onClick={() => setFilter('leadership')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               filter === 'leadership'
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500'
+                ? 'bg-[#EAB308]/20 text-[#FBBF24] border border-[#EAB308]'
                 : 'bg-neutral-900 text-neutral-400 hover:text-white border border-neutral-800'
             }`}
           >
@@ -82,9 +82,9 @@ export const TeamPage: React.FC = () => {
           </button>
           <button
             onClick={() => setFilter('cinematography')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               filter === 'cinematography'
-                ? 'bg-blue-500/20 text-blue-300 border border-blue-500'
+                ? 'bg-[#EAB308]/20 text-[#FBBF24] border border-[#EAB308]'
                 : 'bg-neutral-900 text-neutral-400 hover:text-white border border-neutral-800'
             }`}
           >
@@ -93,9 +93,9 @@ export const TeamPage: React.FC = () => {
           </button>
           <button
             onClick={() => setFilter('post')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               filter === 'post'
-                ? 'bg-purple-500/20 text-purple-300 border border-purple-500'
+                ? 'bg-[#EAB308]/20 text-[#FBBF24] border border-[#EAB308]'
                 : 'bg-neutral-900 text-neutral-400 hover:text-white border border-neutral-800'
             }`}
           >
@@ -345,7 +345,7 @@ export const TeamPage: React.FC = () => {
                     </span>
                     <button
                       onClick={() => setSelectedTeamMember(member)}
-                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-neutral-900 border border-neutral-700 hover:border-[#2563eb] rounded-xl flex items-center gap-1.5 transition-colors group-hover:bg-[#2563eb]"
+                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-neutral-900 border border-neutral-700 hover:border-[#EAB308] rounded-xl flex items-center gap-1.5 transition-colors group-hover:bg-[#EAB308] group-hover:text-black cursor-pointer"
                     >
                       <span>Profile</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -357,7 +357,7 @@ export const TeamPage: React.FC = () => {
         </div>
 
         {/* CTA: Book or Collaborate with Shifa Productions */}
-        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-[#0d1527] via-[#101b33] to-[#070b14] border border-[#2563eb]/40 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-[#0c0c0c] via-[#141208] to-[#070707] border border-[#EAB308]/40 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-2 text-center md:text-left">
             <h3 className="text-2xl sm:text-3xl font-bold text-white font-brand">
               Want Our Elite Cinema Team on Your Next Production?
@@ -368,10 +368,10 @@ export const TeamPage: React.FC = () => {
           </div>
           <button
             onClick={() => navigateTo('quote')}
-            className="min-h-[48px] px-8 py-3.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] active:scale-95 transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-[#2563eb]/20"
+            className="min-h-[48px] px-8 py-3.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-[#EAB308]/20 cursor-pointer"
           >
             <span>Book A Production Date</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 text-black" />
           </button>
         </div>
       </div>

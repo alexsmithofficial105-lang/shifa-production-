@@ -43,13 +43,13 @@ export const TeamMemberModal: React.FC = () => {
       onClick={() => setSelectedTeamMember(null)}
     >
       <div
-        className="w-full max-w-2xl bg-[#0f172a] border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-6 my-8 shadow-2xl relative overflow-hidden"
+        className="w-full max-w-2xl bg-[#0c0c0c] border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-6 my-8 shadow-2xl relative overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top ambient glow */}
         <div
           className={`absolute -top-24 -right-24 w-60 h-60 rounded-full blur-3xl pointer-events-none opacity-20 ${
-            isOwner ? 'bg-amber-500' : isCeo ? 'bg-sky-500' : 'bg-blue-600'
+            isOwner ? 'bg-[#EAB308]' : isCeo ? 'bg-[#FBBF24]' : 'bg-[#CA8A04]'
           }`}
         />
 
@@ -59,10 +59,10 @@ export const TeamMemberModal: React.FC = () => {
             <span
               className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border shadow-sm ${
                 isOwner
-                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                  ? 'bg-[#EAB308]/20 text-[#FBBF24] border-[#EAB308]/40'
                   : isCeo
-                  ? 'bg-sky-500/20 text-sky-300 border-sky-500/40'
-                  : 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                  : 'bg-[#EAB308]/15 text-[#FBBF24] border-[#EAB308]/30'
               }`}
             >
               {isOwner ? (
@@ -176,7 +176,7 @@ export const TeamMemberModal: React.FC = () => {
         {selectedTeamMember.gear && (
           <div className="p-3.5 rounded-xl bg-neutral-900/90 border border-neutral-800 space-y-1 relative z-10">
             <div className="text-[11px] font-semibold text-neutral-400 flex items-center gap-1.5">
-              <Camera className="w-3.5 h-3.5 text-[#3b82f6]" />
+              <Camera className="w-3.5 h-3.5 text-[#EAB308]" />
               <span>Primary Cinema Gear & Rig</span>
             </div>
             <div className="text-xs font-mono text-neutral-200">
@@ -192,18 +192,18 @@ export const TeamMemberModal: React.FC = () => {
               {selectedTeamMember.phone && (
                 <a
                   href={`tel:${selectedTeamMember.phone.replace(/[^0-9+]/g, '')}`}
-                  className="flex items-center gap-1.5 hover:text-white transition-colors"
+                  className="flex items-center gap-1.5 hover:text-[#EAB308] transition-colors"
                 >
-                  <Phone className="w-3.5 h-3.5 text-[#3b82f6]" />
+                  <Phone className="w-3.5 h-3.5 text-[#EAB308]" />
                   <span>{selectedTeamMember.phone}</span>
                 </a>
               )}
               {selectedTeamMember.email && (
                 <a
                   href={`mailto:${selectedTeamMember.email}`}
-                  className="flex items-center gap-1.5 hover:text-white transition-colors"
+                  className="flex items-center gap-1.5 hover:text-[#EAB308] transition-colors"
                 >
-                  <Mail className="w-3.5 h-3.5 text-[#3b82f6]" />
+                  <Mail className="w-3.5 h-3.5 text-[#EAB308]" />
                   <span>{selectedTeamMember.email}</span>
                 </a>
               )}
@@ -215,7 +215,7 @@ export const TeamMemberModal: React.FC = () => {
                   href={selectedTeamMember.instagram}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition-colors"
+                  className="p-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-[#EAB308] transition-colors"
                   title="Instagram"
                 >
                   <Instagram className="w-4 h-4" />
@@ -226,7 +226,7 @@ export const TeamMemberModal: React.FC = () => {
                   href={selectedTeamMember.linkedin}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition-colors"
+                  className="p-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-[#EAB308] transition-colors"
                   title="LinkedIn"
                 >
                   <Linkedin className="w-4 h-4" />
@@ -241,17 +241,17 @@ export const TeamMemberModal: React.FC = () => {
           <button
             type="button"
             onClick={() => setSelectedTeamMember(null)}
-            className="w-full sm:w-auto px-5 py-2.5 text-xs text-neutral-400 hover:text-white transition-colors"
+            className="w-full sm:w-auto px-5 py-2.5 text-xs text-neutral-400 hover:text-white transition-colors cursor-pointer"
           >
             Close Profile
           </button>
           <button
             type="button"
             onClick={handleBookWithMember}
-            className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#2563eb]/20"
+            className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#EAB308]/20 cursor-pointer"
           >
             <span>Request Project with {selectedTeamMember.name.split(' ')[0]}</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 text-black" />
           </button>
         </div>
       </div>

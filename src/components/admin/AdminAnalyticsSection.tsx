@@ -85,10 +85,10 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#3b82f6]">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#EAB308]">
               Business Intelligence & Reporting
             </span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EAB308]/10 text-[#FBBF24] border border-[#EAB308]/20">
               5 Core Dimensions
             </span>
           </div>
@@ -105,24 +105,24 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
           <div className="flex items-center p-1 rounded-xl bg-neutral-900 border border-neutral-800 text-xs">
             <button
               onClick={() => setTimeRange('all')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
-                timeRange === 'all' ? 'bg-[#2563eb] text-white font-semibold' : 'text-neutral-400 hover:text-white'
+              className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                timeRange === 'all' ? 'bg-[#EAB308] text-black font-bold' : 'text-neutral-400 hover:text-white'
               }`}
             >
               All Time
             </button>
             <button
               onClick={() => setTimeRange('q3q4')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
-                timeRange === 'q3q4' ? 'bg-[#2563eb] text-white font-semibold' : 'text-neutral-400 hover:text-white'
+              className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                timeRange === 'q3q4' ? 'bg-[#EAB308] text-black font-bold' : 'text-neutral-400 hover:text-white'
               }`}
             >
               H2 2026
             </button>
             <button
               onClick={() => setTimeRange('month')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
-                timeRange === 'month' ? 'bg-[#2563eb] text-white font-semibold' : 'text-neutral-400 hover:text-white'
+              className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                timeRange === 'month' ? 'bg-[#EAB308] text-black font-bold' : 'text-neutral-400 hover:text-white'
               }`}
             >
               Last 30 Days
@@ -132,10 +132,10 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
           {/* Export Report */}
           <button
             onClick={handleExportSummary}
-            className="px-3.5 py-2 text-xs font-semibold text-neutral-200 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700/80 rounded-xl transition-all flex items-center gap-1.5 shadow-sm"
+            className="px-3.5 py-2 text-xs font-semibold text-neutral-200 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700/80 rounded-xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
             title="Copy formatted summary to clipboard"
           >
-            <Download className="w-3.5 h-3.5 text-[#3b82f6]" />
+            <Download className="w-3.5 h-3.5 text-[#EAB308]" />
             <span>{copiedSummary ? 'Copied to Clipboard!' : 'Export Report'}</span>
           </button>
         </div>
@@ -144,7 +144,7 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
       {/* ================= EXECUTIVE KPI HIGHLIGHTS ================= */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1 */}
-        <div className="p-5 rounded-2xl bg-[#0f172a] border border-neutral-800/90 relative overflow-hidden group hover:border-[#2563eb]/40 transition-colors">
+        <div className="p-5 rounded-2xl bg-[#0c0c0c] border border-neutral-800/90 relative overflow-hidden group hover:border-[#EAB308]/40 transition-colors">
           <div className="flex items-center justify-between text-neutral-400 text-xs mb-2">
             <span>Lead Conversion Rate</span>
             <TrendingUp className="w-4 h-4 text-emerald-400" />
@@ -160,25 +160,25 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
         </div>
 
         {/* KPI 2 */}
-        <div className="p-5 rounded-2xl bg-[#0f172a] border border-neutral-800/90 relative overflow-hidden group hover:border-[#2563eb]/40 transition-colors">
+        <div className="p-5 rounded-2xl bg-[#0c0c0c] border border-neutral-800/90 relative overflow-hidden group hover:border-[#EAB308]/40 transition-colors">
           <div className="flex items-center justify-between text-neutral-400 text-xs mb-2">
             <span>Total PKR Pipeline</span>
-            <DollarSign className="w-4 h-4 text-[#3b82f6]" />
+            <DollarSign className="w-4 h-4 text-[#EAB308]" />
           </div>
-          <div className="text-2xl sm:text-3xl font-bold text-[#3b82f6] font-brand tabular-nums">
+          <div className="text-2xl sm:text-3xl font-bold text-[#EAB308] font-brand tabular-nums">
             PKR {(revenue.totalPipelinePkr / 1000000).toFixed(1)}M
           </div>
           <div className="text-[11px] text-neutral-400 mt-1.5">
             Realized: <strong className="text-white">PKR {(revenue.realizedRevenuePkr / 1000000).toFixed(1)}M</strong>
           </div>
-          <div className="absolute -bottom-6 -right-6 w-20 h-20 bg-[#2563eb]/5 rounded-full blur-xl pointer-events-none" />
+          <div className="absolute -bottom-6 -right-6 w-20 h-20 bg-[#EAB308]/5 rounded-full blur-xl pointer-events-none" />
         </div>
 
         {/* KPI 3 */}
-        <div className="p-5 rounded-2xl bg-[#0f172a] border border-neutral-800/90 relative overflow-hidden group hover:border-[#2563eb]/40 transition-colors">
+        <div className="p-5 rounded-2xl bg-[#0c0c0c] border border-neutral-800/90 relative overflow-hidden group hover:border-[#EAB308]/40 transition-colors">
           <div className="flex items-center justify-between text-neutral-400 text-xs mb-2">
             <span>Avg Deal Size (PKR)</span>
-            <Sparkles className="w-4 h-4 text-amber-400" />
+            <Sparkles className="w-4 h-4 text-[#EAB308]" />
           </div>
           <div className="text-2xl sm:text-3xl font-bold text-white font-brand tabular-nums">
             PKR {(revenue.avgDealSizePkr / 1000).toFixed(0)}K
@@ -189,7 +189,7 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
         </div>
 
         {/* KPI 4 */}
-        <div className="p-5 rounded-2xl bg-[#0f172a] border border-neutral-800/90 relative overflow-hidden group hover:border-[#2563eb]/40 transition-colors">
+        <div className="p-5 rounded-2xl bg-[#0c0c0c] border border-neutral-800/90 relative overflow-hidden group hover:border-[#EAB308]/40 transition-colors">
           <div className="flex items-center justify-between text-neutral-400 text-xs mb-2">
             <span>Primary Inbound Channel</span>
             <MessageSquare className="w-4 h-4 text-emerald-400" />
@@ -204,10 +204,10 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
       </div>
 
       {/* ================= 1. LEAD & PIPELINE FUNNEL ANALYTICS ================= */}
-      <div className="p-6 sm:p-7 rounded-2xl bg-[#0d1527] border border-neutral-800 space-y-6">
+      <div className="p-6 sm:p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-800">
           <div>
-            <div className="text-xs uppercase tracking-wider text-[#3b82f6] font-semibold">
+            <div className="text-xs uppercase tracking-wider text-[#EAB308] font-semibold">
               Type 1 · Lead & Inquiries Funnel
             </div>
             <h2 className="text-lg font-bold text-white font-brand">
@@ -216,7 +216,7 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
           </div>
           <div className="flex items-center gap-4 text-xs text-neutral-400">
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded bg-[#2563eb]" />
+              <span className="w-3 h-3 rounded bg-[#EAB308]" />
               <span>Inquiries Received</span>
             </span>
             <span className="flex items-center gap-1.5">
@@ -268,10 +268,10 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
                     {/* Inquiries bar */}
                     <div
                       style={{ height: `${inqHeight}%` }}
-                      className="w-3.5 sm:w-5 bg-[#2563eb] rounded-t hover:bg-[#1d4ed8] transition-all relative group-hover:shadow-md group-hover:shadow-[#2563eb]/20"
+                      className="w-3.5 sm:w-5 bg-[#EAB308] rounded-t hover:bg-[#FBBF24] transition-all relative group-hover:shadow-md group-hover:shadow-[#EAB308]/20"
                       title={`${trend.month}: ${trend.inquiries} inquiries`}
                     >
-                      <div className="hidden group-hover:block absolute -top-7 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-black border border-neutral-700 text-[10px] text-[#3b82f6] font-mono whitespace-nowrap z-10">
+                      <div className="hidden group-hover:block absolute -top-7 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-black border border-neutral-700 text-[10px] text-[#EAB308] font-mono whitespace-nowrap z-10">
                         {trend.inquiries} inq
                       </div>
                     </div>
@@ -298,9 +298,9 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
 
       {/* ================= 2. REVENUE & BUDGET PIPELINE (FINANCIAL IN PKR) ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="p-6 sm:p-7 rounded-2xl bg-[#0d1527] border border-neutral-800 space-y-6">
+        <div className="p-6 sm:p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800 space-y-6">
           <div>
-            <div className="text-xs uppercase tracking-wider text-[#3b82f6] font-semibold">
+            <div className="text-xs uppercase tracking-wider text-[#EAB308] font-semibold">
               Type 2 · Financial Analytics
             </div>
             <h2 className="text-lg font-bold text-white font-brand mt-0.5">
@@ -315,7 +315,7 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
           <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-2.5">
             <div className="flex items-center justify-between text-xs">
               <span className="text-neutral-300 font-medium">Realized vs Estimated Pipeline</span>
-              <span className="text-[#3b82f6] font-bold font-mono">
+              <span className="text-[#EAB308] font-bold font-mono">
                 {revenue.totalPipelinePkr > 0
                   ? Math.round((revenue.realizedRevenuePkr / revenue.totalPipelinePkr) * 100)
                   : 0}
@@ -359,11 +359,11 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
                       style={{ width: `${bracket.pct}%` }}
                       className={`h-full rounded-full ${
                         idx === 3
-                          ? 'bg-[#2563eb]'
+                          ? 'bg-[#EAB308]'
                           : idx === 2
                           ? 'bg-amber-400'
                           : idx === 1
-                          ? 'bg-sky-400'
+                          ? 'bg-amber-300'
                           : 'bg-neutral-600'
                       }`}
                     />
@@ -375,10 +375,10 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
         </div>
 
         {/* ================= 3. SERVICE DEMAND & POPULARITY ================= */}
-        <div className="p-6 sm:p-7 rounded-2xl bg-[#0d1527] border border-neutral-800 space-y-6">
+        <div className="p-6 sm:p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800 space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs uppercase tracking-wider text-[#3b82f6] font-semibold">
+              <div className="text-xs uppercase tracking-wider text-[#EAB308] font-semibold">
                 Type 3 · Service Demand
               </div>
               <h2 className="text-lg font-bold text-white font-brand mt-0.5">
@@ -403,7 +403,7 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
                     </span>
                     <span className="text-xs font-bold text-white">{item.service}</span>
                   </div>
-                  <span className="text-xs font-mono font-semibold text-[#3b82f6] shrink-0">
+                  <span className="text-xs font-mono font-semibold text-[#EAB308] shrink-0">
                     PKR {(item.volumePkr / 1000).toFixed(0)}K
                   </span>
                 </div>
@@ -416,7 +416,7 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
                   <div className="w-full h-1.5 rounded-full bg-neutral-800 overflow-hidden">
                     <div
                       style={{ width: `${item.pct}%` }}
-                      className="h-full bg-[#2563eb] rounded-full"
+                      className="h-full bg-[#EAB308] rounded-full"
                     />
                   </div>
                 </div>
@@ -429,17 +429,17 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
       {/* ================= 4 & 5. GEOGRAPHY & LEAD CHANNELS ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 4. Pakistani Cities Distribution */}
-        <div className="p-6 sm:p-7 rounded-2xl bg-[#0d1527] border border-neutral-800 space-y-6">
+        <div className="p-6 sm:p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800 space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs uppercase tracking-wider text-[#3b82f6] font-semibold">
+              <div className="text-xs uppercase tracking-wider text-[#EAB308] font-semibold">
                 Type 4 · Geographic Distribution
               </div>
               <h2 className="text-lg font-bold text-white font-brand mt-0.5">
                 Client Demand Across Pakistan
               </h2>
             </div>
-            <MapPin className="w-5 h-5 text-amber-400" />
+            <MapPin className="w-5 h-5 text-[#EAB308]" />
           </div>
 
           <div className="space-y-3">
@@ -447,7 +447,7 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
               <div key={geo.city} className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-white font-medium flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#2563eb]" />
+                    <span className="w-2 h-2 rounded-full bg-[#EAB308]" />
                     <span>{geo.city}</span>
                   </span>
                   <span className="text-neutral-400 font-mono">
@@ -471,9 +471,9 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
         </div>
 
         {/* 5. Communication Channels & Operational KPIs */}
-        <div className="p-6 sm:p-7 rounded-2xl bg-[#0d1527] border border-neutral-800 space-y-6">
+        <div className="p-6 sm:p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800 space-y-6">
           <div>
-            <div className="text-xs uppercase tracking-wider text-[#3b82f6] font-semibold">
+            <div className="text-xs uppercase tracking-wider text-[#EAB308] font-semibold">
               Type 5 · Lead Acquisition & Response
             </div>
             <h2 className="text-lg font-bold text-white font-brand mt-0.5">
@@ -496,8 +496,8 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
                         isWa
                           ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/80'
                           : isPh
-                          ? 'bg-amber-950/80 text-amber-400 border border-amber-800/80'
-                          : 'bg-sky-950/80 text-sky-400 border border-sky-800/80'
+                          ? 'bg-[#EAB308]/20 text-[#FBBF24] border border-[#EAB308]/40'
+                          : 'bg-neutral-800 text-neutral-300 border border-neutral-700'
                       }`}
                     >
                       {isWa ? (
@@ -515,7 +515,7 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
                       </div>
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-[#3b82f6] font-mono">
+                  <span className="text-xs font-bold text-[#EAB308] font-mono">
                     {channel.pct}%
                   </span>
                 </div>
@@ -527,7 +527,7 @@ ${leadChannels.map((c) => `- ${c.channel}: ${c.count} (${c.pct}%)`).join('\n')}
           <div className="grid grid-cols-2 gap-3 pt-2 border-t border-neutral-800">
             <div className="p-3 rounded-xl bg-neutral-900/60 border border-neutral-800/80 space-y-0.5">
               <div className="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold flex items-center gap-1">
-                <Clock className="w-3 h-3 text-[#3b82f6]" />
+                <Clock className="w-3 h-3 text-[#EAB308]" />
                 <span>Avg Response Speed</span>
               </div>
               <div className="text-base font-bold text-white font-brand">1.6 Hours</div>

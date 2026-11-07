@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext.tsx';
-import { Phone, Mail, MapPin, MessageSquare, Instagram, Youtube, Lock } from 'lucide-react';
+import { Phone, Mail, MessageSquare, Instagram, Facebook, Linkedin, Lock } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const { navigateTo, settings, isCloudActive, lastUpdatedTime } = useApp();
@@ -9,8 +9,6 @@ export const Footer: React.FC = () => {
   const phone = settings?.phone || '+92 300 8492026';
   const whatsapp = settings?.whatsapp || '+92 300 8492026';
   const email = settings?.email || 'contact@shifaproductions.pk';
-  const addressLahore = settings?.addressLahore || 'Executive Studio 4B, M.M. Alam Road, Gulberg III, Lahore, Pakistan';
-  const addressIslamabad = settings?.addressIslamabad || 'Creative Suite 12, Executive Heights, F-7 Markaz, Islamabad, Pakistan';
 
   const cleanWaNumber = whatsapp.replace(/[^0-9]/g, '');
 
@@ -32,7 +30,7 @@ export const Footer: React.FC = () => {
                 />
               ) : (
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-base shadow-sm">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FBBF24] via-[#EAB308] to-[#CA8A04] flex items-center justify-center font-bold text-black font-brand text-base shadow-sm">
                     S
                   </div>
                   <span className="font-brand text-xl font-bold tracking-wider text-neutral-100">
@@ -46,22 +44,31 @@ export const Footer: React.FC = () => {
             </p>
             <div className="flex items-center gap-3 pt-2">
               <a
-                href={settings?.socials.instagram || 'https://instagram.com'}
+                href={settings?.socials?.instagram || 'https://instagram.com'}
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-[#3b82f6] hover:border-[#2563eb]/40 transition-colors"
+                className="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-pink-400 hover:border-pink-500/40 transition-colors"
                 aria-label="Instagram"
               >
                 <Instagram className="w-4 h-4" />
               </a>
               <a
-                href={settings?.socials.youtube || 'https://youtube.com'}
+                href={settings?.socials?.facebook || 'https://facebook.com'}
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-[#3b82f6] hover:border-[#2563eb]/40 transition-colors"
-                aria-label="YouTube"
+                className="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-blue-400 hover:border-blue-500/40 transition-colors"
+                aria-label="Facebook"
               >
-                <Youtube className="w-4 h-4" />
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a
+                href={settings?.socials?.linkedin || 'https://linkedin.com'}
+                target="_blank"
+                rel="noreferrer"
+                className="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-sky-400 hover:border-sky-500/40 transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="w-4 h-4" />
               </a>
               <a
                 href={`https://wa.me/${cleanWaNumber}?text=Hi%20Shifa%20Productions,%20I%20would%20like%20to%20discuss%20a%20production%20project.`}
@@ -148,38 +155,38 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Contact & Studio addresses */}
+          {/* Contact Details without physical locations */}
           <div className="space-y-3">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-neutral-200">
-              Production Studios
+              Direct Inquiries
             </h4>
             <div className="space-y-3 text-xs leading-relaxed">
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#3b82f6] shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-neutral-200 block text-xs">Lahore:</strong>
-                  <span>{addressLahore}</span>
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#3b82f6] shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-neutral-200 block text-xs">Islamabad:</strong>
-                  <span>{addressIslamabad}</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2.5 pt-1">
-                <Phone className="w-3.5 h-3.5 text-[#3b82f6] shrink-0" />
+              <div className="flex items-center gap-2.5">
+                <Phone className="w-3.5 h-3.5 text-[#EAB308] shrink-0" />
                 <a href={`tel:${phone}`} className="hover:text-white transition-colors">
                   {phone}
                 </a>
               </div>
               <div className="flex items-center gap-2.5">
-                <Mail className="w-3.5 h-3.5 text-[#3b82f6] shrink-0" />
-                <a href={`mailto:${email}`} className="hover:text-white transition-colors">
+                <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <a
+                  href={`https://wa.me/${cleanWaNumber}?text=Hi%20Shifa%20Productions,%20I%20would%20like%20to%20discuss%20a%20production%20project.`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-emerald-300 transition-colors"
+                >
+                  WhatsApp: {whatsapp}
+                </a>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Mail className="w-3.5 h-3.5 text-[#EAB308] shrink-0" />
+                <a href={`mailto:${email}`} className="hover:text-white transition-colors break-all">
                   {email}
                 </a>
               </div>
+              <p className="text-[11px] text-neutral-500 pt-1 border-t border-neutral-900 leading-normal">
+                Available nationwide across Pakistan for commercial brand cinema, royal weddings, and corporate events.
+              </p>
             </div>
           </div>
         </div>
@@ -223,7 +230,7 @@ export const Footer: React.FC = () => {
             <span aria-hidden="true">·</span>
             <button
               onClick={() => navigateTo('admin-login')}
-              className="flex items-center gap-1.5 text-neutral-500 hover:text-[#3b82f6] transition-colors"
+              className="flex items-center gap-1.5 text-neutral-500 hover:text-[#EAB308] transition-colors"
               title="Admin Portal"
             >
               <Lock className="w-3 h-3" />
