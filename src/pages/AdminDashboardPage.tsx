@@ -135,7 +135,7 @@ export const AdminDashboardPage: React.FC = () => {
   // Leadership & Team Management
   const [teamList, setTeamList] = useState<TeamMember[]>([]);
   const [editingTeamMember, setEditingTeamMember] = useState<Partial<TeamMember> | null>(null);
-  const [teamRoleFilter, setTeamRoleFilter] = useState<'all' | 'owner' | 'ceo' | 'team_member'>('all');
+  const [teamRoleFilter, setTeamRoleFilter] = useState<'all' | 'chairman' | 'owner' | 'ceo' | 'team_member'>('all');
   const teamPhotoInputRef = useRef<HTMLInputElement>(null);
 
   const [mediaList, setMediaList] = useState<Array<{ filename: string; url: string; size: number; createdAt: string }>>([]);
@@ -554,14 +554,14 @@ export const AdminDashboardPage: React.FC = () => {
         const updated = await apiClient.updateTeamMember(editingTeamMember.id, editingTeamMember);
         setTeamList((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
         showToast(
-          `${updated.roleType === 'owner' ? 'Studio Owner' : updated.roleType === 'ceo' ? 'CEO' : 'Team Member'} profile updated successfully!`,
+          `${updated.roleType === 'chairman' || updated.roleType === 'owner' ? 'Chairman' : updated.roleType === 'ceo' ? 'CEO' : 'Team Member'} profile updated successfully!`,
           'success'
         );
       } else {
         const created = await apiClient.createTeamMember(editingTeamMember);
         setTeamList((prev) => [...prev, created]);
         showToast(
-          `New ${created.roleType === 'owner' ? 'Studio Owner' : created.roleType === 'ceo' ? 'CEO' : 'Team Member'} profile created!`,
+          `New ${created.roleType === 'chairman' || created.roleType === 'owner' ? 'Chairman' : created.roleType === 'ceo' ? 'CEO' : 'Team Member'} profile created!`,
           'success'
         );
       }
@@ -789,7 +789,7 @@ export const AdminDashboardPage: React.FC = () => {
     { id: 'portfolio', label: 'Portfolio & Works', icon: Film },
     { id: 'packages', label: 'Pricing & Packages', icon: Tag },
     { id: 'testimonials', label: 'Client Reviews', icon: Star },
-    { id: 'owner-profile', label: 'Owner Profile', icon: Crown },
+    { id: 'owner-profile', label: 'Chairman Profile (چیئرمین)', icon: Crown },
     { id: 'ceo-profile', label: 'CEO Profile', icon: Briefcase },
     { id: 'team-members', label: 'Team Member Profiles', icon: Users },
     { id: 'content', label: 'Hero & About Content', icon: Sliders },
@@ -918,13 +918,13 @@ export const AdminDashboardPage: React.FC = () => {
               className="h-7 w-auto object-contain max-w-[120px]"
             />
           ) : (
-            <div className="w-7 h-7 rounded-lg bg-[#2563eb] flex items-center justify-center font-bold text-white font-brand text-xs">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FBBF24] via-[#EAB308] to-[#CA8A04] flex items-center justify-center font-bold text-black font-brand text-xs">
               S
             </div>
           )}
           <div>
             <div className="font-brand font-bold text-white text-sm">Shifa Admin</div>
-            <div className="text-[10px] text-[#3b82f6] uppercase tracking-wider font-semibold">
+            <div className="text-[10px] text-[#EAB308] uppercase tracking-wider font-semibold">
               {navigationItems.find((n) => n.id === activeSection)?.label || 'Dashboard'}
             </div>
           </div>
@@ -1190,57 +1190,58 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* 1. Owner Profile Card */}
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-[#111c38]/50 to-[#0a0f1d] border border-amber-500/40 space-y-4 relative overflow-hidden">
+                {/* 1. Chairman Profile Card (First) */}
+                <div className="p-5 rounded-2xl bg-gradient-to-br from-[#161208]/60 via-[#0c0c0c] to-[#060606] border-2 border-[#EAB308]/50 space-y-4 relative overflow-hidden">
                   <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
-                      <Crown className="w-3 h-3 text-amber-400" />
-                      <span>Owner Profile</span>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#EAB308]/20 text-[#FBBF24] border border-[#EAB308]/50 flex items-center gap-1">
+                      <Crown className="w-3 h-3 text-[#EAB308]" />
+                      <span>Chairman Profile (چیئرمین)</span>
                     </span>
                     <button
                       onClick={() =>
                         setEditingTeamMember({
-                          roleType: 'owner',
-                          title: 'Founder & Studio Owner',
+                          roleType: 'chairman',
+                          title: 'Chairman & Studio Founder',
+                          urduTitle: 'چیئرمین اور سٹوڈیو بانی',
                           photo: '/images/hero_cinematic_production_1793180767552.jpg',
                           displayOrder: 1,
                         })
                       }
-                      className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 font-semibold"
+                      className="text-xs text-[#EAB308] hover:text-[#FBBF24] flex items-center gap-1 font-semibold"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>Add Owner</span>
+                      <span>Add Chairman</span>
                     </button>
                   </div>
 
-                  {teamList.filter((m) => m.roleType === 'owner').length > 0 ? (
+                  {teamList.filter((m) => m.roleType === 'chairman' || m.roleType === 'owner').length > 0 ? (
                     teamList
-                      .filter((m) => m.roleType === 'owner')
+                      .filter((m) => m.roleType === 'chairman' || m.roleType === 'owner')
                       .slice(0, 1)
-                      .map((owner) => (
-                        <div key={owner.id} className="space-y-3">
+                      .map((chairman) => (
+                        <div key={chairman.id} className="space-y-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-xl overflow-hidden border border-amber-500/50 bg-neutral-900 shrink-0">
-                              <img src={owner.photo} alt={owner.name} className="w-full h-full object-cover" />
+                            <div className="w-12 h-12 rounded-xl overflow-hidden border border-[#EAB308]/60 bg-neutral-900 shrink-0">
+                              <img src={chairman.photo} alt={chairman.name} className="w-full h-full object-cover" />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <h4 className="text-sm font-bold text-white truncate">{owner.name}</h4>
-                              <p className="text-xs text-amber-400 truncate">{owner.title}</p>
+                              <h4 className="text-sm font-bold text-white truncate">{chairman.name}</h4>
+                              <p className="text-xs text-[#EAB308] truncate">{chairman.title}</p>
                             </div>
                           </div>
-                          <p className="text-xs text-neutral-400 line-clamp-2">{owner.bio}</p>
+                          <p className="text-xs text-neutral-400 line-clamp-2">{chairman.bio}</p>
                           <div className="pt-2 border-t border-neutral-800 flex items-center justify-between">
                             <button
-                              onClick={() => setEditingTeamMember(owner)}
-                              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-[#2563eb] hover:bg-[#1d4ed8] flex items-center gap-1 transition-colors"
+                              onClick={() => setEditingTeamMember(chairman)}
+                              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-black bg-gradient-to-r from-[#FBBF24] to-[#EAB308] hover:brightness-110 flex items-center gap-1 transition-all"
                             >
-                              <Edit2 className="w-3 h-3" />
-                              <span>Edit Owner</span>
+                              <Edit2 className="w-3 h-3 text-black" />
+                              <span>Edit Chairman</span>
                             </button>
                             <button
-                              onClick={() => handleDeleteTeamMember(owner.id, owner.name)}
+                              onClick={() => handleDeleteTeamMember(chairman.id, chairman.name)}
                               className="p-1.5 text-neutral-400 hover:text-rose-400 rounded-lg hover:bg-rose-950/40 transition-colors"
-                              title="Delete Owner Profile"
+                              title="Delete Chairman Profile"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -1249,19 +1250,20 @@ export const AdminDashboardPage: React.FC = () => {
                       ))
                   ) : (
                     <div className="py-6 text-center space-y-2">
-                      <p className="text-xs text-neutral-400">No owner profile found.</p>
+                      <p className="text-xs text-neutral-400">No Chairman profile found.</p>
                       <button
                         onClick={() =>
                           setEditingTeamMember({
-                            roleType: 'owner',
-                            title: 'Founder & Studio Owner',
+                            roleType: 'chairman',
+                            title: 'Chairman & Studio Founder',
+                            urduTitle: 'چیئرمین اور سٹوڈیو بانی',
                             photo: '/images/hero_cinematic_production_1793180767552.jpg',
                             displayOrder: 1,
                           })
                         }
                         className="px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-300 bg-amber-950/40 border border-amber-500/40"
                       >
-                        + Create Owner Profile
+                        + Create Chairman Profile
                       </button>
                     </div>
                   )}
@@ -1631,7 +1633,7 @@ export const AdminDashboardPage: React.FC = () => {
                     turnaroundTime: '2-3 weeks',
                   })
                 }
-                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2"
+                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#EAB308]/20"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add New Service</span>
@@ -1725,7 +1727,7 @@ export const AdminDashboardPage: React.FC = () => {
                     isFeatured: true,
                   })
                 }
-                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2"
+                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#EAB308]/20"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Portfolio Project</span>
@@ -1796,7 +1798,7 @@ export const AdminDashboardPage: React.FC = () => {
                     isPopular: false,
                   })
                 }
-                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2"
+                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#EAB308]/20"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Package</span>
@@ -1869,7 +1871,7 @@ export const AdminDashboardPage: React.FC = () => {
                     date: 'October 2026',
                   })
                 }
-                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2"
+                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#EAB308]/20"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Review</span>
@@ -1919,8 +1921,8 @@ export const AdminDashboardPage: React.FC = () => {
                 <h1 className="text-2xl font-bold text-white font-brand flex items-center gap-2.5">
                   {activeSection === 'owner-profile' ? (
                     <>
-                      <Crown className="w-6 h-6 text-amber-400" />
-                      <span>Studio Owner Profile Management</span>
+                      <Crown className="w-6 h-6 text-[#EAB308]" />
+                      <span>Studio Chairman Profile Management (چیئرمین پروفائل)</span>
                     </>
                   ) : activeSection === 'ceo-profile' ? (
                     <>
@@ -1941,12 +1943,12 @@ export const AdminDashboardPage: React.FC = () => {
                 </h1>
                 <p className="text-xs text-neutral-400 mt-1">
                   {activeSection === 'owner-profile'
-                    ? 'Manage Studio Owner & Founder profile details with Add, Edit, and Delete control.'
+                    ? 'Manage Studio Chairman & Founder profile details with Add, Edit, and Delete control.'
                     : activeSection === 'ceo-profile'
                     ? 'Manage Chief Executive Officer (CEO) profile details with Add, Edit, and Delete control.'
                     : activeSection === 'team-members'
                     ? 'Manage Cinematographers, Drone Pilots, Editors and Specialists with Add, Edit, and Delete control.'
-                    : 'Manage Studio Owner profile, CEO profile, and Creative Team member profiles with full Add, Edit, and Delete options.'}
+                    : 'Manage Chairman profile (1st), CEO profile (2nd), and Creative Team member profiles with full Add, Edit, and Delete options.'}
                 </p>
               </div>
 
@@ -1954,16 +1956,17 @@ export const AdminDashboardPage: React.FC = () => {
                 <button
                   onClick={() =>
                     setEditingTeamMember({
-                      roleType: 'owner',
-                      title: 'Founder & Studio Owner',
+                      roleType: 'chairman',
+                      title: 'Chairman & Studio Founder',
+                      urduTitle: 'چیئرمین اور سٹوڈیو بانی',
                       photo: '/images/hero_cinematic_production_1793180767552.jpg',
                       displayOrder: 1,
                     })
                   }
-                  className="min-h-[40px] px-3.5 py-1.5 text-xs font-semibold text-amber-200 bg-amber-950/40 border border-amber-600/40 rounded-xl hover:bg-amber-900/50 transition-all flex items-center gap-1.5 shadow-sm"
+                  className="min-h-[40px] px-3.5 py-1.5 text-xs font-semibold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:brightness-110 transition-all flex items-center gap-1.5 shadow-md shadow-[#EAB308]/20 cursor-pointer"
                 >
-                  <Crown className="w-3.5 h-3.5 text-amber-400" />
-                  <span>+ Add Owner Profile</span>
+                  <Crown className="w-3.5 h-3.5 text-black" />
+                  <span>+ Add Chairman Profile</span>
                 </button>
 
                 <button
@@ -2003,16 +2006,16 @@ export const AdminDashboardPage: React.FC = () => {
               <button
                 onClick={() => {
                   setActiveSection('owner-profile');
-                  setTeamRoleFilter('owner');
+                  setTeamRoleFilter('chairman');
                 }}
                 className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 border ${
-                  activeSection === 'owner-profile' || (activeSection === 'team' && teamRoleFilter === 'owner')
-                    ? 'bg-amber-600/20 border-amber-500 text-amber-300 font-bold'
+                  activeSection === 'owner-profile' || (activeSection === 'team' && (teamRoleFilter === 'owner' || teamRoleFilter === 'chairman'))
+                    ? 'bg-[#EAB308]/20 border-[#EAB308] text-[#FBBF24] font-bold'
                     : 'text-neutral-400 hover:text-white bg-neutral-900/60 border-neutral-800'
                 }`}
               >
-                <Crown className="w-3.5 h-3.5 text-amber-400" />
-                <span>Owner Profile ({teamList.filter((m) => m.roleType === 'owner').length})</span>
+                <Crown className="w-3.5 h-3.5 text-[#EAB308]" />
+                <span>Chairman Profile ({teamList.filter((m) => m.roleType === 'chairman' || m.roleType === 'owner').length})</span>
               </button>
 
               <button
@@ -2060,58 +2063,59 @@ export const AdminDashboardPage: React.FC = () => {
               </button>
             </div>
 
-            {/* CATEGORY 1: OWNER PROFILES */}
+            {/* CATEGORY 1: CHAIRMAN PROFILES (FIRST) */}
             {(activeSection === 'owner-profile' ||
-              (activeSection === 'team' && (teamRoleFilter === 'all' || teamRoleFilter === 'owner'))) && (
+              (activeSection === 'team' && (teamRoleFilter === 'all' || teamRoleFilter === 'owner' || teamRoleFilter === 'chairman'))) && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-                      <Crown className="w-4 h-4 text-amber-400" />
+                    <div className="w-7 h-7 rounded-lg bg-[#EAB308]/20 border border-[#EAB308]/50 flex items-center justify-center">
+                      <Crown className="w-4 h-4 text-[#EAB308]" />
                     </div>
                     <div>
-                      <h2 className="text-base font-bold text-white font-brand">Studio Owner Profile</h2>
-                      <p className="text-[11px] text-neutral-400">Founder & Studio Ownership details displayed across public profiles.</p>
+                      <h2 className="text-base font-bold text-white font-brand">Studio Chairman Profile (چیئرمین پروفائل)</h2>
+                      <p className="text-[11px] text-neutral-400">Chairman & Studio Founder details displayed as 1st profile across website.</p>
                     </div>
                   </div>
                   <button
                     onClick={() =>
                       setEditingTeamMember({
-                        roleType: 'owner',
-                        title: 'Founder & Studio Owner',
+                        roleType: 'chairman',
+                        title: 'Chairman & Studio Founder',
+                        urduTitle: 'چیئرمین اور سٹوڈیو بانی',
                         photo: '/images/hero_cinematic_production_1793180767552.jpg',
                         displayOrder: 1,
                       })
                     }
-                    className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 font-medium"
+                    className="text-xs text-[#EAB308] hover:text-[#FBBF24] flex items-center gap-1 font-medium"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Add Owner Profile</span>
+                    <span>Add Chairman Profile</span>
                   </button>
                 </div>
 
-                {teamList.filter((m) => m.roleType === 'owner').length === 0 ? (
-                  <div className="p-8 text-center rounded-2xl bg-[#0f172a] border border-dashed border-neutral-800 text-xs text-neutral-400">
-                    No owner profile currently configured. Click "+ Add Owner Profile" to create one.
+                {teamList.filter((m) => m.roleType === 'chairman' || m.roleType === 'owner').length === 0 ? (
+                  <div className="p-8 text-center rounded-2xl bg-[#0c0c0c] border border-dashed border-neutral-800 text-xs text-neutral-400">
+                    No Chairman profile currently configured. Click "+ Add Chairman Profile" to create one.
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {teamList
-                      .filter((m) => m.roleType === 'owner')
+                      .filter((m) => m.roleType === 'chairman' || m.roleType === 'owner')
                       .map((member) => (
                         <div
                           key={member.id}
-                          className="p-5 rounded-2xl bg-gradient-to-br from-[#0f172a] via-[#111c38] to-[#0a0f1d] border border-amber-500/40 shadow-xl space-y-4 relative overflow-hidden"
+                          className="p-5 rounded-2xl bg-gradient-to-br from-[#121008] via-[#0c0c0c] to-[#060606] border-2 border-[#EAB308]/50 shadow-xl space-y-4 relative overflow-hidden"
                         >
                           <div className="absolute top-3 right-3 flex items-center gap-1.5">
-                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
+                            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#EAB308]/20 text-[#FBBF24] border border-[#EAB308]/50 flex items-center gap-1">
                               <Crown className="w-3 h-3" />
-                              <span>Studio Owner</span>
+                              <span>Chairman • چیئرمین</span>
                             </span>
                           </div>
 
                           <div className="flex items-start gap-4 pt-1">
-                            <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-amber-500/50 shrink-0 bg-neutral-900 shadow-md">
+                            <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-[#EAB308] shrink-0 bg-neutral-900 shadow-md">
                               <img
                                 src={member.photo}
                                 alt={member.name}
@@ -2624,7 +2628,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingSettings}
-                  className="min-h-[46px] w-full sm:w-auto px-8 py-3 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#2563eb]/20"
+                  className="min-h-[46px] w-full sm:w-auto px-8 py-3 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#EAB308]/20"
                 >
                   {savingSettings ? (
                     <>
@@ -2668,18 +2672,25 @@ export const AdminDashboardPage: React.FC = () => {
                       type="text"
                       value={settingsForm.phone}
                       onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs text-neutral-400">WhatsApp Number</label>
+                    <label className="text-xs text-[#EAB308] font-semibold flex items-center justify-between">
+                      <span>WhatsApp Number (Site-wide)</span>
+                      <span className="text-[10px] text-emerald-400 font-normal">Live across entire site</span>
+                    </label>
                     <input
                       type="text"
                       value={settingsForm.whatsapp}
                       onChange={(e) => setSettingsForm({ ...settingsForm, whatsapp: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                      placeholder="e.g. +92 314 3989052"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                     />
+                    <p className="text-[11px] text-neutral-400">
+                      Changing this updates all WhatsApp chat buttons, header/footer links & contact cards immediately.
+                    </p>
                   </div>
 
                   <div className="space-y-1">
@@ -2688,14 +2699,14 @@ export const AdminDashboardPage: React.FC = () => {
                       type="text"
                       value={settingsForm.email}
                       onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Social Media Links */}
-              <div className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
+              <div className="p-6 sm:p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800 space-y-6">
                 <div className="space-y-1">
                   <h3 className="text-base font-bold text-white font-brand">
                     Official Social Media Channels
@@ -2750,7 +2761,7 @@ export const AdminDashboardPage: React.FC = () => {
                           socials: { ...(settingsForm?.socials || {}), linkedin: e.target.value },
                         })
                       }
-                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                     />
                   </div>
                 </div>
@@ -2760,7 +2771,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingSettings}
-                  className="min-h-[46px] w-full sm:w-auto px-8 py-3 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#2563eb]/20"
+                  className="min-h-[46px] w-full sm:w-auto px-8 py-3 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#EAB308]/20"
                 >
                   <Save className="w-4 h-4" />
                   <span>Save Contact & Social Details</span>
@@ -2789,7 +2800,7 @@ export const AdminDashboardPage: React.FC = () => {
                     category: 'General',
                   })
                 }
-                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2"
+                className="min-h-[44px] px-4 py-2 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#EAB308]/20"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add FAQ</span>
@@ -2878,7 +2889,7 @@ export const AdminDashboardPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={savingSettings}
-                    className="min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8]"
+                    className="min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] shadow-lg shadow-[#EAB308]/20"
                   >
                     Save Legal Documentation
                   </button>
@@ -2891,7 +2902,7 @@ export const AdminDashboardPage: React.FC = () => {
         {/* ================= 10. MEDIA VAULT ================= */}
         {activeSection === 'media' && (
           <div className="space-y-6 animate-fadeIn">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-[#0f172a] border border-neutral-800">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-[#0c0c0c] border border-neutral-800">
               <div className="space-y-1">
                 <h1 className="text-xl font-bold text-white font-brand">Persistent Media Storage</h1>
                 <p className="text-xs text-neutral-400">
@@ -2910,7 +2921,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingMedia}
-                  className="min-h-[44px] px-5 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                  className="min-h-[44px] px-5 py-2.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#EAB308]/20"
                 >
                   {uploadingMedia ? (
                     <>
@@ -3220,7 +3231,7 @@ export const AdminDashboardPage: React.FC = () => {
                     type="text"
                     value={settingsForm.brandName}
                     onChange={(e) => setSettingsForm({ ...settingsForm, brandName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
 
@@ -3230,7 +3241,7 @@ export const AdminDashboardPage: React.FC = () => {
                     type="text"
                     value={settingsForm.tagline}
                     onChange={(e) => setSettingsForm({ ...settingsForm, tagline: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
               </div>
@@ -3247,7 +3258,7 @@ export const AdminDashboardPage: React.FC = () => {
                         seo: { ...(settingsForm?.seo || {}), metaTitle: e.target.value },
                       })
                     }
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
 
@@ -3262,7 +3273,7 @@ export const AdminDashboardPage: React.FC = () => {
                         seo: { ...(settingsForm?.seo || {}), metaDescription: e.target.value },
                       })
                     }
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs sm:text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs sm:text-sm text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
               </div>
@@ -3271,7 +3282,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingSettings}
-                  className="min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8]"
+                  className="min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] shadow-lg shadow-[#EAB308]/20"
                 >
                   Save Branding & SEO
                 </button>
@@ -3279,28 +3290,28 @@ export const AdminDashboardPage: React.FC = () => {
             </form>
 
             {/* Authorized Admin Accounts (Strict Security & Password Protected) */}
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-neutral-800 space-y-6">
+            <div className="p-6 sm:p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800 space-y-6">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-[#3b82f6]" />
+                  <Shield className="w-5 h-5 text-[#EAB308]" />
                   <h3 className="text-base font-bold text-white font-brand">
                     Authorized Studio Administrators
                   </h3>
                 </div>
                 <p className="text-xs text-neutral-400">
-                  Strict Security Active: Only these 2 authorized administrator accounts can access this panel with password protection.
+                  Strict Security Active: Locked to username <span className="text-[#EAB308] font-semibold">SHIFA PRODUCTIONS</span> with encrypted password protection.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-neutral-900 border border-[#2563eb]/40 flex items-center justify-between">
+                <div className="p-4 rounded-xl bg-neutral-900 border border-[#EAB308]/40 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#2563eb] text-white font-bold flex items-center justify-center text-sm shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FBBF24] via-[#EAB308] to-[#CA8A04] text-black font-bold flex items-center justify-center text-sm shrink-0">
                       SP
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-white flex items-center gap-2">
-                        <span>Shifa Productions</span>
+                        <span>SHIFA PRODUCTIONS</span>
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800">
                           Primary Admin
                         </span>
@@ -3370,10 +3381,10 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             {/* Dedicated Change Password Card */}
-            <div id="admin-password-card" className="p-6 sm:p-7 rounded-2xl bg-[#0f172a] border border-[#2563eb]/40 shadow-xl space-y-6">
+            <div id="admin-password-card" className="p-6 sm:p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800 shadow-xl space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#2563eb]/20 border border-[#2563eb]/40 flex items-center justify-center text-[#3b82f6] shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#EAB308]/15 border border-[#EAB308]/40 flex items-center justify-center text-[#EAB308] shrink-0">
                     <KeyRound className="w-5 h-5" />
                   </div>
                   <div>
@@ -3382,7 +3393,7 @@ export const AdminDashboardPage: React.FC = () => {
                       <span className="text-xs font-normal text-neutral-400">(پاسورڈ تبدیل کریں)</span>
                     </h3>
                     <p className="text-xs text-neutral-400 mt-0.5">
-                      Update master security credentials for administrator logins across all devices.
+                      Master security credentials for administrator username <span className="text-[#EAB308] font-semibold">SHIFA PRODUCTIONS</span>.
                     </p>
                   </div>
                 </div>
@@ -3425,7 +3436,7 @@ export const AdminDashboardPage: React.FC = () => {
                         value={currentPasswordInput}
                         onChange={(e) => setCurrentPasswordInput(e.target.value)}
                         placeholder="Enter current password"
-                        className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                        className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
                       />
                       <button
                         type="button"
@@ -3452,7 +3463,7 @@ export const AdminDashboardPage: React.FC = () => {
                         value={newPasswordInput}
                         onChange={(e) => setNewPasswordInput(e.target.value)}
                         placeholder="Enter new password"
-                        className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                        className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
                       />
                       <button
                         type="button"
@@ -3490,7 +3501,7 @@ export const AdminDashboardPage: React.FC = () => {
                         className={`w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border text-sm text-white placeholder-neutral-500 focus:outline-none ${
                           confirmPasswordInput && newPasswordInput !== confirmPasswordInput
                             ? 'border-rose-700 focus:border-rose-500'
-                            : 'border-neutral-800 focus:border-[#2563eb]'
+                            : 'border-neutral-800 focus:border-[#EAB308]'
                         }`}
                       />
                       <button
@@ -3507,12 +3518,12 @@ export const AdminDashboardPage: React.FC = () => {
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-neutral-800/80">
                   <div className="text-[11px] text-neutral-400">
-                    This updates password security across all devices for both authorized admin accounts.
+                    This updates password security across all devices for administrator logins.
                   </div>
                   <button
                     type="submit"
                     disabled={changingPassword || !currentPasswordInput || !newPasswordInput}
-                    className="min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shrink-0 shadow-lg shadow-[#2563eb]/20"
+                    className="min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shrink-0 shadow-lg shadow-[#EAB308]/20"
                   >
                     {changingPassword ? (
                       <>
@@ -3543,12 +3554,12 @@ export const AdminDashboardPage: React.FC = () => {
           }}
         >
           <div
-            className="w-full max-w-lg bg-[#111827] border border-[#2563eb]/40 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl relative"
+            className="w-full max-w-lg bg-[#0c0c0c] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl relative"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#2563eb]/20 border border-[#2563eb]/40 flex items-center justify-center text-[#3b82f6] shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[#EAB308]/15 border border-[#EAB308]/40 flex items-center justify-center text-[#EAB308] shrink-0">
                   <KeyRound className="w-5 h-5" />
                 </div>
                 <div>
@@ -3556,7 +3567,7 @@ export const AdminDashboardPage: React.FC = () => {
                     Change Admin Password
                   </h3>
                   <p className="text-xs text-neutral-400">
-                    ایڈمن کا نیا پاسورڈ سیٹ کریں
+                    Administrator credentials for <span className="text-[#EAB308] font-semibold">SHIFA PRODUCTIONS</span>
                   </p>
                 </div>
               </div>
@@ -3601,7 +3612,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={currentPasswordInput}
                     onChange={(e) => setCurrentPasswordInput(e.target.value)}
                     placeholder="Enter current password"
-                    className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                    className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
                   />
                   <button
                     type="button"
@@ -3627,7 +3638,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={newPasswordInput}
                     onChange={(e) => setNewPasswordInput(e.target.value)}
                     placeholder="Enter new password"
-                    className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#2563eb]"
+                    className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
                   />
                   <button
                     type="button"
@@ -3664,7 +3675,7 @@ export const AdminDashboardPage: React.FC = () => {
                     className={`w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border text-sm text-white placeholder-neutral-500 focus:outline-none ${
                       confirmPasswordInput && newPasswordInput !== confirmPasswordInput
                         ? 'border-rose-700 focus:border-rose-500'
-                        : 'border-neutral-800 focus:border-[#2563eb]'
+                        : 'border-neutral-800 focus:border-[#EAB308]'
                     }`}
                   />
                   <button
@@ -3691,7 +3702,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={changingPassword || !currentPasswordInput || !newPasswordInput}
-                  className="min-h-[40px] px-6 py-2 text-xs font-semibold text-white bg-[#2563eb] rounded-xl hover:bg-[#1d4ed8] disabled:opacity-50 transition-all flex items-center gap-2"
+                  className="min-h-[40px] px-6 py-2 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] disabled:opacity-50 transition-all flex items-center gap-2 shadow-lg shadow-[#EAB308]/20"
                 >
                   {changingPassword ? (
                     <>
@@ -3783,7 +3794,7 @@ export const AdminDashboardPage: React.FC = () => {
                 defaultValue={selectedInquiry.internalNotes || ''}
                 id="internalNotesField"
                 placeholder="Add private team notes, meeting date, price agreed..."
-                className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
               />
             </div>
 
@@ -3837,7 +3848,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingService.title || ''}
                   onChange={(e) => setEditingService({ ...editingService, title: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -3848,7 +3859,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingService.shortDesc || ''}
                   onChange={(e) => setEditingService({ ...editingService, shortDesc: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -3860,7 +3871,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingService.image || ''}
                     onChange={(e) => setEditingService({ ...editingService, image: e.target.value })}
                     placeholder="/images/service_... or https://..."
-                    className="flex-1 px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="flex-1 px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                   {editingService.image && (
                     <div className="w-12 h-9 rounded-lg overflow-hidden border border-neutral-700 bg-black flex-shrink-0">
@@ -3906,7 +3917,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingService.startingPricePkr || ''}
                     onChange={(e) => setEditingService({ ...editingService, startingPricePkr: e.target.value })}
                     placeholder="e.g. 250,000"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
                 <div className="space-y-1">
@@ -3916,7 +3927,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingService.turnaroundTime || ''}
                     onChange={(e) => setEditingService({ ...editingService, turnaroundTime: e.target.value })}
                     placeholder="e.g. 2-3 weeks"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
               </div>
@@ -3968,7 +3979,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingPortfolio.title || ''}
                   onChange={(e) => setEditingPortfolio({ ...editingPortfolio, title: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -3978,7 +3989,7 @@ export const AdminDashboardPage: React.FC = () => {
                   <select
                     value={editingPortfolio.category}
                     onChange={(e) => setEditingPortfolio({ ...editingPortfolio, category: e.target.value as any })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   >
                     <option value="Weddings">Weddings</option>
                     <option value="Commercials">Commercials</option>
@@ -3993,7 +4004,7 @@ export const AdminDashboardPage: React.FC = () => {
                     type="text"
                     value={editingPortfolio.client || ''}
                     onChange={(e) => setEditingPortfolio({ ...editingPortfolio, client: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
               </div>
@@ -4023,7 +4034,7 @@ export const AdminDashboardPage: React.FC = () => {
                   value={editingPortfolio.image || ''}
                   onChange={(e) => setEditingPortfolio({ ...editingPortfolio, image: e.target.value })}
                   placeholder="/src/assets/images/... or /uploads/..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -4034,7 +4045,7 @@ export const AdminDashboardPage: React.FC = () => {
                   value={editingPortfolio.videoUrl || ''}
                   onChange={(e) => setEditingPortfolio({ ...editingPortfolio, videoUrl: e.target.value })}
                   placeholder="https://youtube.com/..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -4044,7 +4055,7 @@ export const AdminDashboardPage: React.FC = () => {
                   rows={3}
                   value={editingPortfolio.description || ''}
                   onChange={(e) => setEditingPortfolio({ ...editingPortfolio, description: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -4055,7 +4066,7 @@ export const AdminDashboardPage: React.FC = () => {
                   value={editingPortfolio.gearUsed || ''}
                   onChange={(e) => setEditingPortfolio({ ...editingPortfolio, gearUsed: e.target.value })}
                   placeholder="e.g. ARRI Alexa Mini LF, Master Anamorphics, DJI Inspire 3"
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -4106,7 +4117,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingPackage.name || ''}
                   onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -4118,7 +4129,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingPackage.pricePkr || ''}
                     onChange={(e) => setEditingPackage({ ...editingPackage, pricePkr: e.target.value })}
                     placeholder="e.g. 380,000 or Request a Quote"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
                 <div className="space-y-1">
@@ -4128,7 +4139,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingPackage.crewSize || ''}
                     onChange={(e) => setEditingPackage({ ...editingPackage, crewSize: e.target.value })}
                     placeholder="e.g. 4 Cinematographers"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
               </div>
@@ -4139,7 +4150,7 @@ export const AdminDashboardPage: React.FC = () => {
                   type="text"
                   value={editingPackage.tagline || ''}
                   onChange={(e) => setEditingPackage({ ...editingPackage, tagline: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -4203,7 +4214,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingTestimonial.clientName || ''}
                   onChange={(e) => setEditingTestimonial({ ...editingTestimonial, clientName: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -4214,7 +4225,7 @@ export const AdminDashboardPage: React.FC = () => {
                     type="text"
                     value={editingTestimonial.city || ''}
                     onChange={(e) => setEditingTestimonial({ ...editingTestimonial, city: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
                 <div className="space-y-1">
@@ -4223,7 +4234,7 @@ export const AdminDashboardPage: React.FC = () => {
                     type="text"
                     value={editingTestimonial.roleOrBrand || ''}
                     onChange={(e) => setEditingTestimonial({ ...editingTestimonial, roleOrBrand: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
               </div>
@@ -4235,7 +4246,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingTestimonial.reviewText || ''}
                   onChange={(e) => setEditingTestimonial({ ...editingTestimonial, reviewText: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -4299,7 +4310,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingFaq.question || ''}
                   onChange={(e) => setEditingFaq({ ...editingFaq, question: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -4310,7 +4321,7 @@ export const AdminDashboardPage: React.FC = () => {
                   required
                   value={editingFaq.answer || ''}
                   onChange={(e) => setEditingFaq({ ...editingFaq, answer: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -4355,9 +4366,9 @@ export const AdminDashboardPage: React.FC = () => {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                {editingTeamMember.roleType === 'owner' ? (
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-                    <Crown className="w-4 h-4 text-amber-400" />
+                {editingTeamMember.roleType === 'chairman' || editingTeamMember.roleType === 'owner' ? (
+                  <div className="w-8 h-8 rounded-lg bg-[#EAB308]/20 border border-[#EAB308]/50 flex items-center justify-center">
+                    <Crown className="w-4 h-4 text-[#EAB308]" />
                   </div>
                 ) : editingTeamMember.roleType === 'ceo' ? (
                   <div className="w-8 h-8 rounded-lg bg-sky-500/20 border border-sky-500/40 flex items-center justify-center">
@@ -4371,15 +4382,15 @@ export const AdminDashboardPage: React.FC = () => {
                 <div>
                   <h3 className="text-lg font-bold text-white font-brand">
                     {editingTeamMember.id
-                      ? editingTeamMember.roleType === 'owner'
-                        ? 'Edit Owner Profile'
+                      ? editingTeamMember.roleType === 'chairman' || editingTeamMember.roleType === 'owner'
+                        ? 'Edit Chairman Profile (چیئرمین)'
                         : editingTeamMember.roleType === 'ceo'
-                        ? 'Edit CEO Profile'
+                        ? 'Edit CEO Profile (سی ای او)'
                         : 'Edit Team Member Profile'
-                      : editingTeamMember.roleType === 'owner'
-                      ? 'Add New Owner Profile'
+                      : editingTeamMember.roleType === 'chairman' || editingTeamMember.roleType === 'owner'
+                      ? 'Add New Chairman Profile (چیئرمین)'
                       : editingTeamMember.roleType === 'ceo'
-                      ? 'Add New CEO Profile'
+                      ? 'Add New CEO Profile (سی ای او)'
                       : 'Add New Team Member'}
                   </h3>
                   <p className="text-[11px] text-neutral-400">
@@ -4407,18 +4418,19 @@ export const AdminDashboardPage: React.FC = () => {
                     onClick={() =>
                       setEditingTeamMember({
                         ...editingTeamMember,
-                        roleType: 'owner',
-                        title: editingTeamMember.title || 'Founder & Studio Owner',
+                        roleType: 'chairman',
+                        title: editingTeamMember.title || 'Chairman & Studio Founder',
+                        urduTitle: editingTeamMember.urduTitle || 'چیئرمین اور سٹوڈیو بانی',
                       })
                     }
                     className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
-                      editingTeamMember.roleType === 'owner'
-                        ? 'bg-amber-500/20 border-amber-500 text-amber-300'
+                      editingTeamMember.roleType === 'chairman' || editingTeamMember.roleType === 'owner'
+                        ? 'bg-[#EAB308]/20 border-[#EAB308] text-[#FBBF24] font-bold'
                         : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white'
                     }`}
                   >
                     <Crown className="w-3.5 h-3.5" />
-                    <span>Owner</span>
+                    <span>Chairman (چیئرمین)</span>
                   </button>
 
                   <button
@@ -4428,16 +4440,17 @@ export const AdminDashboardPage: React.FC = () => {
                         ...editingTeamMember,
                         roleType: 'ceo',
                         title: editingTeamMember.title || 'Chief Executive Officer (CEO)',
+                        urduTitle: editingTeamMember.urduTitle || 'چیف ایگزیکٹو آفیسر',
                       })
                     }
                     className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
                       editingTeamMember.roleType === 'ceo'
-                        ? 'bg-sky-500/20 border-sky-500 text-sky-300'
+                        ? 'bg-sky-500/20 border-sky-500 text-sky-300 font-bold'
                         : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white'
                     }`}
                   >
                     <Briefcase className="w-3.5 h-3.5" />
-                    <span>CEO</span>
+                    <span>CEO (سی ای او)</span>
                   </button>
 
                   <button
@@ -4446,17 +4459,17 @@ export const AdminDashboardPage: React.FC = () => {
                       setEditingTeamMember({
                         ...editingTeamMember,
                         roleType: 'team_member',
-                        title: editingTeamMember.title || 'Cinematographer',
+                        title: editingTeamMember.title || 'Director of Photography',
                       })
                     }
                     className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${
                       editingTeamMember.roleType === 'team_member'
-                        ? 'bg-blue-500/20 border-blue-500 text-blue-300'
+                        ? 'bg-blue-500/20 border-blue-500 text-blue-300 font-bold'
                         : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white'
                     }`}
                   >
                     <Users className="w-3.5 h-3.5" />
-                    <span>Team Member</span>
+                    <span>Team (ٹیم ممبر)</span>
                   </button>
                 </div>
               </div>
@@ -4471,7 +4484,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingTeamMember.name || ''}
                     onChange={(e) => setEditingTeamMember({ ...editingTeamMember, name: e.target.value })}
                     placeholder="e.g. Umair Wyne or Shifa Ur Rehman"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
 
@@ -4483,7 +4496,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingTeamMember.title || ''}
                     onChange={(e) => setEditingTeamMember({ ...editingTeamMember, title: e.target.value })}
                     placeholder="e.g. Founder & Studio Owner or Director of Photography"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
               </div>
@@ -4515,7 +4528,7 @@ export const AdminDashboardPage: React.FC = () => {
                       value={editingTeamMember.photo || ''}
                       onChange={(e) => setEditingTeamMember({ ...editingTeamMember, photo: e.target.value })}
                       placeholder="Photo URL or upload image"
-                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                     />
                     <button
                       type="button"
@@ -4538,7 +4551,7 @@ export const AdminDashboardPage: React.FC = () => {
                   value={editingTeamMember.bio || ''}
                   onChange={(e) => setEditingTeamMember({ ...editingTeamMember, bio: e.target.value })}
                   placeholder="Describe role, cinema gear mastery, filmmaking background, or studio leadership..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                 />
               </div>
 
@@ -4551,7 +4564,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingTeamMember.urduTitle || ''}
                     onChange={(e) => setEditingTeamMember({ ...editingTeamMember, urduTitle: e.target.value })}
                     placeholder="e.g. سٹوڈیو بانی / ڈائریکٹر آف فوٹوگرافی"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
 
@@ -4562,7 +4575,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingTeamMember.experienceYears || ''}
                     onChange={(e) => setEditingTeamMember({ ...editingTeamMember, experienceYears: e.target.value })}
                     placeholder="e.g. 10+ Years or 8 Years"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
               </div>
@@ -4576,7 +4589,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingTeamMember.gear || ''}
                     onChange={(e) => setEditingTeamMember({ ...editingTeamMember, gear: e.target.value })}
                     placeholder="e.g. ARRI Alexa Mini LF, RED V-Raptor, Cooke Anamorphic"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
 
@@ -4592,7 +4605,7 @@ export const AdminDashboardPage: React.FC = () => {
                       })
                     }
                     placeholder="e.g. Direction, Anamorphic Cinema, DaVinci Grading"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
               </div>
@@ -4606,7 +4619,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingTeamMember.email || ''}
                     onChange={(e) => setEditingTeamMember({ ...editingTeamMember, email: e.target.value })}
                     placeholder="e.g. contact@shifaproductions.pk"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
 
@@ -4617,7 +4630,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingTeamMember.phone || ''}
                     onChange={(e) => setEditingTeamMember({ ...editingTeamMember, phone: e.target.value })}
                     placeholder="e.g. +92 300 8492026"
-                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
               </div>
@@ -4631,7 +4644,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingTeamMember.instagram || ''}
                     onChange={(e) => setEditingTeamMember({ ...editingTeamMember, instagram: e.target.value })}
                     placeholder="https://instagram.com/..."
-                    className="w-full px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
 
@@ -4642,7 +4655,7 @@ export const AdminDashboardPage: React.FC = () => {
                     value={editingTeamMember.linkedin || ''}
                     onChange={(e) => setEditingTeamMember({ ...editingTeamMember, linkedin: e.target.value })}
                     placeholder="https://linkedin.com/in/..."
-                    className="w-full px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
 
@@ -4655,7 +4668,7 @@ export const AdminDashboardPage: React.FC = () => {
                     onChange={(e) =>
                       setEditingTeamMember({ ...editingTeamMember, displayOrder: parseInt(e.target.value) || 1 })
                     }
-                    className="w-full px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                    className="w-full px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white focus:outline-none focus:border-[#EAB308]"
                   />
                 </div>
               </div>

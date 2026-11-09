@@ -33,6 +33,21 @@ interface ToastState {
   type: 'success' | 'error' | 'info';
 }
 
+export const sortTeamMembers = (members: TeamMember[]): TeamMember[] => {
+  if (!Array.isArray(members)) return [];
+  return [...members].sort((a, b) => {
+    const roleRank = (role?: string) => {
+      if (role === 'chairman' || role === 'owner') return 1;
+      if (role === 'ceo') return 2;
+      return 3;
+    };
+    const rankA = roleRank(a.roleType);
+    const rankB = roleRank(b.roleType);
+    if (rankA !== rankB) return rankA - rankB;
+    return (a.displayOrder ?? 99) - (b.displayOrder ?? 99);
+  });
+};
+
 interface AppContextType {
   currentRoute: PageRoute;
   navigateTo: (route: PageRoute, options?: { scrollToTop?: boolean; preset?: { service?: string; package?: string } }) => void;
@@ -72,7 +87,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [packages, setPackages] = useState<PackageItem[]>(initialPackages);
   const [testimonials, setTestimonials] = useState<TestimonialItem[]>(initialTestimonials);
   const [faqs, setFaqs] = useState<FaqItem[]>(initialFaqs);
-  const [team, setTeam] = useState<TeamMember[]>(initialTeam);
+  const [team, setTeam] = useState<TeamMember[]>(() => sortTeamMembers(initialTeam));
   const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [selectedTeamMember, setSelectedTeamMember] = useState<TeamMember | null>(null);
@@ -124,7 +139,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (pkg && pkg.length > 0) setPackages(pkg);
       if (tst && tst.length > 0) setTestimonials(tst);
       if (fq && fq.length > 0) setFaqs(fq);
-      if (tm && tm.length > 0) setTeam(tm);
+      if (tm && tm.length > 0) setTeam(sortTeamMembers(tm));
       if (isFirebaseActive()) {
         setLastUpdatedTime(new Date().toLocaleTimeString());
       }
@@ -211,7 +226,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       const unsubTeam = subscribeToCollection<TeamMember>('team', (items) => {
         if (items && items.length > 0) {
-          setTeam(items);
+          setTeam(sortTeamMembers(items));
           setLastUpdatedTime(new Date().toLocaleTimeString());
         }
       });

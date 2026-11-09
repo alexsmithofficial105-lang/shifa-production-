@@ -6,8 +6,8 @@ export const Footer: React.FC = () => {
   const { navigateTo, settings, isCloudActive, lastUpdatedTime } = useApp();
 
   const brandName = settings?.brandName || 'Shifa Productions';
-  const phone = settings?.phone || '+92 300 8492026';
-  const whatsapp = settings?.whatsapp || '+92 300 8492026';
+  const phone = settings?.phone || '+92 3143989052';
+  const whatsapp = settings?.whatsapp || '+92 3143989052';
   const email = settings?.email || 'contact@shifaproductions.pk';
 
   const cleanWaNumber = whatsapp.replace(/[^0-9]/g, '');
@@ -75,7 +75,8 @@ export const Footer: React.FC = () => {
                 target="_blank"
                 rel="noreferrer"
                 className="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-emerald-400 hover:border-emerald-500/40 transition-colors"
-                aria-label="WhatsApp"
+                title={`WhatsApp (${whatsapp})`}
+                aria-label={`WhatsApp (${whatsapp})`}
               >
                 <MessageSquare className="w-4 h-4" />
               </a>

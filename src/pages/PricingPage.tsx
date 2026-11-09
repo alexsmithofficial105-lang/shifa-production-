@@ -1,10 +1,13 @@
 import React from 'react';
 import { useApp } from '../context/AppContext.tsx';
 import { PackageItem } from '../types/index.ts';
-import { Check, Plus, Clock, Users, ArrowRight, Sparkles } from 'lucide-react';
+import { Check, Plus, Clock, Users, ArrowRight, Sparkles, MessageSquare } from 'lucide-react';
 
 export const PricingPage: React.FC = () => {
-  const { packages, navigateTo } = useApp();
+  const { packages, navigateTo, settings } = useApp();
+
+  const whatsapp = settings?.whatsapp || '+92 3143989052';
+  const cleanWa = whatsapp.replace(/[^0-9]/g, '');
 
   const handleBookPackage = (pkg: PackageItem) => {
     navigateTo('quote', { preset: { package: pkg.name } });
@@ -162,10 +165,22 @@ export const PricingPage: React.FC = () => {
         </div>
 
         {/* Pricing notice & payment schedule */}
-        <div className="p-8 rounded-2xl bg-[#0f0f0f] border border-neutral-800 space-y-4 text-xs text-neutral-400 leading-relaxed max-w-4xl mx-auto">
-          <h3 className="text-sm font-bold text-white font-brand uppercase tracking-wider">
-            Booking & Payment Terms in Pakistan
-          </h3>
+        <div className="p-8 rounded-2xl bg-[#0c0c0c] border border-neutral-800 space-y-4 text-xs text-neutral-400 leading-relaxed max-w-4xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-800 pb-4">
+            <h3 className="text-sm font-bold text-white font-brand uppercase tracking-wider">
+              Booking & Payment Terms in Pakistan
+            </h3>
+            <a
+              href={`https://wa.me/${cleanWa}?text=Hi%20Shifa%20Productions,%20I%20would%20like%20to%20discuss%20a%20custom%20production%20package.`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-semibold transition-colors"
+              title={`WhatsApp: ${whatsapp}`}
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-[#25D366]" />
+              <span>Custom Quote on WhatsApp ({whatsapp})</span>
+            </a>
+          </div>
           <p>
             • Date Reservation: Production dates are secured with a 50% advance deposit via official banking channels.
           </p>

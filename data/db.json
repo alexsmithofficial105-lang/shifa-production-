@@ -754,19 +754,19 @@
   ],
   "admin": {
     "id": "admin-1",
-    "username": "Shifa Productions Admin",
+    "username": "SHIFA PRODUCTIONS",
     "email": "shifaproductions.pk@gmail.com",
-    "passwordHash": "f3f8e6577d404c8008404d439c10dda3c08f0e043d2694b20b316b45ff5bb4f3d78742d49dcfdb2f15711ab9a96f1985162e0d2f3bef7e35d8b504912ace782c",
-    "salt": "dc01f5fe536cd7c7e491fd13a8e48b58",
-    "createdAt": "2026-10-28T09:59:02.352Z"
+    "passwordHash": "c1433efd2342f532e3a7ed542b1631d23147541cce8c0d68aa73980d75425d6b9d62bc0a2ad61d8d1b6de2bf0f881f1489ed75e1dca5ee275c3bab3a4664076c",
+    "salt": "b9e13fea48236dc40b73f50515cf8597",
+    "createdAt": "2026-11-08T00:40:00.000Z"
   },
   "team": [
     {
-      "id": "team-owner-1",
+      "id": "team-chairman-1",
       "name": "Umair Wyne",
-      "roleType": "owner",
-      "title": "Founder & Studio Owner",
-      "bio": "Visionary filmmaker and founder of Shifa Productions. Dedicated to producing theatrical-grade Pakistani cinema, high-impact commercials, and regal wedding films with cutting-edge cinema technology.",
+      "roleType": "chairman",
+      "title": "Chairman & Studio Founder",
+      "bio": "Visionary filmmaker and Chairman of Shifa Productions. Dedicated to producing theatrical-grade Pakistani cinema, high-impact commercials, and regal wedding films with cutting-edge cinema technology.",
       "photo": "/images/hero_cinematic_production_1793180767552.jpg",
       "email": "umairwyc@gmail.com",
       "phone": "+92 300 8492026",

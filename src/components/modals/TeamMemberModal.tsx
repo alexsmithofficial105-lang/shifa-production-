@@ -21,14 +21,14 @@ export const TeamMemberModal: React.FC = () => {
 
   if (!selectedTeamMember) return null;
 
-  const isOwner = selectedTeamMember.roleType === 'owner';
+  const isChairman = selectedTeamMember.roleType === 'chairman' || selectedTeamMember.roleType === 'owner';
   const isCeo = selectedTeamMember.roleType === 'ceo';
 
   const handleBookWithMember = () => {
     setSelectedTeamMember(null);
     navigateTo('quote', {
       preset: {
-        service: isOwner
+        service: isChairman
           ? 'Feature Films & Cinema'
           : isCeo
           ? 'Commercial & Brand Films'
@@ -49,7 +49,7 @@ export const TeamMemberModal: React.FC = () => {
         {/* Top ambient glow */}
         <div
           className={`absolute -top-24 -right-24 w-60 h-60 rounded-full blur-3xl pointer-events-none opacity-20 ${
-            isOwner ? 'bg-[#EAB308]' : isCeo ? 'bg-[#FBBF24]' : 'bg-[#CA8A04]'
+            isChairman ? 'bg-[#EAB308]' : isCeo ? 'bg-[#FBBF24]' : 'bg-[#CA8A04]'
           }`}
         />
 
@@ -58,17 +58,17 @@ export const TeamMemberModal: React.FC = () => {
           <div className="flex items-center gap-2.5">
             <span
               className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border shadow-sm ${
-                isOwner
+                isChairman
                   ? 'bg-[#EAB308]/20 text-[#FBBF24] border-[#EAB308]/40'
                   : isCeo
                   ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                   : 'bg-[#EAB308]/15 text-[#FBBF24] border-[#EAB308]/30'
               }`}
             >
-              {isOwner ? (
+              {isChairman ? (
                 <>
                   <Crown className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Studio Owner • بانی</span>
+                  <span>Chairman • چیئرمین</span>
                 </>
               ) : isCeo ? (
                 <>
@@ -97,7 +97,7 @@ export const TeamMemberModal: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
           <div
             className={`w-32 h-32 sm:w-36 sm:h-36 rounded-2xl overflow-hidden shrink-0 bg-neutral-900 border-2 shadow-xl ${
-              isOwner
+              isChairman
                 ? 'border-amber-500/60 shadow-amber-500/10'
                 : isCeo
                 ? 'border-sky-500/60 shadow-sky-500/10'
@@ -121,7 +121,7 @@ export const TeamMemberModal: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
               <span
                 className={`text-sm font-semibold ${
-                  isOwner ? 'text-amber-400' : isCeo ? 'text-sky-400' : 'text-blue-400'
+                  isChairman ? 'text-amber-400' : isCeo ? 'text-sky-400' : 'text-blue-400'
                 }`}
               >
                 {selectedTeamMember.title}

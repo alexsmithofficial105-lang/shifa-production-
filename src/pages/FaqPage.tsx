@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext.tsx';
-import { ChevronDown, HelpCircle, MessageSquare, ArrowRight } from 'lucide-react';
+import { ChevronDown, MessageSquare, ArrowRight } from 'lucide-react';
 
 export const FaqPage: React.FC = () => {
   const { faqs, navigateTo, settings } = useApp();
@@ -12,15 +12,15 @@ export const FaqPage: React.FC = () => {
     setOpenIds((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const whatsapp = settings?.whatsapp || '+92 300 8492026';
+  const whatsapp = settings?.whatsapp || '+92 3143989052';
   const cleanWa = whatsapp.replace(/[^0-9]/g, '');
 
   return (
-    <div className="py-16 md:py-24 bg-[#060913] text-neutral-100 animate-fadeIn">
+    <div className="py-16 md:py-24 bg-[#050505] text-neutral-100 animate-fadeIn">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-16">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="text-xs font-semibold uppercase tracking-widest text-[#3b82f6]">
+          <div className="text-xs font-semibold uppercase tracking-widest text-[#EAB308]">
             Questions & Answers
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white font-brand">
@@ -38,18 +38,18 @@ export const FaqPage: React.FC = () => {
             return (
               <div
                 key={faq.id}
-                className="rounded-2xl bg-[#0f0f0f] border border-neutral-800/80 overflow-hidden transition-all duration-200"
+                className="rounded-2xl bg-[#0c0c0c] border border-neutral-800/80 overflow-hidden transition-all duration-200"
               >
                 <button
                   onClick={() => toggle(faq.id)}
-                  className="w-full p-6 text-left flex items-center justify-between gap-4 focus:outline-none hover:text-[#3b82f6] transition-colors"
+                  className="w-full p-6 text-left flex items-center justify-between gap-4 focus:outline-none hover:text-[#EAB308] transition-colors"
                 >
                   <span className="text-base sm:text-lg font-bold text-white font-brand">
                     {faq.question}
                   </span>
                   <div
                     className={`w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180 text-[#3b82f6]' : 'text-neutral-400'
+                      isOpen ? 'rotate-180 text-[#EAB308]' : 'text-neutral-400'
                     }`}
                   >
                     <ChevronDown className="w-4 h-4" />
@@ -57,7 +57,7 @@ export const FaqPage: React.FC = () => {
                 </button>
 
                 {isOpen && (
-                  <div className="px-6 pb-6 pt-1 text-sm text-neutral-300 leading-relaxed border-t border-neutral-900">
+                  <div className="px-6 pb-6 pt-1 text-sm text-neutral-300 leading-relaxed border-t border-neutral-800/60">
                     {faq.answer}
                   </div>
                 )}
@@ -67,7 +67,7 @@ export const FaqPage: React.FC = () => {
         </div>
 
         {/* Still have questions banner */}
-        <div className="p-8 rounded-2xl bg-[#111827] border border-neutral-800 text-center space-y-4">
+        <div className="p-8 rounded-2xl bg-[#0c0c0c] border border-neutral-800 text-center space-y-4">
           <h3 className="text-xl font-bold text-white font-brand">
             Have a Specific Question About Your Shoot?
           </h3>
@@ -77,7 +77,7 @@ export const FaqPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <button
               onClick={() => navigateTo('quote')}
-              className="px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-white bg-[#2563eb] rounded-lg hover:bg-[#1d4ed8] transition-all flex items-center gap-2"
+              className="px-6 py-2.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-lg hover:from-[#FDE68A] hover:to-[#EAB308] transition-all flex items-center gap-2 shadow-lg shadow-[#EAB308]/20"
             >
               <span>Submit Inquiry</span>
               <ArrowRight className="w-4 h-4" />
@@ -86,10 +86,11 @@ export const FaqPage: React.FC = () => {
               href={`https://wa.me/${cleanWa}?text=Hi%20Shifa%20Productions,%20I%20have%20a%20question%20regarding%20production%20services.`}
               target="_blank"
               rel="noreferrer"
-              className="px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-emerald-300 bg-emerald-950/60 border border-emerald-800/80 rounded-lg hover:bg-emerald-900 transition-colors flex items-center gap-2"
+              className="px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-emerald-300 bg-emerald-950/60 border border-emerald-800/80 rounded-lg hover:bg-emerald-900 transition-colors flex items-center gap-2 shadow-sm"
+              title={`Ask on WhatsApp (${whatsapp})`}
             >
-              <MessageSquare className="w-4 h-4" />
-              <span>Ask on WhatsApp</span>
+              <MessageSquare className="w-4 h-4 text-[#25D366]" />
+              <span>Ask on WhatsApp ({whatsapp})</span>
             </a>
           </div>
         </div>

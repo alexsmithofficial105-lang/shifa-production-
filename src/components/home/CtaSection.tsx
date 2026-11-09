@@ -5,8 +5,8 @@ import { ArrowRight, MessageSquare, PhoneCall } from 'lucide-react';
 export const CtaSection: React.FC = () => {
   const { navigateTo, settings } = useApp();
 
-  const phone = settings?.phone || '+92 300 8492026';
-  const whatsapp = settings?.whatsapp || '+92 300 8492026';
+  const phone = settings?.phone || '+92 3143989052';
+  const whatsapp = settings?.whatsapp || '+92 3143989052';
   const cleanWaNumber = whatsapp.replace(/[^0-9]/g, '');
 
   return (
@@ -54,7 +54,7 @@ export const CtaSection: React.FC = () => {
             className="text-emerald-400 hover:underline inline-flex items-center gap-1 font-medium ml-1"
           >
             <MessageSquare className="w-3.5 h-3.5" />
-            <span>Chat via WhatsApp ({phone})</span>
+            <span>Chat via WhatsApp ({whatsapp})</span>
           </a>
         </div>
       </div>

@@ -58,46 +58,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       const data = await apiClient.checkAuth();
-      if (data.authenticated) {
+      if (data.authenticated && data.user) {
         setIsAuthenticated(true);
         setUser(data.user);
       } else {
         setIsAuthenticated(false);
         setUser(null);
+        apiClient.clearToken();
+        localStorage.removeItem('shifa_admin_user');
       }
     } catch {
       setIsAuthenticated(false);
       setUser(null);
+      apiClient.clearToken();
+      localStorage.removeItem('shifa_admin_user');
     } finally {
       setLoading(false);
     }
   };
 
-  const login = async (email: string, pass?: string) => {
-    // 1. Try Firebase Authentication first if Firebase is active
-    if (isFirebaseActive() && getFirebaseAuth() && pass) {
+  const login = async (identifier: string, pass?: string) => {
+    // 1. Try Firebase Authentication first if Firebase is active and identifier contains @
+    if (isFirebaseActive() && getFirebaseAuth() && pass && identifier.includes('@')) {
       try {
-        const fbUser = await loginWithFirebaseAuth(email, pass);
+        const fbUser = await loginWithFirebaseAuth(identifier, pass);
         setIsAuthenticated(true);
         setUser({
-          username: fbUser.displayName || fbUser.email?.split('@')[0] || 'Admin',
-          email: fbUser.email || email,
+          username: fbUser.displayName || 'SHIFA PRODUCTIONS',
+          email: fbUser.email || identifier,
         });
-        // Also sync with server token for hybrid routes
         try {
-          await apiClient.login(email, pass);
+          await apiClient.login(identifier, pass);
         } catch {
           // Firebase auth is sufficient
         }
         return;
       } catch (err: any) {
         console.warn('Firebase Auth note:', err?.message || err);
-        // If user doesn't exist in Firebase Auth yet, try server authentication
       }
     }
 
-    // 2. Fallback to API Client
-    const res = await apiClient.login(email, pass);
+    // 2. Direct API Client Authentication (accepts username "SHIFA PRODUCTIONS" or authorized email)
+    const res = await apiClient.login(identifier, pass);
     setIsAuthenticated(true);
     setUser(res.user);
   };

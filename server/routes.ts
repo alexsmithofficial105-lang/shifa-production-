@@ -56,47 +56,52 @@ const upload = multer({
   },
 });
 
-// Middleware for admin protected routes with resilient auto-healing across container restarts
-function requireAdmin(req: Request, _res: Response, next: NextFunction): void {
+// Middleware for admin protected routes: strictly requires valid session token
+function requireAdmin(req: Request, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
-  const token = authHeader?.replace('Bearer ', '') || (req.query.token as string) || 'static-admin-token-auto';
-  const adminEmailHeader = (req.headers['x-admin-email'] as string)?.trim().toLowerCase();
+  const token = authHeader?.replace('Bearer ', '') || (req.query.token as string);
 
-  const email = (adminEmailHeader && STRICT_ADMIN_EMAILS.includes(adminEmailHeader))
-    ? adminEmailHeader
-    : 'shifaproductions.pk@gmail.com';
-  const name = email === 'umairwyc@gmail.com' ? 'Umair' : 'Shifa Productions Admin';
-
-  try {
-    createSessionWithToken(token, email, name);
-  } catch (err) {
-    console.warn('Session auto-heal note:', err);
+  if (!token) {
+    res.status(401).json({ error: 'Unauthorized: Admin authentication token required. Please sign in.' });
+    return;
   }
 
-  // Always proceed - authorized admin operations never fail with 401
+  const session = getSession(token);
+  if (!session) {
+    res.status(401).json({ error: 'Unauthorized: Session expired or invalid. Please sign in.' });
+    return;
+  }
+
   next();
 }
 
 // ----------------- AUTH ROUTES -----------------
 
 router.post('/auth/login', (req: Request, res: Response): void => {
-  const { email, password } = req.body;
-  if (!email || typeof email !== 'string') {
-    res.status(400).json({ error: 'Admin email is required.' });
+  const identifier = (req.body.username || req.body.identifier || req.body.email || '').trim();
+  const password = typeof req.body.password === 'string' ? req.body.password : '';
+
+  if (!identifier) {
+    res.status(400).json({ error: 'Admin username or email is required.' });
     return;
   }
 
-  const cleanEmail = email.trim().toLowerCase();
+  const cleanId = identifier.toLowerCase();
+  const isAllowedUser =
+    cleanId === 'shifa productions' ||
+    cleanId === 'shifaproductions' ||
+    cleanId === 'shifaproductions.pk@gmail.com' ||
+    cleanId === 'umairwyc@gmail.com' ||
+    cleanId === 'alexsmithofficial105@gmail.com';
 
-  // STRICT CHECK: Only these 2 emails, no other accounts allowed
-  if (!STRICT_ADMIN_EMAILS.includes(cleanEmail)) {
+  if (!isAllowedUser) {
     res.status(403).json({
-      error: `Access Denied: "${cleanEmail}" is not authorized. ONLY shifaproductions.pk@gmail.com and umairwyc@gmail.com have access to this admin panel.`,
+      error: `Access Denied: "${identifier}" is not an authorized administrator. Required username: "SHIFA PRODUCTIONS".`,
     });
     return;
   }
 
-  if (!password || typeof password !== 'string') {
+  if (!password) {
     res.status(400).json({ error: 'Admin password is required.' });
     return;
   }
@@ -104,72 +109,32 @@ router.post('/auth/login', (req: Request, res: Response): void => {
   const db = getDb();
   const admin = db.admin;
 
-  // Verify password: check against DB hash or master password 'ShifaAdmin2026!'
+  // Strict password check for 1234567890qwert$&A or stored PBKDF2 hash
   const isValidPass =
-    (admin.passwordHash && admin.salt && verifyPassword(password, admin.passwordHash, admin.salt)) ||
-    password === 'ShifaAdmin2026!';
+    password === '1234567890qwert$&A' ||
+    (admin.passwordHash && admin.salt && verifyPassword(password, admin.passwordHash, admin.salt));
 
   if (!isValidPass) {
     res.status(401).json({ error: 'Incorrect password. Please enter the valid admin password.' });
     return;
   }
 
-  const token = createSession(cleanEmail, cleanEmail === 'umairwyc@gmail.com' ? 'Umair' : 'Shifa Productions Admin');
+  const adminDisplayName = cleanId === 'umairwyc@gmail.com' ? 'Umair' : 'SHIFA PRODUCTIONS';
+  const adminEmail = cleanId === 'umairwyc@gmail.com' ? 'umairwyc@gmail.com' : 'shifaproductions.pk@gmail.com';
+
+  const token = createSession(adminEmail, adminDisplayName);
   res.json({
     token,
     user: {
-      username: cleanEmail === 'umairwyc@gmail.com' ? 'Umair' : 'Shifa Productions Admin',
-      email: cleanEmail,
+      username: adminDisplayName,
+      email: adminEmail,
     },
   });
 });
 
-router.post('/auth/google', (req: Request, res: Response): void => {
-  let { email, name, avatar, credential } = req.body;
-
-  // If a JWT credential was supplied from Google One-Tap/GIS, decode payload
-  if (credential && typeof credential === 'string') {
-    try {
-      const parts = credential.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'));
-        if (payload.email) {
-          email = payload.email;
-          name = payload.name || name;
-          avatar = payload.picture || avatar;
-        }
-      }
-    } catch {
-      // ignore decode error and use body values
-    }
-  }
-
-  if (!email || typeof email !== 'string') {
-    res.status(400).json({ error: 'Google account email is required' });
-    return;
-  }
-
-  const cleanEmail = email.trim().toLowerCase();
-
-  // Strict check: Only these 2 emails, no other accounts allowed
-  if (!STRICT_ADMIN_EMAILS.includes(cleanEmail)) {
-    res.status(403).json({
-      error: `Access Denied: The Google account "${cleanEmail}" is not authorized. ONLY shifaproductions.pk@gmail.com and umairwyc@gmail.com are permitted to access this admin panel.`,
-    });
-    return;
-  }
-
-  const displayName = cleanEmail === 'umairwyc@gmail.com' ? 'Umair' : (name || 'Shifa Productions Admin');
-  const token = createSession(cleanEmail, displayName, avatar);
-
-  res.json({
-    token,
-    user: {
-      username: displayName,
-      email: cleanEmail,
-      avatar: avatar || null,
-      authProvider: 'google',
-    },
+router.post('/auth/google', (_req: Request, res: Response): void => {
+  res.status(403).json({
+    error: 'Google login is disabled. Please sign in using your administrator username and password.',
   });
 });
 
@@ -182,28 +147,26 @@ router.post('/auth/logout', (req: Request, res: Response): void => {
 
 router.get('/auth/me', (req: Request, res: Response): void => {
   const authHeader = req.headers.authorization;
-  const token = authHeader?.replace('Bearer ', '') || 'static-admin-token-auto';
-  const adminEmailHeader = (req.headers['x-admin-email'] as string)?.trim().toLowerCase();
+  const token = authHeader?.replace('Bearer ', '') || (req.query.token as string);
 
-  const email = (adminEmailHeader && STRICT_ADMIN_EMAILS.includes(adminEmailHeader))
-    ? adminEmailHeader
-    : 'shifaproductions.pk@gmail.com';
-  const name = email === 'umairwyc@gmail.com' ? 'Umair' : 'Shifa Productions Admin';
-
-  try {
-    createSessionWithToken(token, email, name);
-  } catch {
-    // ignore
+  if (!token) {
+    res.json({ authenticated: false, user: null });
+    return;
   }
 
   const session = getSession(token);
+  if (!session) {
+    res.json({ authenticated: false, user: null });
+    return;
+  }
+
   const db = getDb();
   res.json({
     authenticated: true,
     user: {
-      username: session?.username || db.admin.username || name,
-      email: session?.email || db.admin.email || email,
-      avatar: session?.avatar || null,
+      username: session.username || db.admin.username || 'SHIFA PRODUCTIONS',
+      email: session.email || db.admin.email || 'shifaproductions.pk@gmail.com',
+      avatar: session.avatar || null,
     },
   });
 });
@@ -217,8 +180,8 @@ router.post('/auth/change-password', requireAdmin, (req: Request, res: Response)
 
   const db = getDb();
   const isValidCurrent =
-    (db.admin.passwordHash && db.admin.salt && verifyPassword(currentPassword, db.admin.passwordHash, db.admin.salt)) ||
-    currentPassword === 'ShifaAdmin2026!';
+    currentPassword === '1234567890qwert$&A' ||
+    (db.admin.passwordHash && db.admin.salt && verifyPassword(currentPassword, db.admin.passwordHash, db.admin.salt));
 
   if (!isValidCurrent) {
     res.status(400).json({ error: 'Current password does not match. Please verify your current password.' });
@@ -761,7 +724,16 @@ router.delete('/faqs/:id', requireAdmin, (req: Request, res: Response): void => 
 // ----------------- LEADERSHIP & TEAM MANAGEMENT -----------------
 router.get('/team', (_req: Request, res: Response): void => {
   const db = getDb();
-  const list = [...(db.team || [])].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  const roleRank = (role?: string) => {
+    if (role === 'chairman' || role === 'owner') return 1;
+    if (role === 'ceo') return 2;
+    return 3;
+  };
+  const list = [...(db.team || [])].sort((a, b) => {
+    const diff = roleRank(a.roleType) - roleRank(b.roleType);
+    if (diff !== 0) return diff;
+    return (a.displayOrder || 0) - (b.displayOrder || 0);
+  });
   res.json(list);
 });
 
@@ -770,14 +742,14 @@ router.post('/team', requireAdmin, (req: Request, res: Response): void => {
   if (!db.team) db.team = [];
 
   const rawRole = req.body.roleType;
-  const roleType: 'owner' | 'ceo' | 'team_member' =
-    rawRole === 'owner' || rawRole === 'ceo' ? rawRole : 'team_member';
+  const roleType: 'chairman' | 'owner' | 'ceo' | 'team_member' =
+    rawRole === 'chairman' || rawRole === 'owner' || rawRole === 'ceo' ? rawRole : 'team_member';
 
   const newMember: TeamMember = {
     id: `team-${Date.now()}`,
     name: req.body.name || 'Untitled Member',
     roleType,
-    title: req.body.title || (roleType === 'owner' ? 'Studio Owner' : roleType === 'ceo' ? 'Chief Executive Officer' : 'Team Member'),
+    title: req.body.title || (roleType === 'chairman' || roleType === 'owner' ? 'Chairman & Studio Founder' : roleType === 'ceo' ? 'Chief Executive Officer' : 'Team Member'),
     bio: req.body.bio || '',
     photo: req.body.photo || '/images/hero_cinematic_production_1793180767552.jpg',
     email: req.body.email || '',

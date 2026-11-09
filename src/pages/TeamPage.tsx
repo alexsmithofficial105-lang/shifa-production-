@@ -22,9 +22,14 @@ export const TeamPage: React.FC = () => {
   const { team, setSelectedTeamMember, navigateTo } = useApp();
   const [filter, setFilter] = useState<'all' | 'leadership' | 'cinematography' | 'post'>('all');
 
+  const isChairman = (m: TeamMember) => m.roleType === 'chairman' || m.roleType === 'owner';
+  const chairmen = (team || []).filter(isChairman);
+  const ceos = (team || []).filter((m) => m.roleType === 'ceo');
+  const creativeCrew = (team || []).filter((m) => !isChairman(m) && m.roleType !== 'ceo');
+
   const filteredMembers = (team || []).filter((m) => {
     if (filter === 'all') return true;
-    if (filter === 'leadership') return m.roleType === 'owner' || m.roleType === 'ceo';
+    if (filter === 'leadership') return isChairman(m) || m.roleType === 'ceo';
     if (filter === 'cinematography') {
       const t = (m.title + ' ' + m.bio + ' ' + (m.specialties || []).join(' ')).toLowerCase();
       return t.includes('photog') || t.includes('drone') || t.includes('aerial') || t.includes('camera') || t.includes('dop');
@@ -35,10 +40,6 @@ export const TeamPage: React.FC = () => {
     }
     return true;
   });
-
-  const owners = (team || []).filter((m) => m.roleType === 'owner');
-  const ceos = (team || []).filter((m) => m.roleType === 'ceo');
-  const creativeCrew = (team || []).filter((m) => m.roleType === 'team_member');
 
   return (
     <div className="py-12 sm:py-24 bg-[#050505] text-neutral-100 animate-fadeIn">
@@ -78,7 +79,7 @@ export const TeamPage: React.FC = () => {
             }`}
           >
             <Crown className="w-3.5 h-3.5" />
-            <span>Studio Leadership & Owners</span>
+            <span>Chairman & Leadership (چیئرمین اور سی ای او)</span>
           </button>
           <button
             onClick={() => setFilter('cinematography')}
@@ -104,45 +105,45 @@ export const TeamPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Executive Leadership Spotlight (Owner & CEO) */}
+        {/* Executive Leadership Spotlight (Chairman 1st, CEO 2nd) */}
         {(filter === 'all' || filter === 'leadership') && (
           <div className="space-y-8">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <h2 className="text-2xl font-bold text-white font-brand flex items-center gap-2">
-                  <Crown className="w-5 h-5 text-amber-400" />
-                  <span>Founding Ownership & Executive Leadership</span>
+                  <Crown className="w-5 h-5 text-[#EAB308]" />
+                  <span>Studio Chairman & Executive Leadership (چیئرمین اور سٹوڈیو لیڈرشپ)</span>
                 </h2>
                 <p className="text-xs text-neutral-400">
-                  Director-level supervision and creative direction on all premier commissions.
+                  Director-level supervision and creative direction on all premier commissions — led by our Chairman & CEO.
                 </p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Studio Owner Cards */}
-              {owners.map((owner) => (
+              {/* 1. Chairman Profile Card (First) */}
+              {chairmen.map((chairman) => (
                 <div
-                  key={owner.id}
-                  className="p-8 rounded-3xl bg-gradient-to-br from-[#0f172a] via-[#111c38] to-[#0a0f1d] border border-amber-500/40 shadow-2xl space-y-6 relative overflow-hidden group"
+                  key={chairman.id}
+                  className="p-8 rounded-3xl bg-gradient-to-br from-[#0c0c0c] via-[#181409] to-[#070707] border-2 border-[#EAB308]/60 shadow-2xl shadow-[#EAB308]/10 space-y-6 relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1.5 shadow-sm">
+                    <span className="px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#EAB308]/20 text-[#FBBF24] border border-[#EAB308]/50 flex items-center gap-1.5 shadow-sm">
                       <Crown className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Studio Owner • بانی</span>
+                      <span>Chairman • چیئرمین</span>
                     </span>
-                    {owner.experienceYears && (
-                      <span className="text-xs text-amber-400/90 font-medium">
-                        {owner.experienceYears} In Film
+                    {chairman.experienceYears && (
+                      <span className="text-xs text-[#FBBF24]/90 font-medium">
+                        {chairman.experienceYears} In Film
                       </span>
                     )}
                   </div>
 
                   <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                    <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl overflow-hidden border-2 border-amber-500/60 shadow-xl shrink-0 bg-neutral-900 group-hover:scale-102 transition-transform">
+                    <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl overflow-hidden border-2 border-[#EAB308] shadow-xl shrink-0 bg-neutral-900 group-hover:scale-102 transition-transform">
                       <img
-                        src={owner.photo}
-                        alt={owner.name}
+                        src={chairman.photo}
+                        alt={chairman.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/images/hero_cinematic_production_1793180767552.jpg';
@@ -150,52 +151,52 @@ export const TeamPage: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2 text-center sm:text-left flex-1 min-w-0">
-                      <h3 className="text-2xl font-bold text-white font-brand">{owner.name}</h3>
+                      <h3 className="text-2xl font-bold text-white font-brand">{chairman.name}</h3>
                       <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                        <span className="text-sm text-amber-400 font-semibold">{owner.title}</span>
-                        {owner.urduTitle && (
-                          <span className="text-xs text-neutral-400 font-urdu px-2 py-0.5 rounded bg-neutral-900/80 border border-neutral-800">
-                            {owner.urduTitle}
+                        <span className="text-sm text-[#FBBF24] font-semibold">{chairman.title}</span>
+                        {chairman.urduTitle && (
+                          <span className="text-xs text-[#EAB308] font-urdu px-2 py-0.5 rounded bg-black/80 border border-[#EAB308]/30">
+                            {chairman.urduTitle}
                           </span>
                         )}
                       </div>
                       <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed pt-1 line-clamp-3">
-                        {owner.bio}
+                        {chairman.bio}
                       </p>
                     </div>
                   </div>
 
-                  {owner.gear && (
-                    <div className="p-3 bg-black/40 rounded-xl border border-neutral-800/80 text-xs">
-                      <span className="text-neutral-400 font-medium">Signature Rig: </span>
-                      <span className="text-neutral-200 font-mono text-[11px]">{owner.gear}</span>
+                  {chairman.gear && (
+                    <div className="p-3 bg-black/60 rounded-xl border border-neutral-800 text-xs">
+                      <span className="text-[#EAB308] font-medium">Signature Rig: </span>
+                      <span className="text-neutral-200 font-mono text-[11px]">{chairman.gear}</span>
                     </div>
                   )}
 
-                  <div className="pt-4 border-t border-neutral-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="pt-4 border-t border-neutral-800 flex flex-wrap items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-3">
-                      {owner.phone && (
+                      {chairman.phone && (
                         <a
-                          href={`tel:${owner.phone.replace(/[^0-9+]/g, '')}`}
+                          href={`tel:${chairman.phone.replace(/[^0-9+]/g, '')}`}
                           className="text-neutral-400 hover:text-white flex items-center gap-1 transition-colors"
                         >
-                          <Phone className="w-3.5 h-3.5 text-amber-400" />
-                          <span>{owner.phone}</span>
+                          <Phone className="w-3.5 h-3.5 text-[#EAB308]" />
+                          <span>{chairman.phone}</span>
                         </a>
                       )}
                     </div>
                     <button
-                      onClick={() => setSelectedTeamMember(owner)}
-                      className="px-4 py-2 text-xs font-semibold text-white bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 rounded-xl flex items-center gap-1.5 transition-colors"
+                      onClick={() => setSelectedTeamMember(chairman)}
+                      className="px-4 py-2 text-xs font-semibold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] hover:brightness-110 rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-[#EAB308]/20 cursor-pointer"
                     >
                       <span>View Full Profile</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3.5 h-3.5 text-black" />
                     </button>
                   </div>
                 </div>
               ))}
 
-              {/* CEO Cards */}
+              {/* 2. CEO Profile Card (Second) */}
               {ceos.map((ceo) => (
                 <div
                   key={ceo.id}
@@ -307,8 +308,8 @@ export const TeamPage: React.FC = () => {
                       </div>
                       <div className="flex-1 min-w-0 space-y-1">
                         <span className="inline-block px-2.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                          {member.roleType === 'owner'
-                            ? 'Studio Owner'
+                          {member.roleType === 'chairman' || member.roleType === 'owner'
+                            ? 'Chairman'
                             : member.roleType === 'ceo'
                             ? 'CEO'
                             : 'Filmmaker'}

@@ -7,7 +7,7 @@ export const FloatingWhatsApp: React.FC = () => {
   // Don't show in admin dashboard
   if (currentRoute === 'admin-dashboard') return null;
 
-  const rawPhone = settings?.whatsapp || '+92 300 8492026';
+  const rawPhone = settings?.whatsapp || '+92 3143989052';
   const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
   const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(
     'Hello Shifa Productions, I would like to inquire about your video production & cinematography services.'
@@ -20,8 +20,8 @@ export const FloatingWhatsApp: React.FC = () => {
         target="_blank"
         rel="noopener noreferrer"
         className="group relative w-12 h-12 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white flex items-center justify-center shadow-2xl shadow-[#25D366]/40 hover:shadow-[#25D366]/60 transition-all duration-300 active:scale-95 hover:scale-110 border-2 border-white/20"
-        title="WhatsApp Chat (+92 300 8492026)"
-        aria-label="WhatsApp"
+        title={`Chat on WhatsApp (${rawPhone})`}
+        aria-label={`Chat on WhatsApp (${rawPhone})`}
       >
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-40"></span>
         <svg className="w-6 h-6 fill-current relative transition-transform group-hover:scale-110" viewBox="0 0 24 24">

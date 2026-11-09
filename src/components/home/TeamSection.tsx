@@ -49,7 +49,7 @@ export const TeamSection: React.FC = () => {
         {/* Team Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredTeam.map((member) => {
-            const isOwner = member.roleType === 'owner';
+            const isChairman = member.roleType === 'chairman' || member.roleType === 'owner';
             const isCeo = member.roleType === 'ceo';
 
             return (
@@ -57,10 +57,10 @@ export const TeamSection: React.FC = () => {
                 key={member.id}
                 onClick={() => setSelectedTeamMember(member)}
                 className={`p-5 rounded-3xl bg-[#0c0c0c] border transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl flex flex-col justify-between space-y-4 cursor-pointer group relative overflow-hidden ${
-                  isOwner
-                    ? 'border-amber-500/50 hover:border-amber-400 shadow-amber-500/10'
+                  isChairman
+                    ? 'border-2 border-[#EAB308]/60 hover:border-[#FBBF24] shadow-lg shadow-[#EAB308]/10'
                     : isCeo
-                    ? 'border-yellow-600/50 hover:border-yellow-400 shadow-yellow-500/10'
+                    ? 'border-amber-500/50 hover:border-amber-400 shadow-amber-500/10'
                     : 'border-neutral-800 hover:border-[#EAB308]/50'
                 }`}
               >
@@ -81,15 +81,15 @@ export const TeamSection: React.FC = () => {
                     <div className="absolute top-3 left-3">
                       <span
                         className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md flex items-center gap-1 border shadow-sm ${
-                          isOwner
-                            ? 'bg-amber-950/80 text-amber-300 border-amber-600'
+                          isChairman
+                            ? 'bg-[#EAB308]/20 text-[#FBBF24] border-[#EAB308]/60'
                             : isCeo
-                            ? 'bg-yellow-950/80 text-yellow-300 border-yellow-600'
+                            ? 'bg-amber-950/80 text-amber-300 border-amber-600'
                             : 'bg-black/80 text-[#EAB308] border-[#EAB308]/30'
                         }`}
                       >
-                        {isOwner ? <Crown className="w-3 h-3 text-amber-400" /> : isCeo ? <Briefcase className="w-3 h-3 text-yellow-400" /> : <Camera className="w-3 h-3 text-[#EAB308]" />}
-                        <span>{isOwner ? 'Studio Owner' : isCeo ? 'CEO' : 'Specialist'}</span>
+                        {isChairman ? <Crown className="w-3 h-3 text-[#EAB308]" /> : isCeo ? <Briefcase className="w-3 h-3 text-amber-400" /> : <Camera className="w-3 h-3 text-[#EAB308]" />}
+                        <span>{isChairman ? 'Chairman • چیئرمین' : isCeo ? 'CEO • سی ای او' : 'Filmmaker'}</span>
                       </span>
                     </div>
                   </div>
@@ -99,7 +99,7 @@ export const TeamSection: React.FC = () => {
                     <h3 className="text-lg font-bold text-white font-brand group-hover:text-[#EAB308] transition-colors truncate">
                       {member.name}
                     </h3>
-                    <p className={`text-xs truncate font-medium ${isOwner ? 'text-amber-400' : isCeo ? 'text-yellow-400' : 'text-neutral-400'}`}>
+                    <p className={`text-xs truncate font-medium ${isChairman ? 'text-[#FBBF24]' : isCeo ? 'text-amber-400' : 'text-neutral-400'}`}>
                       {member.title}
                     </p>
                     {member.urduTitle && (

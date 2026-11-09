@@ -136,8 +136,8 @@ export const ContactPage: React.FC = () => {
     }
   };
 
-  const phone = settings?.phone || '+92 300 8492026';
-  const whatsapp = settings?.whatsapp || '+92 300 8492026';
+  const phone = settings?.phone || '+92 3143989052';
+  const whatsapp = settings?.whatsapp || '+92 3143989052';
   const cleanWa = whatsapp.replace(/[^0-9]/g, '');
 
   return (
@@ -430,6 +430,21 @@ export const ContactPage: React.FC = () => {
                 </div>
 
                 <div className="flex items-start gap-3">
+                  <MessageSquare className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-neutral-400">Official WhatsApp</div>
+                    <a
+                      href={`https://wa.me/${cleanWa}?text=Hi%20Shifa%20Productions,%20I%20would%20like%20to%20inquire%20about%20a%20production.`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm font-semibold text-emerald-300 hover:underline transition-colors"
+                    >
+                      {whatsapp}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
                   <Mail className="w-4 h-4 text-[#EAB308] shrink-0 mt-0.5" />
                   <div>
                     <div className="text-neutral-400">Official Production Email</div>
@@ -456,10 +471,10 @@ export const ContactPage: React.FC = () => {
                   href={`https://wa.me/${cleanWa}?text=Hi%20Shifa%20Productions,%20I%20would%20like%20to%20inquire%20about%20a%20production.`}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full py-3 px-4 rounded-xl bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 hover:bg-emerald-900 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+                  className="w-full py-3 px-4 rounded-xl bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 hover:bg-emerald-900 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  <span>Optional WhatsApp Chat</span>
+                  <span>Chat on WhatsApp ({whatsapp})</span>
                 </a>
                 <p className="text-[11px] text-neutral-500 text-center mt-2">
                   No app download forced. Feel free to use the web form above.

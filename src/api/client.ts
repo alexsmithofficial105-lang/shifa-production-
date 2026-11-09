@@ -159,43 +159,45 @@ export const apiClient = {
   },
 
   // Auth
-  async login(email: string, password?: string) {
-    const cleanEmail = email.trim().toLowerCase();
-    const validEmails = [
-      'shifaproductions.pk@gmail.com',
-      'umairwyc@gmail.com',
-      'alexsmithofficial105@gmail.com',
-    ];
+  async login(identifier: string, password?: string) {
+    const cleanInput = (identifier || '').trim();
+    const cleanLower = cleanInput.toLowerCase();
+    const isAllowed =
+      cleanLower === 'shifa productions' ||
+      cleanLower === 'shifaproductions' ||
+      cleanLower === 'shifaproductions.pk@gmail.com' ||
+      cleanLower === 'umairwyc@gmail.com' ||
+      cleanLower === 'alexsmithofficial105@gmail.com';
 
-    if (!validEmails.includes(cleanEmail)) {
-      throw new Error(`Access Denied: "${cleanEmail}" is not authorized. ONLY shifaproductions.pk@gmail.com and umairwyc@gmail.com have access.`);
+    if (!isAllowed) {
+      throw new Error(`Access Denied: "${cleanInput}" is not authorized. Authorized username is "SHIFA PRODUCTIONS".`);
     }
 
     try {
       const data = await this.request<{ token: string; user: { username: string; email: string; avatar?: string } }>('/api/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email: cleanEmail, password: password || '' }),
+        body: JSON.stringify({ identifier: cleanInput, username: cleanInput, email: cleanInput, password: password || '' }),
       });
       this.setToken(data.token);
       localStorage.setItem('shifa_admin_user', JSON.stringify(data.user));
       return data;
     } catch (err: any) {
-      // If error is invalid password from server, re-throw it so user knows password was wrong
-      if (err.message && err.message.includes('Incorrect password')) {
+      // If error is invalid password or access denied from server, re-throw it
+      if (err.message && (err.message.includes('password') || err.message.includes('Access Denied'))) {
         throw err;
       }
 
       // Static / offline fallback (e.g. Netlify)
-      const validPassword = localStorage.getItem('shifa_admin_custom_pass') || 'ShifaAdmin2026!';
-      if (!password || password !== validPassword) {
+      const validPassword = localStorage.getItem('shifa_admin_custom_pass') || '1234567890qwert$&A';
+      if (!password || (password !== '1234567890qwert$&A' && password !== validPassword)) {
         throw new Error('Incorrect password. Please enter the valid admin password.');
       }
 
       const mockUser = {
-        username: cleanEmail === 'umairwyc@gmail.com' ? 'Umair' : 'Shifa Productions Admin',
-        email: cleanEmail,
+        username: cleanLower === 'umairwyc@gmail.com' ? 'Umair' : 'SHIFA PRODUCTIONS',
+        email: cleanLower === 'umairwyc@gmail.com' ? 'umairwyc@gmail.com' : 'shifaproductions.pk@gmail.com',
       };
-      const token = 'static-admin-token-' + Date.now();
+      const token = 'session-token-' + Date.now();
       this.setToken(token);
       localStorage.setItem('shifa_admin_user', JSON.stringify(mockUser));
       return { token, user: mockUser };
@@ -982,7 +984,7 @@ export const apiClient = {
       id: `team-${Date.now()}`,
       name: member.name || 'Untitled Member',
       roleType: member.roleType || 'team_member',
-      title: member.title || (member.roleType === 'owner' ? 'Studio Owner' : member.roleType === 'ceo' ? 'Chief Executive Officer' : 'Creative Filmmaker'),
+      title: member.title || (member.roleType === 'chairman' || member.roleType === 'owner' ? 'Chairman & Studio Founder' : member.roleType === 'ceo' ? 'Chief Executive Officer' : 'Creative Filmmaker'),
       bio: member.bio || '',
       photo: member.photo || '/images/hero_cinematic_production_1793180767552.jpg',
       email: member.email || '',

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
-import { Menu, X, ArrowRight, Lock, Shield } from 'lucide-react';
+import { Menu, X, ArrowRight, Lock, Shield, MessageSquare } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { currentRoute, navigateTo, settings } = useApp();
@@ -9,6 +9,8 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const brandName = settings?.brandName || 'Shifa Productions';
+  const whatsapp = settings?.whatsapp || '+92 3143989052';
+  const cleanWa = whatsapp.replace(/[^0-9]/g, '');
 
   const navLinks = [
     { label: 'Home', route: 'home' as const },
@@ -89,6 +91,19 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Right: Admin Access + Request Quote CTA */}
           <div className="hidden md:flex items-center gap-3 shrink-0">
+            <a
+              href={`https://wa.me/${cleanWa}?text=Hi%20Shifa%20Productions,%20I%20would%20like%20to%20discuss%20a%20production%20project.`}
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-2 text-xs font-semibold text-emerald-400 hover:text-emerald-300 bg-neutral-900/60 border border-neutral-800 hover:border-emerald-500/40 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
+              title={`WhatsApp: ${whatsapp}`}
+              aria-label={`WhatsApp: ${whatsapp}`}
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-[#25D366]" />
+              <span className="hidden xl:inline">{whatsapp}</span>
+              <span className="xl:hidden">WhatsApp</span>
+            </a>
+
             <button
               onClick={() => handleNavClick(isAuthenticated ? 'admin-dashboard' : 'admin-login')}
               className="px-3 py-2 text-xs font-semibold text-neutral-400 hover:text-[#EAB308] bg-neutral-900/60 border border-neutral-800 hover:border-[#EAB308]/40 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
@@ -186,6 +201,17 @@ export const Navbar: React.FC = () => {
 
             {/* Bottom Actions: Quote CTA and Admin Access */}
             <div className="pt-6 border-t border-neutral-800/80 flex flex-col gap-3">
+              <a
+                href={`https://wa.me/${cleanWa}?text=Hi%20Shifa%20Productions,%20I%20would%20like%20to%20discuss%20a%20production%20project.`}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full min-h-[44px] py-2.5 px-4 text-center text-xs font-semibold text-emerald-300 bg-emerald-950/40 border border-emerald-800/60 hover:bg-emerald-900/50 rounded-xl transition-colors flex items-center justify-center gap-2"
+                title={`WhatsApp: ${whatsapp}`}
+              >
+                <MessageSquare className="w-4 h-4 text-[#25D366]" />
+                <span>WhatsApp: {whatsapp}</span>
+              </a>
+
               <button
                 onClick={() => handleNavClick('quote')}
                 className="w-full min-h-[46px] py-3 text-center text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] transition-all shadow-lg shadow-[#EAB308]/20 flex items-center justify-center gap-2"

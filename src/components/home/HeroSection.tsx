@@ -12,7 +12,7 @@ export const HeroSection: React.FC = () => {
     'Creative storytelling. Professional production. Powerful visual experiences tailored for Pakistan’s leading brands, regal weddings, and ambitious visionaries.';
   const bgImage = getCleanImageUrl(settings?.hero.bgImage || '/images/hero_cinematic_production_1793180767552.jpg');
 
-  const whatsapp = settings?.whatsapp || '+92 300 8492026';
+  const whatsapp = settings?.whatsapp || '+92 3143989052';
   const cleanWaNumber = whatsapp.replace(/[^0-9]/g, '');
   const waUrl = `https://wa.me/${cleanWaNumber}?text=${encodeURIComponent(
     'Hello Shifa Productions, I would like to inquire about your video production & cinematography services.'
@@ -60,8 +60,8 @@ export const HeroSection: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-xl bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-white flex items-center justify-center shadow-lg shadow-[#25D366]/30 hover:scale-105 transition-all shrink-0 group border border-white/20"
-              title="Chat on WhatsApp (+92 300 8492026)"
-              aria-label="WhatsApp"
+              title={`Chat on WhatsApp (${whatsapp})`}
+              aria-label={`Chat on WhatsApp (${whatsapp})`}
             >
               <svg className="w-6 h-6 fill-current transition-transform group-hover:scale-110" viewBox="0 0 24 24">
                 <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.085-2.02-.486-1.554-.64-2.531-2.227-2.607-2.329-.077-.102-.622-.828-.622-1.579 0-.751.393-1.121.533-1.274.14-.153.307-.192.41-.192.103 0 .205.002.296.006.096.005.224-.036.35.267.129.31.439 1.07.477 1.147.039.077.065.166.013.268-.052.102-.078.166-.154.256-.076.09-.16.2-.23.268-.078.077-.16.16-.068.318.092.158.408.673.876 1.09.602.537 1.109.703 1.267.781.158.078.251.069.345-.04.094-.108.405-.472.513-.633.108-.162.217-.135.365-.081.149.054.945.446 1.107.527.162.081.27.122.31.19.04.068.04.394-.104.799z"/>

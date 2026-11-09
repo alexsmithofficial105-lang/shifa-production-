@@ -123,7 +123,7 @@ export interface SiteSettings {
   };
 }
 
-export type TeamRoleType = 'owner' | 'ceo' | 'team_member';
+export type TeamRoleType = 'chairman' | 'owner' | 'ceo' | 'team_member';
 
 export interface TeamMember {
   id: string;

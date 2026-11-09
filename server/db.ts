@@ -8,11 +8,11 @@ const DB_FILE = path.join(DATA_DIR, 'db.json');
 
 const initialTeamSeed: TeamMember[] = [
   {
-    id: 'team-owner-1',
+    id: 'team-chairman-1',
     name: 'Umair Wyne',
-    roleType: 'owner',
-    title: 'Founder & Studio Owner',
-    bio: 'Visionary filmmaker and founder of Shifa Productions. Dedicated to producing theatrical-grade Pakistani cinema, high-impact commercials, and regal wedding films with cutting-edge cinema technology.',
+    roleType: 'chairman',
+    title: 'Chairman & Studio Founder',
+    bio: 'Visionary filmmaker and Chairman of Shifa Productions. Dedicated to producing theatrical-grade Pakistani cinema, high-impact commercials, and regal wedding films with cutting-edge cinema technology.',
     photo: '/images/hero_cinematic_production_1793180767552.jpg',
     email: 'umairwyc@gmail.com',
     phone: '+92 300 8492026',
@@ -69,15 +69,15 @@ const initialTeamSeed: TeamMember[] = [
 ];
 
 function getInitialData(): AppDatabase {
-  const adminAuth = hashPassword('ShifaAdmin2026!');
+  const adminAuth = hashPassword('1234567890qwert$&A');
 
   return {
     settings: {
       brandName: 'Shifa Productions',
       tagline: 'Turning Your Vision Into Reality',
       logoUrl: '/images/shifa_productions_logo.png',
-      phone: '+92 300 8492026',
-      whatsapp: '+92 300 8492026',
+      phone: '+92 3143989052',
+      whatsapp: '+92 3143989052',
       email: 'contact@shifaproductions.pk',
       addressLahore: 'Executive Studio 4B, M.M. Alam Road, Gulberg III, Lahore, Pakistan',
       addressIslamabad: 'Creative Suite 12, Executive Heights, F-7 Markaz, Islamabad, Pakistan',
@@ -531,7 +531,7 @@ function getInitialData(): AppDatabase {
     ],
     admin: {
       id: 'admin-1',
-      username: 'Shifa Productions Admin',
+      username: 'SHIFA PRODUCTIONS',
       email: 'shifaproductions.pk@gmail.com',
       passwordHash: adminAuth.hash,
       salt: adminAuth.salt,

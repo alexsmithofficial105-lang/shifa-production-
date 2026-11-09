@@ -4,8 +4,8 @@ export const initialSettings: SiteSettings = {
   brandName: 'Shifa Productions',
   tagline: 'Turning Your Vision Into Reality',
   logoUrl: '/images/shifa_productions_logo.png',
-  phone: '+92 300 8492026',
-  whatsapp: '+92 300 8492026',
+  phone: '+92 3143989052',
+  whatsapp: '+92 3143989052',
   email: 'contact@shifaproductions.pk',
   socials: {
     instagram: 'https://instagram.com/shifaproductions',
@@ -466,12 +466,12 @@ export const initialInquiries = [
 
 export const initialTeam: TeamMember[] = [
   {
-    id: 'team-owner-1',
+    id: 'team-chairman-1',
     name: 'Umair Wyne',
-    roleType: 'owner',
-    title: 'Founder & Studio Owner',
-    urduTitle: 'سٹوڈیو بانی اور چیف ڈائریکٹر',
-    bio: 'Visionary filmmaker and founder of Shifa Productions. Dedicated to producing theatrical-grade Pakistani cinema, high-impact commercials, and regal wedding films with cutting-edge cinema technology.',
+    roleType: 'chairman',
+    title: 'Chairman & Studio Founder',
+    urduTitle: 'چیئرمین اور سٹوڈیو بانی',
+    bio: 'Visionary filmmaker and Chairman of Shifa Productions. Dedicated to producing theatrical-grade Pakistani cinema, high-impact commercials, and regal wedding films with cutting-edge cinema technology.',
     photo: '/images/hero_cinematic_production_1793180767552.jpg',
     email: 'umairwyc@gmail.com',
     phone: '+92 300 8492026',

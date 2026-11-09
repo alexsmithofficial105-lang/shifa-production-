@@ -78,14 +78,6 @@ export function createSession(email: string, username?: string, avatar?: string)
 export function getSession(token?: string): { email: string; username?: string; avatar?: string } | null {
   if (!token) return null;
 
-  // Handle static tokens for authorized admins
-  if (token.startsWith('static-admin-token-') || token.startsWith('static-google-token-')) {
-    return {
-      email: 'shifaproductions.pk@gmail.com',
-      username: 'Shifa Productions Admin',
-    };
-  }
-
   let session = SESSIONS.get(token);
   if (!session) {
     // Re-check disk persistence in case another request or reload wrote it
