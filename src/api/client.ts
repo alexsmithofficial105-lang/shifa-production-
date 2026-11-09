@@ -165,9 +165,7 @@ export const apiClient = {
     const isAllowed =
       cleanLower === 'shifa productions' ||
       cleanLower === 'shifaproductions' ||
-      cleanLower === 'shifaproductions.pk@gmail.com' ||
-      cleanLower === 'umairwyc@gmail.com' ||
-      cleanLower === 'alexsmithofficial105@gmail.com';
+      cleanLower === 'shifaproductions.pk@gmail.com';
 
     if (!isAllowed) {
       throw new Error(`Access Denied: "${cleanInput}" is not authorized. Authorized username is "SHIFA PRODUCTIONS".`);
@@ -189,13 +187,13 @@ export const apiClient = {
 
       // Static / offline fallback (e.g. Netlify)
       const validPassword = localStorage.getItem('shifa_admin_custom_pass') || '1234567890qwert$&A';
-      if (!password || (password !== '1234567890qwert$&A' && password !== validPassword)) {
+      if (!password || password !== validPassword) {
         throw new Error('Incorrect password. Please enter the valid admin password.');
       }
 
       const mockUser = {
-        username: cleanLower === 'umairwyc@gmail.com' ? 'Umair' : 'SHIFA PRODUCTIONS',
-        email: cleanLower === 'umairwyc@gmail.com' ? 'umairwyc@gmail.com' : 'shifaproductions.pk@gmail.com',
+        username: 'SHIFA PRODUCTIONS',
+        email: 'shifaproductions.pk@gmail.com',
       };
       const token = 'session-token-' + Date.now();
       this.setToken(token);
@@ -267,24 +265,30 @@ export const apiClient = {
 
   async changePassword(currentPassword: string, newPassword: string) {
     try {
-      const res = await this.request<{ success: boolean; message: string }>('/api/auth/change-password', {
+      const res = await this.request<{ success: boolean; message: string; token?: string; user?: { username: string; email: string } }>('/api/auth/change-password', {
         method: 'POST',
         body: JSON.stringify({ currentPassword, newPassword }),
       });
+      if (res.token) {
+        this.setToken(res.token);
+      }
+      if (res.user) {
+        localStorage.setItem('shifa_admin_user', JSON.stringify(res.user));
+      }
       localStorage.setItem('shifa_admin_custom_pass', newPassword);
       return res;
     } catch (err: any) {
       // Re-throw validation/auth errors
-      if (err.message && (err.message.includes('Current password') || err.message.includes('at least 6') || err.message.includes('Unauthorized'))) {
+      if (err.message && (err.message.includes('Current password') || err.message.includes('پاسورڈ') || err.message.includes('least 6') || err.message.includes('Unauthorized'))) {
         throw err;
       }
       // Offline fallback only when network fails
-      const storedPass = localStorage.getItem('shifa_admin_custom_pass') || 'ShifaAdmin2026!';
-      if (currentPassword !== storedPass && currentPassword !== 'ShifaAdmin2026!') {
-        throw new Error('Current password does not match. Please verify your password.');
+      const storedPass = localStorage.getItem('shifa_admin_custom_pass') || '1234567890qwert$&A';
+      if (currentPassword !== storedPass) {
+        throw new Error('Current password does not match (موجودہ پاسورڈ درست نہیں ہے). Please verify your password.');
       }
       localStorage.setItem('shifa_admin_custom_pass', newPassword);
-      return { success: true, message: 'Admin password updated successfully.' };
+      return { success: true, message: 'Admin password updated successfully! (پاسورڈ کامیابی سے تبدیل ہو گیا ہے)' };
     }
   },
 

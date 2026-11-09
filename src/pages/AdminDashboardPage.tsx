@@ -764,16 +764,23 @@ export const AdminDashboardPage: React.FC = () => {
     try {
       setChangingPassword(true);
       const res = await apiClient.changePassword(curr, next);
+      const successMsg = res.message || 'Admin password changed successfully! (ایڈمن پاسورڈ کامیابی سے تبدیل ہو گیا ہے)';
       setPasswordStatusMsg({
         type: 'success',
-        text: res.message || 'Password changed successfully! You can now use your new password across all devices.',
+        text: successMsg,
       });
-      showToast('Admin password changed successfully!', 'success');
+      showToast('Admin password changed successfully! (پاسورڈ تبدیل ہو گیا)', 'success');
       setCurrentPasswordInput('');
       setNewPasswordInput('');
       setConfirmPasswordInput('');
+      setTimeout(() => {
+        if (passwordModalOpen) {
+          setPasswordModalOpen(false);
+          setPasswordStatusMsg(null);
+        }
+      }, 2500);
     } catch (err: any) {
-      const msg = err.message || 'Failed to update password. Please check your current password.';
+      const msg = err.message || 'Failed to update password. Please check your current password (موجودہ پاسورڈ درست نہیں ہے).';
       setPasswordStatusMsg({ type: 'error', text: msg });
       showToast(msg, 'error');
     } finally {
@@ -3303,71 +3310,43 @@ export const AdminDashboardPage: React.FC = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-neutral-900 border border-[#EAB308]/40 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FBBF24] via-[#EAB308] to-[#CA8A04] text-black font-bold flex items-center justify-center text-sm shrink-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-5 rounded-xl bg-gradient-to-br from-[#141208] via-neutral-900 to-[#0c0c0c] border border-[#EAB308]/60 flex items-center justify-between shadow-lg shadow-[#EAB308]/5">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#FBBF24] via-[#EAB308] to-[#CA8A04] text-black font-extrabold flex items-center justify-center text-sm shrink-0 shadow-md">
                       SP
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-white flex items-center gap-2">
+                      <div className="text-sm font-bold text-white flex items-center gap-2">
                         <span>SHIFA PRODUCTIONS</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800">
-                          Primary Admin
+                        <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#EAB308]/20 text-[#FBBF24] border border-[#EAB308]/40 font-semibold">
+                          Sole Master Admin
                         </span>
                       </div>
-                      <div className="text-xs text-neutral-400 font-mono">
+                      <div className="text-xs text-neutral-400 font-mono mt-0.5">
                         shifaproductions.pk@gmail.com
                       </div>
                     </div>
                   </div>
-                  <span className="text-xs text-emerald-400 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Authorized
+                  <span className="text-xs text-emerald-400 font-medium flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-950/40 border border-emerald-800/60">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Authorized
                   </span>
                 </div>
 
-                <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-700 flex items-center justify-between">
+                <div className="p-5 rounded-xl bg-neutral-900/60 border border-neutral-800 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-emerald-700 text-white font-bold flex items-center justify-center text-sm shrink-0">
-                      U
+                    <div className="w-10 h-10 rounded-xl bg-[#EAB308]/10 border border-[#EAB308]/30 flex items-center justify-center text-[#EAB308] shrink-0">
+                      <Shield className="w-5 h-5 text-[#EAB308]" />
                     </div>
-                    <div>
-                      <div className="text-sm font-semibold text-white flex items-center gap-2">
-                        <span>Umair</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
-                          Admin
-                        </span>
+                    <div className="space-y-0.5">
+                      <div className="text-xs font-semibold text-white">
+                        Access Control Enforcement
                       </div>
-                      <div className="text-xs text-neutral-400 font-mono">
-                        umairwyc@gmail.com
-                      </div>
+                      <p className="text-[11px] text-neutral-400">
+                        Admin access is strictly restricted to <span className="text-[#EAB308] font-semibold font-mono">SHIFA PRODUCTIONS</span> credentials.
+                      </p>
                     </div>
                   </div>
-                  <span className="text-xs text-emerald-400 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Authorized
-                  </span>
-                </div>
-
-                <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-700 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-sky-700 text-white font-bold flex items-center justify-center text-sm shrink-0">
-                      A
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-white flex items-center gap-2">
-                        <span>Alex Smith</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-950 text-sky-300 border border-sky-800">
-                          Admin
-                        </span>
-                      </div>
-                      <div className="text-xs text-neutral-400 font-mono">
-                        alexsmithofficial105@gmail.com
-                      </div>
-                    </div>
-                  </div>
-                  <span className="text-xs text-emerald-400 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Authorized
-                  </span>
                 </div>
               </div>
 

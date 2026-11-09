@@ -46,9 +46,6 @@ export const AdminLoginPage: React.FC = () => {
       'shifa productions',
       'shifaproductions',
       'shifaproductions.pk@gmail.com',
-      'umairwyc@gmail.com',
-      'alexsmithofficial105@gmail.com',
-      'ahmednaeem6b@gmail.com',
     ];
     if (!strictlyAllowed.includes(cleanLower)) {
       setError(`Access Denied: "${cleanInput}" is not recognized. Required username: "SHIFA PRODUCTIONS".`);

@@ -756,8 +756,8 @@
     "id": "admin-1",
     "username": "SHIFA PRODUCTIONS",
     "email": "shifaproductions.pk@gmail.com",
-    "passwordHash": "c1433efd2342f532e3a7ed542b1631d23147541cce8c0d68aa73980d75425d6b9d62bc0a2ad61d8d1b6de2bf0f881f1489ed75e1dca5ee275c3bab3a4664076c",
-    "salt": "b9e13fea48236dc40b73f50515cf8597",
+    "passwordHash": "9324352c19ff74b166d02b317e2305cb8c2ee591b91ba5904b8218715bddcb1b482c1239ffaecfff22f070c238b4e0558db6b285bc50057bafe43130ac543643",
+    "salt": "b52245074dddec98fe1a84ba694a9aea",
     "createdAt": "2026-11-08T00:40:00.000Z"
   },
   "team": [

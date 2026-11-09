@@ -11,8 +11,6 @@ const router = express.Router();
 // Strict allowlist of authorized administrator email addresses
 const STRICT_ADMIN_EMAILS = [
   'shifaproductions.pk@gmail.com',
-  'umairwyc@gmail.com',
-  'alexsmithofficial105@gmail.com',
 ];
 
 // Anti-caching middleware on all API endpoints so mobile browsers & other devices always get live data
@@ -90,9 +88,7 @@ router.post('/auth/login', (req: Request, res: Response): void => {
   const isAllowedUser =
     cleanId === 'shifa productions' ||
     cleanId === 'shifaproductions' ||
-    cleanId === 'shifaproductions.pk@gmail.com' ||
-    cleanId === 'umairwyc@gmail.com' ||
-    cleanId === 'alexsmithofficial105@gmail.com';
+    cleanId === 'shifaproductions.pk@gmail.com';
 
   if (!isAllowedUser) {
     res.status(403).json({
@@ -109,18 +105,20 @@ router.post('/auth/login', (req: Request, res: Response): void => {
   const db = getDb();
   const admin = db.admin;
 
-  // Strict password check for 1234567890qwert$&A or stored PBKDF2 hash
-  const isValidPass =
-    password === '1234567890qwert$&A' ||
-    (admin.passwordHash && admin.salt && verifyPassword(password, admin.passwordHash, admin.salt));
+  let isValidPass = false;
+  if (admin.passwordHash && admin.salt) {
+    isValidPass = verifyPassword(password, admin.passwordHash, admin.salt);
+  } else {
+    isValidPass = password === '1234567890qwert$&A';
+  }
 
   if (!isValidPass) {
     res.status(401).json({ error: 'Incorrect password. Please enter the valid admin password.' });
     return;
   }
 
-  const adminDisplayName = cleanId === 'umairwyc@gmail.com' ? 'Umair' : 'SHIFA PRODUCTIONS';
-  const adminEmail = cleanId === 'umairwyc@gmail.com' ? 'umairwyc@gmail.com' : 'shifaproductions.pk@gmail.com';
+  const adminDisplayName = 'SHIFA PRODUCTIONS';
+  const adminEmail = 'shifaproductions.pk@gmail.com';
 
   const token = createSession(adminEmail, adminDisplayName);
   res.json({
@@ -171,20 +169,32 @@ router.get('/auth/me', (req: Request, res: Response): void => {
   });
 });
 
-router.post('/auth/change-password', requireAdmin, (req: Request, res: Response): void => {
-  const { currentPassword, newPassword } = req.body;
-  if (!currentPassword || !newPassword || newPassword.length < 6) {
-    res.status(400).json({ error: 'New password must be at least 6 characters long' });
+router.post('/auth/change-password', (req: Request, res: Response): void => {
+  const currentPassword = typeof req.body.currentPassword === 'string' ? req.body.currentPassword.trim() : '';
+  const newPassword = typeof req.body.newPassword === 'string' ? req.body.newPassword.trim() : '';
+
+  if (!currentPassword) {
+    res.status(400).json({ error: 'Current password is required (موجودہ پاسورڈ درج کریں).' });
+    return;
+  }
+
+  if (!newPassword || newPassword.length < 6) {
+    res.status(400).json({ error: 'New password must be at least 6 characters long (نیا پاسورڈ کم از کم 6 حروف پر مشتمل ہونا چاہیے).' });
     return;
   }
 
   const db = getDb();
-  const isValidCurrent =
-    currentPassword === '1234567890qwert$&A' ||
-    (db.admin.passwordHash && db.admin.salt && verifyPassword(currentPassword, db.admin.passwordHash, db.admin.salt));
+  const admin = db.admin || { passwordHash: '', salt: '' };
+
+  let isValidCurrent = false;
+  if (admin.passwordHash && admin.salt) {
+    isValidCurrent = verifyPassword(currentPassword, admin.passwordHash, admin.salt);
+  } else {
+    isValidCurrent = currentPassword === '1234567890qwert$&A';
+  }
 
   if (!isValidCurrent) {
-    res.status(400).json({ error: 'Current password does not match. Please verify your current password.' });
+    res.status(400).json({ error: 'Current password does not match (موجودہ پاسورڈ غلط ہے). Please verify your current password.' });
     return;
   }
 
@@ -193,7 +203,19 @@ router.post('/auth/change-password', requireAdmin, (req: Request, res: Response)
   db.admin.salt = salt;
   saveDb(db);
 
-  res.json({ success: true, message: 'Admin password updated successfully' });
+  const adminDisplayName = 'SHIFA PRODUCTIONS';
+  const adminEmail = 'shifaproductions.pk@gmail.com';
+  const token = createSession(adminEmail, adminDisplayName);
+
+  res.json({
+    success: true,
+    message: 'Admin password updated successfully! (پاسورڈ کامیابی سے تبدیل ہو گیا ہے)',
+    token,
+    user: {
+      username: adminDisplayName,
+      email: adminEmail,
+    },
+  });
 });
 
 // ----------------- STATS & ANALYTICS ROUTES -----------------
