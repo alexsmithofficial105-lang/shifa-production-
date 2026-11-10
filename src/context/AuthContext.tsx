@@ -30,10 +30,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isFirebaseActive() && getFirebaseAuth()) {
       const unsub = subscribeToFirebaseAuth((fbUser) => {
         if (fbUser) {
+          const email = fbUser.email?.trim().toLowerCase();
+          if (email !== 'shifaproductions.pk@gmail.com') {
+            console.warn(`Unauthorized Google account attempted login: ${email}`);
+            logoutFirebaseAuth().catch(() => {});
+            setIsAuthenticated(false);
+            setUser(null);
+            setLoading(false);
+            return;
+          }
           setIsAuthenticated(true);
           setUser({
-            username: fbUser.displayName || fbUser.email?.split('@')[0] || 'Admin',
-            email: fbUser.email || '',
+            username: fbUser.displayName || 'SHIFA PRODUCTIONS',
+            email: 'shifaproductions.pk@gmail.com',
+            avatar: fbUser.photoURL || undefined,
           });
           setLoading(false);
         } else {
@@ -58,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       const data = await apiClient.checkAuth();
-      if (data.authenticated && data.user) {
+      if (data.authenticated && data.user && data.user.email?.toLowerCase() === 'shifaproductions.pk@gmail.com') {
         setIsAuthenticated(true);
         setUser(data.user);
       } else {
@@ -77,34 +87,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (identifier: string, pass?: string) => {
-    // 1. Try Firebase Authentication first if Firebase is active and identifier contains @
-    if (isFirebaseActive() && getFirebaseAuth() && pass && identifier.includes('@')) {
-      try {
-        const fbUser = await loginWithFirebaseAuth(identifier, pass);
-        setIsAuthenticated(true);
-        setUser({
-          username: fbUser.displayName || 'SHIFA PRODUCTIONS',
-          email: fbUser.email || identifier,
-        });
-        try {
-          await apiClient.login(identifier, pass);
-        } catch {
-          // Firebase auth is sufficient
-        }
-        return;
-      } catch (err: any) {
-        console.warn('Firebase Auth note:', err?.message || err);
-      }
-    }
-
-    // 2. Direct API Client Authentication (accepts username "SHIFA PRODUCTIONS" or authorized email)
-    const res = await apiClient.login(identifier, pass);
-    setIsAuthenticated(true);
-    setUser(res.user);
+  const login = async (_identifier: string, _pass?: string) => {
+    throw new Error('Access Denied: Username and password login is completely locked. Please sign in using "Continue with Google" with shifaproductions.pk@gmail.com.');
   };
 
   const loginWithGoogle = async (data: { email?: string; name?: string; credential?: string; avatar?: string }) => {
+    const cleanEmail = (data.email || '').trim().toLowerCase();
+    if (cleanEmail !== 'shifaproductions.pk@gmail.com') {
+      throw new Error(`Access Denied: The Google account "${cleanEmail}" is not authorized. ONLY shifaproductions.pk@gmail.com has access to the Admin Panel. (صرف shifaproductions.pk@gmail.com کو رسائی حاصل ہے)`);
+    }
     const res = await apiClient.loginWithGoogle(data);
     setIsAuthenticated(true);
     setUser(res.user);

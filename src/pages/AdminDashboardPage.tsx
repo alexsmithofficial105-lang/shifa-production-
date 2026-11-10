@@ -149,16 +149,7 @@ export const AdminDashboardPage: React.FC = () => {
   const [settingsForm, setSettingsForm] = useState<SiteSettings>(initialSettings);
   const [savingSettings, setSavingSettings] = useState(false);
 
-  // Change Admin Password State
-  const [currentPasswordInput, setCurrentPasswordInput] = useState('');
-  const [newPasswordInput, setNewPasswordInput] = useState('');
-  const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
-  const [showCurrentPass, setShowCurrentPass] = useState(false);
-  const [showNewPass, setShowNewPass] = useState(false);
-  const [showConfirmPass, setShowConfirmPass] = useState(false);
-  const [changingPassword, setChangingPassword] = useState(false);
-  const [passwordStatusMsg, setPasswordStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+
 
   // Analytics
   const [analytics, setAnalytics] = useState<StudioAnalyticsData | null>(null);
@@ -732,61 +723,7 @@ export const AdminDashboardPage: React.FC = () => {
     }
   };
 
-  // ----------------- Admin Password Change -----------------
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPasswordStatusMsg(null);
 
-    const curr = currentPasswordInput.trim();
-    const next = newPasswordInput.trim();
-    const conf = confirmPasswordInput.trim();
-
-    if (!curr) {
-      setPasswordStatusMsg({ type: 'error', text: 'Please enter your current administrator password.' });
-      return;
-    }
-
-    if (!next) {
-      setPasswordStatusMsg({ type: 'error', text: 'Please enter the new administrator password.' });
-      return;
-    }
-
-    if (next.length < 6) {
-      setPasswordStatusMsg({ type: 'error', text: 'New password must be at least 6 characters long.' });
-      return;
-    }
-
-    if (next !== conf) {
-      setPasswordStatusMsg({ type: 'error', text: 'New password and confirmation password do not match.' });
-      return;
-    }
-
-    try {
-      setChangingPassword(true);
-      const res = await apiClient.changePassword(curr, next);
-      const successMsg = res.message || 'Admin password changed successfully! (ایڈمن پاسورڈ کامیابی سے تبدیل ہو گیا ہے)';
-      setPasswordStatusMsg({
-        type: 'success',
-        text: successMsg,
-      });
-      showToast('Admin password changed successfully! (پاسورڈ تبدیل ہو گیا)', 'success');
-      setCurrentPasswordInput('');
-      setNewPasswordInput('');
-      setConfirmPasswordInput('');
-      setTimeout(() => {
-        if (passwordModalOpen) {
-          setPasswordModalOpen(false);
-          setPasswordStatusMsg(null);
-        }
-      }, 2500);
-    } catch (err: any) {
-      const msg = err.message || 'Failed to update password. Please check your current password (موجودہ پاسورڈ درست نہیں ہے).';
-      setPasswordStatusMsg({ type: 'error', text: msg });
-      showToast(msg, 'error');
-    } finally {
-      setChangingPassword(false);
-    }
-  };
 
   const navigationItems: Array<{ id: AdminSection; label: string; icon: React.ComponentType<{ className?: string }>; badge?: number }> = [
     { id: 'overview', label: 'Dashboard Overview', icon: LayoutDashboard },
@@ -893,16 +830,13 @@ export const AdminDashboardPage: React.FC = () => {
               <span>View Public Website</span>
             </button>
 
-            <button
-              onClick={() => {
-                setActiveSection('settings');
-                setPasswordModalOpen(true);
-              }}
-              className="w-full px-3.5 py-2 text-xs font-medium text-[#FBBF24] hover:text-white bg-[#EAB308]/10 border border-[#EAB308]/30 rounded-xl hover:bg-[#EAB308]/20 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <KeyRound className="w-3.5 h-3.5 text-[#EAB308]" />
-              <span>Change Password</span>
-            </button>
+            <div className="px-3.5 py-2.5 rounded-xl bg-[#EAB308]/10 border border-[#EAB308]/30 text-xs flex items-center gap-2.5 select-none">
+              <ShieldCheck className="w-4 h-4 text-[#EAB308] shrink-0" />
+              <div className="truncate text-left min-w-0">
+                <div className="text-[10px] text-[#EAB308] font-bold uppercase tracking-wider">Locked · Google Auth Only</div>
+                <div className="text-[11px] text-neutral-300 truncate font-mono">shifaproductions.pk@gmail.com</div>
+              </div>
+            </div>
 
             <button
               onClick={logout}
@@ -1016,17 +950,10 @@ export const AdminDashboardPage: React.FC = () => {
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>View Public Website</span>
               </button>
-              <button
-                onClick={() => {
-                  setActiveSection('settings');
-                  setMobileNavOpen(false);
-                  setPasswordModalOpen(true);
-                }}
-                className="w-full min-h-[42px] py-2 text-xs font-medium text-[#FBBF24] bg-[#EAB308]/10 border border-[#EAB308]/30 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <KeyRound className="w-3.5 h-3.5 text-[#EAB308]" />
-                <span>Change Password (پاسورڈ تبدیل کریں)</span>
-              </button>
+              <div className="w-full min-h-[42px] px-3.5 py-2 text-xs bg-[#EAB308]/10 border border-[#EAB308]/30 rounded-xl flex items-center justify-center gap-2 select-none">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#EAB308]" />
+                <span className="text-[11px] font-mono text-neutral-300">shifaproductions.pk@gmail.com</span>
+              </div>
 
               <button
                 onClick={logout}
@@ -3360,346 +3287,84 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             {/* Dedicated Change Password Card */}
-            <div id="admin-password-card" className="p-6 sm:p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800 shadow-xl space-y-6">
+            {/* Dedicated Admin Security & Lockdown Card */}
+            <div id="admin-security-card" className="p-6 sm:p-7 rounded-2xl bg-[#0c0c0c] border border-neutral-800 shadow-xl space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-[#EAB308]/15 border border-[#EAB308]/40 flex items-center justify-center text-[#EAB308] shrink-0">
-                    <KeyRound className="w-5 h-5" />
+                    <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-white font-brand flex items-center gap-2">
-                      <span>Change Admin Password</span>
-                      <span className="text-xs font-normal text-neutral-400">(پاسورڈ تبدیل کریں)</span>
+                      <span>Admin Panel Security Policy</span>
+                      <span className="text-xs font-normal text-neutral-400">(سیکیورٹی لاک ڈاؤن)</span>
                     </h3>
                     <p className="text-xs text-neutral-400 mt-0.5">
-                      Master security credentials for administrator username <span className="text-[#EAB308] font-semibold">SHIFA PRODUCTIONS</span>.
+                      Access to this portal is completely locked and restricted exclusively to <span className="text-[#EAB308] font-semibold font-mono">shifaproductions.pk@gmail.com</span>.
                     </p>
                   </div>
                 </div>
-                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-800 text-[11px] text-emerald-300">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>PBKDF2 SHA-512 Encrypted</span>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-800 text-[11px] text-emerald-300 w-fit">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Google OAuth Locked</span>
                 </div>
               </div>
 
-              {passwordStatusMsg && (
-                <div
-                  className={`p-3.5 rounded-xl border text-xs flex items-start gap-2.5 ${
-                    passwordStatusMsg.type === 'success'
-                      ? 'bg-emerald-950/50 border-emerald-800 text-emerald-200'
-                      : 'bg-rose-950/50 border-rose-800 text-rose-200'
-                  }`}
-                >
-                  {passwordStatusMsg.type === 'success' ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  ) : (
-                    <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                  )}
-                  <div className="flex-1">
-                    <div className="font-semibold">{passwordStatusMsg.text}</div>
+              {/* Security Rule Breakdown */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-1.5">
+                  <div className="text-[10px] uppercase tracking-wider font-semibold text-neutral-400">
+                    Authorized Master Account
                   </div>
-                </div>
-              )}
-
-              <form onSubmit={handleChangePassword} className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Current Password */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-neutral-300 flex items-center justify-between">
-                      <span>Current Password (موجودہ پاسورڈ)</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showCurrentPass ? 'text' : 'password'}
-                        required
-                        value={currentPasswordInput}
-                        onChange={(e) => setCurrentPasswordInput(e.target.value)}
-                        placeholder="Enter current password"
-                        className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowCurrentPass(!showCurrentPass)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
-                        title={showCurrentPass ? 'Hide password' : 'Show password'}
-                      >
-                        {showCurrentPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
+                  <div className="text-xs font-mono font-bold text-[#EAB308] truncate">
+                    shifaproductions.pk@gmail.com
                   </div>
-
-                  {/* New Password */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-neutral-300 flex items-center justify-between">
-                      <span>New Password (نیا پاسورڈ)</span>
-                      <span className="text-[10px] text-neutral-500">Min 6 characters</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showNewPass ? 'text' : 'password'}
-                        required
-                        minLength={6}
-                        value={newPasswordInput}
-                        onChange={(e) => setNewPasswordInput(e.target.value)}
-                        placeholder="Enter new password"
-                        className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPass(!showNewPass)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
-                        title={showNewPass ? 'Hide password' : 'Show password'}
-                      >
-                        {showNewPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Confirm New Password */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-neutral-300 flex items-center justify-between">
-                      <span>Confirm Password (تصدیق)</span>
-                      {confirmPasswordInput && (
-                        <span
-                          className={`text-[10px] ${
-                            newPasswordInput === confirmPasswordInput ? 'text-emerald-400' : 'text-rose-400'
-                          }`}
-                        >
-                          {newPasswordInput === confirmPasswordInput ? 'Matched' : 'Mismatch'}
-                        </span>
-                      )}
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showConfirmPass ? 'text' : 'password'}
-                        required
-                        minLength={6}
-                        value={confirmPasswordInput}
-                        onChange={(e) => setConfirmPasswordInput(e.target.value)}
-                        placeholder="Re-enter new password"
-                        className={`w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border text-sm text-white placeholder-neutral-500 focus:outline-none ${
-                          confirmPasswordInput && newPasswordInput !== confirmPasswordInput
-                            ? 'border-rose-700 focus:border-rose-500'
-                            : 'border-neutral-800 focus:border-[#EAB308]'
-                        }`}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPass(!showConfirmPass)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
-                        title={showConfirmPass ? 'Hide password' : 'Show password'}
-                      >
-                        {showConfirmPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-neutral-800/80">
                   <div className="text-[11px] text-neutral-400">
-                    This updates password security across all devices for administrator logins.
+                    Only this verified Google account can sign in.
                   </div>
-                  <button
-                    type="submit"
-                    disabled={changingPassword || !currentPasswordInput || !newPasswordInput}
-                    className="min-h-[44px] px-6 py-2.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shrink-0 shadow-lg shadow-[#EAB308]/20"
-                  >
-                    {changingPassword ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Updating Password...</span>
-                      </>
-                    ) : (
-                      <>
-                        <KeyRound className="w-4 h-4" />
-                        <span>Update Admin Password (پاسورڈ محفوظ کریں)</span>
-                      </>
-                    )}
-                  </button>
                 </div>
-              </form>
+
+                <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-1.5">
+                  <div className="text-[10px] uppercase tracking-wider font-semibold text-neutral-400">
+                    Login Method
+                  </div>
+                  <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Continue with Google Only</span>
+                  </div>
+                  <div className="text-[11px] text-neutral-400">
+                    All standard username and password logins are permanently locked.
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-1.5">
+                  <div className="text-[10px] uppercase tracking-wider font-semibold text-neutral-400">
+                    Access Protection
+                  </div>
+                  <div className="text-xs font-bold text-emerald-400">
+                    Zero Unauthorized Access
+                  </div>
+                  <div className="text-[11px] text-neutral-400">
+                    Other Google accounts are automatically rejected on attempt.
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-neutral-900/40 border border-neutral-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="text-neutral-400 text-[11px]">
+                  Current authenticated session is active and verified for studio administration.
+                </div>
+                <div className="flex items-center gap-2 text-neutral-300 font-mono text-[11px] shrink-0">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>Session Protected</span>
+                </div>
+              </div>
             </div>
           </div>
         )}
       </main>
 
-      {/* ================= MODAL: CHANGE ADMIN PASSWORD ================= */}
-      {passwordModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn"
-          onClick={() => {
-            setPasswordModalOpen(false);
-            setPasswordStatusMsg(null);
-          }}
-        >
-          <div
-            className="w-full max-w-lg bg-[#0c0c0c] border border-neutral-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#EAB308]/15 border border-[#EAB308]/40 flex items-center justify-center text-[#EAB308] shrink-0">
-                  <KeyRound className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white font-brand">
-                    Change Admin Password
-                  </h3>
-                  <p className="text-xs text-neutral-400">
-                    Administrator credentials for <span className="text-[#EAB308] font-semibold">SHIFA PRODUCTIONS</span>
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  setPasswordModalOpen(false);
-                  setPasswordStatusMsg(null);
-                }}
-                className="p-1 text-neutral-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
 
-            {passwordStatusMsg && (
-              <div
-                className={`p-3.5 rounded-xl border text-xs flex items-start gap-2.5 ${
-                  passwordStatusMsg.type === 'success'
-                    ? 'bg-emerald-950/50 border-emerald-800 text-emerald-200'
-                    : 'bg-rose-950/50 border-rose-800 text-rose-200'
-                }`}
-              >
-                {passwordStatusMsg.type === 'success' ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                ) : (
-                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                )}
-                <div className="flex-1 font-medium">{passwordStatusMsg.text}</div>
-              </div>
-            )}
-
-            <form onSubmit={handleChangePassword} className="space-y-4">
-              {/* Current Password */}
-              <div className="space-y-1.5">
-                <label className="text-xs text-neutral-300 font-medium">
-                  Current Password (موجودہ پاسورڈ)
-                </label>
-                <div className="relative">
-                  <input
-                    type={showCurrentPass ? 'text' : 'password'}
-                    required
-                    value={currentPasswordInput}
-                    onChange={(e) => setCurrentPasswordInput(e.target.value)}
-                    placeholder="Enter current password"
-                    className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowCurrentPass(!showCurrentPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
-                  >
-                    {showCurrentPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* New Password */}
-              <div className="space-y-1.5">
-                <label className="text-xs text-neutral-300 font-medium flex items-center justify-between">
-                  <span>New Password (نیا پاسورڈ)</span>
-                  <span className="text-[10px] text-neutral-500">Min 6 characters</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showNewPass ? 'text' : 'password'}
-                    required
-                    minLength={6}
-                    value={newPasswordInput}
-                    onChange={(e) => setNewPasswordInput(e.target.value)}
-                    placeholder="Enter new password"
-                    className="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPass(!showNewPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
-                  >
-                    {showNewPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Confirm New Password */}
-              <div className="space-y-1.5">
-                <label className="text-xs text-neutral-300 font-medium flex items-center justify-between">
-                  <span>Confirm New Password (تصدیق)</span>
-                  {confirmPasswordInput && (
-                    <span
-                      className={`text-[10px] ${
-                        newPasswordInput === confirmPasswordInput ? 'text-emerald-400' : 'text-rose-400'
-                      }`}
-                    >
-                      {newPasswordInput === confirmPasswordInput ? 'Matched' : 'Mismatch'}
-                    </span>
-                  )}
-                </label>
-                <div className="relative">
-                  <input
-                    type={showConfirmPass ? 'text' : 'password'}
-                    required
-                    minLength={6}
-                    value={confirmPasswordInput}
-                    onChange={(e) => setConfirmPasswordInput(e.target.value)}
-                    placeholder="Re-enter new password"
-                    className={`w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-neutral-900 border text-sm text-white placeholder-neutral-500 focus:outline-none ${
-                      confirmPasswordInput && newPasswordInput !== confirmPasswordInput
-                        ? 'border-rose-700 focus:border-rose-500'
-                        : 'border-neutral-800 focus:border-[#EAB308]'
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPass(!showConfirmPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
-                  >
-                    {showConfirmPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-3 border-t border-neutral-800">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPasswordModalOpen(false);
-                    setPasswordStatusMsg(null);
-                  }}
-                  className="min-h-[40px] px-4 py-2 text-xs text-neutral-400 hover:text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={changingPassword || !currentPasswordInput || !newPasswordInput}
-                  className="min-h-[40px] px-6 py-2 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:from-[#FDE68A] hover:to-[#EAB308] disabled:opacity-50 transition-all flex items-center gap-2 shadow-lg shadow-[#EAB308]/20"
-                >
-                  {changingPassword ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Updating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <KeyRound className="w-4 h-4" />
-                      <span>Update Password</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* ================= MODAL: INQUIRY DETAIL & NOTES ================= */}
       {selectedInquiry && (

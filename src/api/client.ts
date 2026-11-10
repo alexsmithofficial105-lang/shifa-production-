@@ -159,58 +159,16 @@ export const apiClient = {
   },
 
   // Auth
-  async login(identifier: string, password?: string) {
-    const cleanInput = (identifier || '').trim();
-    const cleanLower = cleanInput.toLowerCase();
-    const isAllowed =
-      cleanLower === 'shifa productions' ||
-      cleanLower === 'shifaproductions' ||
-      cleanLower === 'shifaproductions.pk@gmail.com';
-
-    if (!isAllowed) {
-      throw new Error(`Access Denied: "${cleanInput}" is not authorized. Authorized username is "SHIFA PRODUCTIONS".`);
-    }
-
-    try {
-      const data = await this.request<{ token: string; user: { username: string; email: string; avatar?: string } }>('/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ identifier: cleanInput, username: cleanInput, email: cleanInput, password: password || '' }),
-      });
-      this.setToken(data.token);
-      localStorage.setItem('shifa_admin_user', JSON.stringify(data.user));
-      return data;
-    } catch (err: any) {
-      // If error is invalid password or access denied from server, re-throw it
-      if (err.message && (err.message.includes('password') || err.message.includes('Access Denied'))) {
-        throw err;
-      }
-
-      // Static / offline fallback (e.g. Netlify)
-      const validPassword = localStorage.getItem('shifa_admin_custom_pass') || '1234567890qwert$&A';
-      if (!password || password !== validPassword) {
-        throw new Error('Incorrect password. Please enter the valid admin password.');
-      }
-
-      const mockUser = {
-        username: 'SHIFA PRODUCTIONS',
-        email: 'shifaproductions.pk@gmail.com',
-      };
-      const token = 'session-token-' + Date.now();
-      this.setToken(token);
-      localStorage.setItem('shifa_admin_user', JSON.stringify(mockUser));
-      return { token, user: mockUser };
-    }
+  async login(_identifier: string, _password?: string) {
+    throw new Error('Access Denied: Username and password login is completely locked. Please sign in using "Continue with Google" with shifaproductions.pk@gmail.com.');
   },
 
   async loginWithGoogle(payload: { email?: string; name?: string; credential?: string; avatar?: string }) {
     const cleanEmail = (payload.email || '').trim().toLowerCase();
-    const allowed = [
-      'shifaproductions.pk@gmail.com',
-      'umairwyc@gmail.com',
-      'alexsmithofficial105@gmail.com',
-    ];
-    if (!allowed.includes(cleanEmail)) {
-      throw new Error(`Access Denied: The Google account "${cleanEmail}" is not authorized. ONLY shifaproductions.pk@gmail.com and umairwyc@gmail.com have access.`);
+    const AUTHORIZED_EMAIL = 'shifaproductions.pk@gmail.com';
+
+    if (cleanEmail !== AUTHORIZED_EMAIL) {
+      throw new Error(`Access Denied: The Google account "${cleanEmail}" is not authorized. ONLY ${AUTHORIZED_EMAIL} has access to the Admin Panel. (صرف ${AUTHORIZED_EMAIL} کو رسائی حاصل ہے)`);
     }
 
     try {
@@ -222,10 +180,13 @@ export const apiClient = {
       localStorage.setItem('shifa_admin_user', JSON.stringify(data.user));
       return data;
     } catch (err: any) {
+      if (err.message && err.message.includes('Access Denied')) {
+        throw err;
+      }
       // Static / offline fallback (e.g. Netlify)
       const mockUser = {
-        username: payload.name || (cleanEmail === 'umairwyc@gmail.com' ? 'Umair' : 'Shifa Productions Admin'),
-        email: cleanEmail,
+        username: payload.name || 'SHIFA PRODUCTIONS',
+        email: AUTHORIZED_EMAIL,
         avatar: payload.avatar,
       };
       const token = 'static-google-token-' + Date.now();
@@ -248,17 +209,28 @@ export const apiClient = {
 
   async checkAuth() {
     try {
-      return await this.request<{ authenticated: boolean; user: { username: string; email: string; avatar?: string } }>('/api/auth/me');
+      const res = await this.request<{ authenticated: boolean; user: { username: string; email: string; avatar?: string } }>('/api/auth/me');
+      if (res.authenticated && res.user && res.user.email?.toLowerCase() === 'shifaproductions.pk@gmail.com') {
+        return res;
+      }
+      this.clearToken();
+      localStorage.removeItem('shifa_admin_user');
+      return { authenticated: false, user: { username: '', email: '' } };
     } catch {
       const token = this.getToken();
       const storedUser = localStorage.getItem('shifa_admin_user');
       if (token && storedUser) {
         try {
-          return { authenticated: true, user: JSON.parse(storedUser) };
+          const parsed = JSON.parse(storedUser);
+          if (parsed && parsed.email?.toLowerCase() === 'shifaproductions.pk@gmail.com') {
+            return { authenticated: true, user: parsed };
+          }
         } catch {
           // ignore parse error
         }
       }
+      this.clearToken();
+      localStorage.removeItem('shifa_admin_user');
       return { authenticated: false, user: { username: '', email: '' } };
     }
   },

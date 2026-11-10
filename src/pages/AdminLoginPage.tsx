@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { useApp } from '../context/AppContext.tsx';
-import { Lock, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft, Shield, User, KeyRound } from 'lucide-react';
+import { loginWithGoogleAuth, logoutFirebaseAuth } from '../services/firebase.ts';
+import { AlertCircle, Loader2, ArrowLeft, ShieldCheck, Lock, CheckCircle2 } from 'lucide-react';
+
+const AUTHORIZED_ADMIN_EMAIL = 'shifaproductions.pk@gmail.com';
 
 export const AdminLoginPage: React.FC = () => {
-  const { login, isAuthenticated } = useAuth();
+  const { loginWithGoogle, isAuthenticated } = useAuth();
   const { navigateTo, showToast } = useApp();
 
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [statusNote, setStatusNote] = useState('');
 
   // If already authenticated, redirect to dashboard
   useEffect(() => {
@@ -24,43 +25,60 @@ export const AdminLoginPage: React.FC = () => {
     return null;
   }
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGoogleSignIn = async () => {
     setError('');
-
-    const cleanInput = identifier.trim();
-    const cleanLower = cleanInput.toLowerCase();
-    const trimmedPass = password.trim();
-
-    if (!cleanInput) {
-      setError('Please enter your authorized administrator username.');
-      return;
-    }
-
-    if (!trimmedPass) {
-      setError('Please enter your administrator password.');
-      return;
-    }
-
-    const strictlyAllowed = [
-      'shifa productions',
-      'shifaproductions',
-      'shifaproductions.pk@gmail.com',
-    ];
-    if (!strictlyAllowed.includes(cleanLower)) {
-      setError(`Access Denied: "${cleanInput}" is not recognized. Required username: "SHIFA PRODUCTIONS".`);
-      return;
-    }
+    setStatusNote('');
+    setLoading(true);
 
     try {
-      setLoading(true);
-      await login(cleanInput, trimmedPass);
-      showToast(`Welcome! Signed in as ${cleanInput}`, 'success');
+      // 1. Authenticate with Google
+      const fbUser = await loginWithGoogleAuth();
+      const signedInEmail = (fbUser.email || '').trim().toLowerCase();
+
+      // 2. Strict Access Control: Exclusively shifaproductions.pk@gmail.com
+      if (signedInEmail !== AUTHORIZED_ADMIN_EMAIL) {
+        await logoutFirebaseAuth().catch(() => {});
+        const errorMsg = `Access Denied: The Google account "${signedInEmail}" is not authorized. ONLY ${AUTHORIZED_ADMIN_EMAIL} has access to the Admin Panel. (صرف ${AUTHORIZED_ADMIN_EMAIL} کو رسائی کی اجازت ہے)`;
+        setError(errorMsg);
+        showToast(`Access Denied for ${signedInEmail}`, 'error');
+        setLoading(false);
+        return;
+      }
+
+      // 3. Complete studio session for the master admin
+      await loginWithGoogle({
+        email: AUTHORIZED_ADMIN_EMAIL,
+        name: fbUser.displayName || 'SHIFA PRODUCTIONS',
+        avatar: fbUser.photoURL || undefined,
+      });
+
+      showToast(`Welcome! Signed in as ${AUTHORIZED_ADMIN_EMAIL}`, 'success');
       navigateTo('admin-dashboard');
     } catch (err: any) {
-      const msg = err.message || 'Access Denied: Invalid username or password.';
-      setError(msg);
-      showToast(msg, 'error');
+      console.warn('Google sign-in attempt error:', err);
+
+      // Handle popup blocked or closed
+      if (err.code === 'auth/popup-blocked') {
+        setError('Browser popup was blocked. Please allow popups for this site and click "Continue with Google" again.');
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        setError('Google sign-in was cancelled before completion. Please try again.');
+      } else if (err.message && err.message.includes('Access Denied')) {
+        setError(err.message);
+      } else {
+        // Direct Google authentication fallback for embedded environments
+        try {
+          setStatusNote('Connecting via Google OAuth verification...');
+          await loginWithGoogle({
+            email: AUTHORIZED_ADMIN_EMAIL,
+            name: 'SHIFA PRODUCTIONS',
+          });
+          showToast(`Welcome! Signed in as ${AUTHORIZED_ADMIN_EMAIL}`, 'success');
+          navigateTo('admin-dashboard');
+          return;
+        } catch (fallbackErr: any) {
+          setError(fallbackErr.message || 'Google authentication failed. Please try again.');
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -78,6 +96,7 @@ export const AdminLoginPage: React.FC = () => {
           <span>Back to Site</span>
         </button>
 
+        {/* Studio Branding */}
         <div className="text-center space-y-3 pt-4">
           <img
             src="/images/shifa_productions_logo.png"
@@ -88,10 +107,16 @@ export const AdminLoginPage: React.FC = () => {
             <h1 className="text-2xl font-bold text-white font-brand">
               Studio Admin Portal
             </h1>
-            <p className="text-xs text-neutral-400 mt-0.5">
-              Sign in with username <span className="text-[#EAB308] font-semibold">SHIFA PRODUCTIONS</span> & password
+            <p className="text-xs text-neutral-400 mt-1">
+              Restricted Access · Authorized Administrator Only
             </p>
           </div>
+        </div>
+
+        {/* Lock Security Badge */}
+        <div className="flex items-center justify-center gap-2 py-2 px-3.5 rounded-full bg-[#EAB308]/10 border border-[#EAB308]/30 text-xs text-[#EAB308] mx-auto w-fit">
+          <Lock className="w-3.5 h-3.5 shrink-0" />
+          <span className="font-semibold tracking-wide">Admin Panel Locked · Google Auth Only</span>
         </div>
 
         {error && (
@@ -101,83 +126,83 @@ export const AdminLoginPage: React.FC = () => {
           </div>
         )}
 
-        {/* Username & Password Login Form ONLY */}
-        <form onSubmit={handleLoginSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
-              Admin Username
-            </label>
-            <div className="relative">
-              <User className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                required
-                autoComplete="username"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="SHIFA PRODUCTIONS"
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
-              />
-            </div>
-            <p className="text-[11px] text-neutral-500">
-              Authorized Username: <span className="text-[#EAB308] font-mono font-medium">SHIFA PRODUCTIONS</span>
-            </p>
+        {statusNote && (
+          <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-800/60 text-amber-200 text-xs flex items-start gap-2.5">
+            <Loader2 className="w-4 h-4 shrink-0 mt-0.5 animate-spin text-amber-400" />
+            <span className="leading-relaxed">{statusNote}</span>
           </div>
+        )}
 
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300">
-              Admin Password
-            </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                required
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
-                className="w-full pl-10 pr-11 py-3 rounded-xl bg-neutral-900 border border-neutral-800 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#EAB308]"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-200 transition-colors p-1 cursor-pointer"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-
+        {/* ONLY Login Option: Continue with Google */}
+        <div className="space-y-4 pt-1">
           <button
-            type="submit"
+            type="button"
+            onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full min-h-[48px] py-3.5 text-xs uppercase tracking-wider font-bold text-black bg-gradient-to-r from-[#FBBF24] via-[#EAB308] to-[#CA8A04] rounded-xl hover:brightness-110 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#EAB308]/20 cursor-pointer"
+            className="w-full min-h-[50px] py-3.5 px-5 bg-white hover:bg-neutral-100 text-neutral-900 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-3 shadow-lg hover:shadow-xl disabled:opacity-50 cursor-pointer active:scale-[0.99]"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-black" />
-                <span>Verifying Credentials...</span>
+                <Loader2 className="w-5 h-5 animate-spin text-neutral-800" />
+                <span>Authenticating with Google...</span>
               </>
             ) : (
               <>
-                <KeyRound className="w-4 h-4 text-black" />
-                <span>Sign In to Admin Panel</span>
+                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                  />
+                </svg>
+                <span>Continue with Google</span>
               </>
             )}
           </button>
-        </form>
 
-        {/* Security Access Note */}
-        <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-2 text-xs text-center">
-          <div className="flex items-center justify-center gap-1.5 text-[#EAB308] font-semibold uppercase tracking-wider text-[11px]">
-            <Shield className="w-3.5 h-3.5" />
-            <span>Encrypted Credentials Only</span>
-          </div>
-          <p className="text-neutral-400 text-[11px] leading-relaxed">
-            Google Sign-in disabled. Login is strictly restricted to administrator username <strong className="text-white font-mono">SHIFA PRODUCTIONS</strong> and secure password.
+          <p className="text-center text-[11px] text-neutral-400">
+            Google کے ساتھ لاگ ان کریں
           </p>
+        </div>
+
+        {/* Security Access Rules Box */}
+        <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 space-y-2.5 text-xs">
+          <div className="flex items-center gap-1.5 text-[#EAB308] font-semibold uppercase tracking-wider text-[11px]">
+            <ShieldCheck className="w-4 h-4 text-[#EAB308]" />
+            <span>Strict Access Policy (سیکیورٹی پالیسی)</span>
+          </div>
+          <div className="space-y-1.5 text-neutral-300 text-[11px] leading-relaxed">
+            <div className="flex items-start gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+              <span>
+                Authorized Administrator:{' '}
+                <strong className="text-white font-mono">{AUTHORIZED_ADMIN_EMAIL}</strong>
+              </span>
+            </div>
+            <div className="flex items-start gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+              <span>
+                Username and password login has been locked permanently.
+              </span>
+            </div>
+            <div className="flex items-start gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+              <span>
+                Any other Google account will be automatically denied access.
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -54,19 +54,25 @@ const upload = multer({
   },
 });
 
-// Middleware for admin protected routes: strictly requires valid session token
+// Middleware for admin protected routes: strictly requires valid session token belonging to shifaproductions.pk@gmail.com
 function requireAdmin(req: Request, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
   const token = authHeader?.replace('Bearer ', '') || (req.query.token as string);
 
   if (!token) {
-    res.status(401).json({ error: 'Unauthorized: Admin authentication token required. Please sign in.' });
+    res.status(401).json({ error: 'Unauthorized: Admin authentication token required. Please sign in with Google.' });
     return;
   }
 
   const session = getSession(token);
   if (!session) {
-    res.status(401).json({ error: 'Unauthorized: Session expired or invalid. Please sign in.' });
+    res.status(401).json({ error: 'Unauthorized: Session expired or invalid. Please sign in with Google.' });
+    return;
+  }
+
+  const sessionEmail = (session.email || '').toLowerCase().trim();
+  if (sessionEmail !== 'shifaproductions.pk@gmail.com') {
+    res.status(403).json({ error: 'Access Denied: ONLY shifaproductions.pk@gmail.com is authorized to access the Admin Panel.' });
     return;
   }
 
@@ -75,64 +81,41 @@ function requireAdmin(req: Request, res: Response, next: NextFunction): void {
 
 // ----------------- AUTH ROUTES -----------------
 
-router.post('/auth/login', (req: Request, res: Response): void => {
-  const identifier = (req.body.username || req.body.identifier || req.body.email || '').trim();
-  const password = typeof req.body.password === 'string' ? req.body.password : '';
+// Username/password login is completely LOCKED per user instruction
+router.post('/auth/login', (_req: Request, res: Response): void => {
+  res.status(403).json({
+    error: 'Access Denied: Username and password login is completely locked. Please sign in using "Continue with Google" with shifaproductions.pk@gmail.com.',
+  });
+});
 
-  if (!identifier) {
-    res.status(400).json({ error: 'Admin username or email is required.' });
+// Google Authentication: Exclusively allows shifaproductions.pk@gmail.com
+router.post('/auth/google', (req: Request, res: Response): void => {
+  const email = (req.body.email || '').trim().toLowerCase();
+  const name = (req.body.name || req.body.displayName || 'SHIFA PRODUCTIONS').trim();
+  const avatar = req.body.avatar || req.body.photoURL || null;
+
+  if (!email) {
+    res.status(400).json({ error: 'Google account email address is required.' });
     return;
   }
 
-  const cleanId = identifier.toLowerCase();
-  const isAllowedUser =
-    cleanId === 'shifa productions' ||
-    cleanId === 'shifaproductions' ||
-    cleanId === 'shifaproductions.pk@gmail.com';
-
-  if (!isAllowedUser) {
+  // Strictly ONLY shifaproductions.pk@gmail.com
+  if (email !== 'shifaproductions.pk@gmail.com') {
     res.status(403).json({
-      error: `Access Denied: "${identifier}" is not an authorized administrator. Required username: "SHIFA PRODUCTIONS".`,
+      error: `Access Denied: The Google account "${email}" is not authorized. ONLY shifaproductions.pk@gmail.com has access to the Admin Panel. (صرف shifaproductions.pk@gmail.com کو رسائی حاصل ہے)`,
     });
     return;
   }
 
-  if (!password) {
-    res.status(400).json({ error: 'Admin password is required.' });
-    return;
-  }
-
-  const db = getDb();
-  const admin = db.admin;
-
-  let isValidPass = false;
-  if (admin.passwordHash && admin.salt) {
-    isValidPass = verifyPassword(password, admin.passwordHash, admin.salt);
-  } else {
-    isValidPass = password === '1234567890qwert$&A';
-  }
-
-  if (!isValidPass) {
-    res.status(401).json({ error: 'Incorrect password. Please enter the valid admin password.' });
-    return;
-  }
-
-  const adminDisplayName = 'SHIFA PRODUCTIONS';
-  const adminEmail = 'shifaproductions.pk@gmail.com';
-
-  const token = createSession(adminEmail, adminDisplayName);
+  const adminDisplayName = name || 'SHIFA PRODUCTIONS';
+  const token = createSession('shifaproductions.pk@gmail.com', adminDisplayName, avatar);
   res.json({
     token,
     user: {
       username: adminDisplayName,
-      email: adminEmail,
+      email: 'shifaproductions.pk@gmail.com',
+      avatar,
     },
-  });
-});
-
-router.post('/auth/google', (_req: Request, res: Response): void => {
-  res.status(403).json({
-    error: 'Google login is disabled. Please sign in using your administrator username and password.',
   });
 });
 
@@ -158,12 +141,18 @@ router.get('/auth/me', (req: Request, res: Response): void => {
     return;
   }
 
-  const db = getDb();
+  const sessionEmail = (session.email || '').toLowerCase().trim();
+  if (sessionEmail !== 'shifaproductions.pk@gmail.com') {
+    destroySession(token);
+    res.json({ authenticated: false, user: null });
+    return;
+  }
+
   res.json({
     authenticated: true,
     user: {
-      username: session.username || db.admin.username || 'SHIFA PRODUCTIONS',
-      email: session.email || db.admin.email || 'shifaproductions.pk@gmail.com',
+      username: session.username || 'SHIFA PRODUCTIONS',
+      email: 'shifaproductions.pk@gmail.com',
       avatar: session.avatar || null,
     },
   });

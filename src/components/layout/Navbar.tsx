@@ -42,18 +42,18 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header className="sticky top-0 z-40 w-full glass-nav transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4 md:gap-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-20 flex items-center justify-between gap-2 sm:gap-4 md:gap-8">
           {/* Left: Brand Logo / Wordmark */}
           <button
             onClick={() => handleNavClick('home')}
-            className="flex items-center gap-2.5 sm:gap-3 text-left group whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308] rounded-lg p-1"
+            className="flex items-center gap-2 sm:gap-3 text-left group whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAB308] rounded-lg p-1"
             aria-label="Shifa Productions Home"
           >
             {settings?.logoUrl ? (
               <img
                 src={settings.logoUrl}
                 alt={brandName}
-                className="h-9 sm:h-10 w-auto object-contain max-w-[180px]"
+                className="h-9 sm:h-10 w-auto object-contain max-w-[130px] sm:max-w-[180px]"
                 referrerPolicy="no-referrer"
               />
             ) : (
@@ -68,8 +68,19 @@ export const Navbar: React.FC = () => {
             )}
           </button>
 
+          {/* Center: Arabic Bismillah (بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ) */}
+          <div className="flex items-center justify-center px-1 sm:px-2 select-none flex-1 lg:flex-initial text-center overflow-hidden">
+            <span
+              dir="rtl"
+              lang="ar"
+              className="font-['Amiri',_serif] text-xs sm:text-sm md:text-base lg:text-lg font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#FDE68A] via-[#FBBF24] to-[#EAB308] drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)] whitespace-nowrap"
+            >
+              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+            </span>
+          </div>
+
           {/* Desktop Center: Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-neutral-300">
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-7 text-sm font-medium text-neutral-300">
             {navLinks.slice(1).map((link) => {
               const isActive = currentRoute === link.route;
               return (
@@ -160,22 +171,29 @@ export const Navbar: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Drawer Header */}
-            <div className="flex items-center justify-between pb-6 border-b border-neutral-800/80">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FBBF24] via-[#EAB308] to-[#CA8A04] flex items-center justify-center font-bold text-black font-brand text-sm shadow-sm">
-                  S
+            <div className="flex flex-col gap-3 pb-5 border-b border-neutral-800/80">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FBBF24] via-[#EAB308] to-[#CA8A04] flex items-center justify-center font-bold text-black font-brand text-sm shadow-sm">
+                    S
+                  </div>
+                  <span className="font-brand text-base font-bold text-white tracking-wider">
+                    {brandName}
+                  </span>
                 </div>
-                <span className="font-brand text-base font-bold text-white tracking-wider">
-                  {brandName}
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="min-w-[40px] min-h-[40px] rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white flex items-center justify-center"
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="text-center pt-1 select-none">
+                <span dir="rtl" lang="ar" className="font-['Amiri',_serif] text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FDE68A] via-[#FBBF24] to-[#EAB308]">
+                  بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                 </span>
               </div>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="min-w-[40px] min-h-[40px] rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white flex items-center justify-center"
-                aria-label="Close menu"
-              >
-                <X className="w-5 h-5" />
-              </button>
             </div>
 
             {/* Navigation Links list */}
